@@ -3,19 +3,23 @@ import PaintList from "./PaintList";
 import { Login } from "./Login";
 
 export class PaintApp extends Component {
-  state = {
-    disabled: false,
-    environment: "development",
-    currentUser: {
-      id: -1,
-      name: ""
-    },
-    role: "",
-    OSName: "Windows"
-  };
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      disabled: false,
+      environment: "development",
+      currentUser: {
+        id: -1,
+        name: ""
+      },
+      role: "",
+      OSName: "Windows"
+    };
+  }
+
   getInitialState() {
-    var env = "production";
-    var OSName = "Unknown OS";
+    let env = "production";
+    let OSName = "Unknown OS";
     if (navigator.appVersion.indexOf("Win") !== -1) OSName = "Windows";
     if (navigator.appVersion.indexOf("Mac") !== -1) OSName = "MacOS";
     if (navigator.appVersion.indexOf("X11") !== -1) OSName = "UNIX";
@@ -31,11 +35,11 @@ export class PaintApp extends Component {
         name: ""
       },
       role: "",
-      OSName: OSName
+      OSName
     };
   }
   setUser(userId, name, role) {
-    this.setState({ currentUser: { id: userId, name: name }, role: role });
+    this.setState({ currentUser: { id: userId, name }, role });
   }
   render() {
     if (this.state.currentUser.id !== -1) {
@@ -47,8 +51,13 @@ export class PaintApp extends Component {
           currentUser={this.state.currentUser}
         />
       );
-    } else {
-      return <Login setUser={this.setUser} />;
     }
+    return (
+      <Login
+        setUser={(user, name, role) =>
+          this.setState({ currentUser: { id: user, name }, role })
+        }
+      />
+    );
   }
 }

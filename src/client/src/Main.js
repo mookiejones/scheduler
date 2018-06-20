@@ -14,11 +14,11 @@ export class Main extends Component {
       <Router>
         <Switch>
           <Route path="/ScheduleEditor" component={PaintScheduleEditor} />
-          <Route path="/style-codes" component={StyleCodeEditor} />
-          <Route path="/paint-app" component={PaintApp} />
+          <Route path="/StyleCodes" component={StyleCodeEditor} />
+          <Route path="/PaintApp" component={PaintApp} />
           <Route path="/ExcelImport" component={ExcelImport} />
           {/* <Route path="/sign-in" component={SignIn} /> */}
-          <Route path="/login" component={Login} />
+          <Route path="/Login" component={Login} />
           <Route path="/DriverPerformance" component={DriverPerformance} />
         </Switch>
       </Router>

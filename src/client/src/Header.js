@@ -40,8 +40,8 @@ export class Header extends Component {
         </Navbar.Header>
         <Nav>
           <NavItem href="/ScheduleEditor">Schedule Editor</NavItem>
-          <NavItem href="/style-codes">Style Codes</NavItem>
-          <NavItem href="/paint-app">Paint App</NavItem>
+          <NavItem href="/StyleCodes">Style Codes</NavItem>
+          <NavItem href="/PaintApp">Paint App</NavItem>
           <NavItem href="/ExcelImport">Excel Import</NavItem>
           <NavItem href="/sign-in">Sign In</NavItem>
           <NavItem href="/DriverPerformance">Driver</NavItem>

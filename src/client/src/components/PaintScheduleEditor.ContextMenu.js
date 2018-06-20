@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import ReactDataGridPlugins from "react-data-grid-addons";
 
@@ -20,7 +20,7 @@ const propTypes = {
   newRows: PropTypes.bool
 };
 
-class PaintScheduleEditorContextMenu extends Component {
+class PaintScheduleEditorContextMenu extends ContextMenu {
   onRowDelete(e, data) {
     if (typeof this.props.onRowDelete === "function") {
       this.props.onRowDelete(e, data);

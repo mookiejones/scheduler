@@ -1,6 +1,10 @@
 import PaintScheduleData from "./PaintScheduleData";
 import PaintScheduleStylesData from "./PaintScheduleStylesData";
 import PaintScheduleColorsData from "./PaintScheduleColorsData";
+import StyleCodeProgramData from "./StyleCodeProgramData";
+import PaintScheduleProgramsData from "./PaintScheduleProgramsData";
+import PaintLoadAssistData from "./PaintLoadAssistData";
+import PaintLoadData from "./PaintLoadData";
 
 const asPromise = value => new Promise(resolve => resolve(value));
 
@@ -22,6 +26,23 @@ class DataService {
 
   static UpdatePaintSchedule(value) {
     const data = { ss: [value] };
+  }
+
+  static GetPaintLoadAssist() {
+    return sendData(PaintLoadAssistData.fetch(DataService.isTest));
+  }
+
+  static GetPaintLoad() {
+    return sendData(PaintLoadData.fetch(DataService.isTest));
+  }
+  static GetPaintScheduleStyles() {
+    const result = sendData(PaintScheduleStylesData.fetch(DataService.isTest));
+    return result;
+  }
+
+  static GetPaintSchedulePrograms() {
+    const result = sendData(PaintScheduleProgramsData.fetch(DataService.isTest));
+    return result;
   }
   static getPaintSchedule(arg) {
     const result = sendData(PaintScheduleData.fetch(DataService.isTest));
@@ -45,6 +66,11 @@ class DataService {
     if (arg) {
       return result.bind(arg);
     }
+    return result;
+  }
+
+  static GetPrograms() {
+    const result = sendData(StyleCodeProgramData.fetch(DataService.isTest));
     return result;
   }
 }

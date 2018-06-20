@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from "react";
 import * as io from "socket.io-client";
 import * as update from "react-addons-update";
 import { UndoCell } from "./UndoCell";
@@ -6,7 +6,8 @@ import { Description } from "./Description";
 import { Calculator } from "./Calculator";
 import { RackOwner } from "./RackOwner";
 import { HammerRow } from "./HammerRow";
- 
+import DataService from "../api/DataService";
+
 const COLUMN_DEFINITIONS = [
     { title: "", data: 0, className: "undo", orderable: false, CellRenderer: UndoCell },
     { title: "master_id", data: 1, visible: false, orderable: false },
@@ -45,68 +46,54 @@ let sortFn = function(a, b){
     }
   };
   
-export default class PaintList extends React.Component{
-    getInitialState (){
-      return {
-        data: [],
-        currentUser: this.props.currentUser,
-        env: this.props.env,
-        currentRevision: "",
-        currentRoundNumber: "",
-      }
+export default class PaintList extends Component{
+
+  constructor(props,context){
+    super(props,context);
+    this.state={
+      data: [],
+      currentUser: props.currentUser,
+      env: props.env,
+      currentRevision: "",
+      currentRoundNumber: "",
     }
+  }
+    
     componentWillMount(){
-      let url;
-      let request = new XMLHttpRequest();
-      let request2 = new XMLHttpRequest();
-  
-      if(this.props.environment==="production"){
-        url = "api/paint/GetPaintPickList";
-        if(this.props.role==="stage") url = "api/paint/GetPaintStageList";
-        if(this.props.role==="load" || this.props.role==="watch") url = "api/paint/GetPaintLoadList";
-      }else{
-        url = "api/paint/GetPaintPickListTest";
-        if(this.props.role==="stage") url = "api/paint/GetPaintStageListTest";
-        if(this.props.role==="load" || this.props.role==="watch") url = "api/paint/GetPaintLoadListTest";
+ let url;
+      let func;
+      switch(this.props.role){
+        case "assist":
+        func=DataService.GetPaintLoadAssist;
+        break;
+        case "stage":
+        break;
+        case "load":
+        func=DataService.GetPaintLoad;
+        break;
+        case "watch":
+        break;
+        default:
+        break;
       }
-  
-      request.open("GET", url, true);
-      request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-      request.onload = () => {
-        if (request.status >= 200 && request.status < 400) {
-          let data = JSON.parse(request.response);
-          let arr = data;  //JSON.parse(data.d);
-  
+
+      func()
+        .then(r=>{
+          debugger;
+        })
+        .catch(err=>{
+          debugger;
+        })
+
+        /*
+        
           let srtdData = arr.sort(sortFn);
           if(Object.prototype.toString.call(srtdData)==="[object Array]" && Object.prototype.toString.call(srtdData[0])==="[object Array]" && srtdData[0].length > 2) {
             this.setState({
               data: srtdData,
               currentRoundNumber: srtdData[0][2]
             });
-          }else{
-            this.setState({ data: srtdData });
-          }
-  
-        } else {
-        }
-      };
-      //request.send(JSON.stringify({}));
-        request.send();
-  
-      request2.open("GET", "api/paint/getPntRevise", true);
-      request2.setRequestHeader("Content-Type", "application/json; charest=utf-8");
-      request2.onload = () => {
-        if (request2.status >= 200 && request2.status < 400) {
-          //let data = JSON.parse(request2.response).d;
-           let data = request2.response;
-          this.setState({currentRevision: data});
-        } else {
-          console.log("error");
-        }
-      };
-      //request2.send(JSON.stringify({}))
-        request2.send();
-  
+            */ 
       this.refresh = setTimeout(this.autoRefresh, 35 * 1000);
   
       if(this.props.environment==="production"){

@@ -39,6 +39,7 @@ const loginAction = (options) => {
     console.log(err);
   });
 };
+
 export class Login extends Component {
   constructor(props, context) {
     super(props, context);
@@ -64,7 +65,7 @@ export class Login extends Component {
 
     const role = this.selectRole.current.value;
     const request = new XMLHttpRequest();
-
+    this.props.setUser(userId, "cberman", role);
     const options = {
       url: "/api/VerifyEmpID",
       content: "application/json; charset=UTF-8",
