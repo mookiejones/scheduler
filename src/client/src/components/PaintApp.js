@@ -1,47 +1,42 @@
-import React, { Component } from 'react'; 
-import PaintList from './PaintList';
-import {Login} from './Login'; 
+import React, { Component } from "react";
+import PaintList from "./PaintList";
+import { Login } from "./Login";
 
 
+const getOsName = (name) => {
+  if (/Win/i.test(name)) return "Windows";
+  if (/Macin/i.test(name)) return "MacOS";
+  if (/X11/i.test(name)) return "UNIX";
+  if (/Linux/i.test(name)) return "Linux";
+  return "Unknown OS";
+}
 
-export class PaintApp extends Component{
+export class PaintApp extends Component {
+  constructor(props, context) {
+    super(props, context);
+    let env = window.location.href.includes && window.location.href.includes("localhost")
+      ? "development"
+      : "production";
+    const OSName = getOsName(navigator);
 
-  state={
-    disabled:false,
-    environment: 'development',
-    currentUser: {
-      id: -1,
-      name: ''
-    },
-    role: '',
-    OSName: "Windows"
-  }
-  getInitialState(){
-    var env = 'production';
-    var OSName = "Unknown OS";
-    if (navigator.appVersion.indexOf("Win")!=-1) OSName="Windows";
-    if (navigator.appVersion.indexOf("Mac")!=-1) OSName="MacOS";
-    if (navigator.appVersion.indexOf("X11")!=-1) OSName="UNIX";
-    if (navigator.appVersion.indexOf("Linux")!=-1) OSName="Linux";
 
-    if(window.location.href.includes && window.location.href.includes('localhost')){
-      env = 'development'
-    }
-    return {
+    this.state = {
       environment: env,
       currentUser: {
         id: -1,
-        name: ''
+        name: ""
       },
-      role: '',
+      role: "",
       OSName: OSName
     };
+
   }
-  setUser(userId, name, role){
+  
+  setUser(userId, name, role) {
     this.setState({currentUser: {id: userId, name: name}, role: role})
   }
-  render(){
-    if(this.state.currentUser.id != -1){
+  render() {
+    if(this.state.currentUser.id != -1) {
         return (<PaintList role={this.state.role} OSName={this.state.OSName} environment={this.state.environment} currentUser={this.state.currentUser}/>);
     }else{
       return(<Login setUser={this.setUser} />)
