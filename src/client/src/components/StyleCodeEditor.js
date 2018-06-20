@@ -10,9 +10,7 @@ import * as $ from 'jquery';
 var ReactDataGrid = require('react-data-grid');
 var classnames = require('classnames');
 var update = require('react-addons-update');
-const heightOffset = 150;
-const { AutoComplete: AutoCompleteEditor, DropDownEditor } = Editors;
-const { DropDownFormatter } = Formatters;
+const heightOffset = 150; 
 
 
 function validRow(row){
@@ -275,7 +273,7 @@ export class StyleCodeEditor extends React.Component{
         if(idx > -1){
           row.program = this.state.programs[idx]['id'];
         }else{
-          var programId = parseInt(row.program);
+          var programId = parseInt(row.program,10);
           if(programId > -1){
             row.program = programId;
           }
@@ -407,10 +405,10 @@ export class StyleCodeEditor extends React.Component{
   handleGridSort(sortColumn, sortDirection){
     const comparer = (a, b) => {
       if (sortDirection === 'ASC') {
-        if(sortColumn == 'id') return (parseInt(a[sortColumn]) > parseInt(b[sortColumn])) ? 1 : -1;
+        if(sortColumn == 'id') return (parseInt(a[sortColumn],10) > parseInt(b[sortColumn],10)) ? 1 : -1;
         return (a[sortColumn] > b[sortColumn]) ? 1 : -1;
       } else if (sortDirection === 'DESC') {
-        if(sortColumn == 'id') return (parseInt(a[sortColumn]) < parseInt(b[sortColumn])) ? 1 : -1;
+        if(sortColumn == 'id') return (parseInt(a[sortColumn],10) < parseInt(b[sortColumn],10)) ? 1 : -1;
         return (a[sortColumn] < b[sortColumn]) ? 1 : -1;
       }
     };

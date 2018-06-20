@@ -39,13 +39,12 @@ export class Header extends Component {
           </Navbar.Brand>
         </Navbar.Header>
         <Nav>
-          <NavItem href="/edit">Charles</NavItem>
-          <NavItem href="/edit">Schedule Editor</NavItem>
+          <NavItem href="/ScheduleEditor">Schedule Editor</NavItem>
           <NavItem href="/style-codes">Style Codes</NavItem>
           <NavItem href="/paint-app">Paint App</NavItem>
-          <NavItem href="/excel-import">Excel Import</NavItem>
+          <NavItem href="/ExcelImport">Excel Import</NavItem>
           <NavItem href="/sign-in">Sign In</NavItem>
-          <NavItem href="/drivers">Driver</NavItem>
+          <NavItem href="/DriverPerformance">Driver</NavItem>
 
           <NavDropdown title="Sub Components" id="subComponents">
             <NavDropdown title="Paint App" id="paintApp">

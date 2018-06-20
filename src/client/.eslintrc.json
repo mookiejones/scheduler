@@ -5,13 +5,12 @@
     "node": true
   },
   "rules": {
-    "no-debugger": "off",
     "linebreak-style": ["error", "windows"],
     "no-console": "off",
     "comma-dangle": "off",
     "react/jsx-filename-extension": "off",
-    "quotes": ["error", "single"],
-    "jsx-quotes": ["error", "prefer-single"],
+    "quotes": ["error", "double"],
+    "jsx-quotes": ["error", "prefer-double"],
     "indent": "off",
     "import/prefer-default-export": "off",
     "react/prefer-stateless-function": "off",
@@ -21,10 +20,8 @@
     "react/no-unknown-property": "off",
     "react/jsx-indent-props": "off",
     "react/style-prop-object": "off",
-    "react/forbid-prop-types": [
-      "off",
-      { "forbid": ["any", "array", "object"] }
-    ],
-    "no-underscore-dangle": "off"
+    "react/require-default-props": "off",
+    "jsx-a11y/label-has-for": "off",
+    "react/jsx-boolean-value": "off"
   }
 }

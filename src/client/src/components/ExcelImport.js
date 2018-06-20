@@ -1,11 +1,18 @@
-import React,{ Component } from 'react';
-import * as classnames from 'classnames';
-import * as $ from 'jquery';
+import React, { Component } from "react";
+import * as classnames from "classnames";
+import * as $ from "jquery";
 
-export class ExcelImport extends Component{
-  getInitialState(){
-    return {
-      env: this.props.route.env,
+export class ExcelImport extends Component {
+
+  constructor(props, context) {
+    super(props, context);
+    this.state = this.getInitialState();
+  }
+
+  getInitialState() {
+    let result=
+     {
+      env: "development",
       allRnds: [],
       tchdRnds: [],
       selectedIdx: 0,
@@ -21,6 +28,11 @@ export class ExcelImport extends Component{
         normal: ''
       }
     };
+
+
+    if(this.props.route!=null && this.props.route.env)
+      result.env=this.props.route.env;
+      return result;
   }
   componentWillMount(){
     this.loadRound();

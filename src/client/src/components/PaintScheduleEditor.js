@@ -1,324 +1,170 @@
-import * as $ from 'jquery';
-import React, { Component } from 'react';
-import { Button } from 'react-bootstrap';
-import update from 'react-addons-update';
-import * as ReactDataGrid from 'react-data-grid';
-import {  } from 'react-data-grid-addons';
-import  ReactDataGridPlugins from 'react-data-grid-addons';
-import { RoundSummary } from './RoundSummary';
-import * as classnames from 'classnames';
+import * as $ from "jquery";
+import * as ReactDataGrid from "react-data-grid";
+import React, { Component } from "react";
+import update from "react-addons-update";
+import PropTypes from "prop-types";
 
-var AutoCompleteEditor = ReactDataGridPlugins.Editors.AutoComplete;
-var ContextMenu = ReactDataGridPlugins.Menu.ContextMenu;
-var MenuItem = ReactDataGridPlugins.Menu.MenuItem;
-var SubMenu = ReactDataGridPlugins.Menu.SubMenu;
+import RowRenderer from "./PaintScheduleEditor.RowRenderer";
+import ReactiveBtn from "./PaintScheduleEditor.ReactiveBtn";
+import { RoundSummary } from "./RoundSummary";
+import { NotesFormatter } from "./NotesFormatter";
+import DataService from "../api/DataService";
+import PaintScheduleEditorContextMenu from "./PaintScheduleEditor.ContextMenu";
 
 const heightOffset = 250;
 
- 
-
-export class NotesFormatter extends Component {
-  render(){
-    var labelClass = classnames({ 
-      'redhot': this.props.value.toLowerCase().includes("red hot"),
-    });
-    return(<div className={labelClass}>{this.props.value}</div>);
-  }
-}
-//Columns definition
-
-export class ReactiveBtn extends Component{ 
- 
-  render(){
-    return(
-      <Button
-      isActive={this.props.numChanged >0}
-      onClick={this.props.clickEvent}
-      bsStyle="warning">{this.props.text}</Button>
-  );
-  }
-}
-
-class PaintScheduleEditorContextMenu extends React.Component {
-  constructor(props,context){
-    super(props,context);
-  }
-  onRowDelete(e, data) {
-    if (typeof(this.props.onRowDelete) === 'function') {
-      this.props.onRowDelete(e, data);
-    }
-  }
-  onDeleteSelectedRows(e, data){
-    if (typeof(this.props.onDeleteSelectedRows) === 'function') {
-      this.props.onDeleteSelectedRows(e, data);
-    }
-  }
-  onRowInsertAbove(e, data) {
-    if (typeof(this.props.onRowInsertAbove) === 'function') {
-      this.props.onRowInsertAbove(e, data);
-    }
-  }
-  onRowInsertBelow(e, data) {
-    if (typeof(this.props.onRowInsertBelow) === 'function') {
-      this.props.onRowInsertBelow(e, data);
-    }
-  }
-  onCopyToNewRound(e, data){
-    if (typeof(this.props.onCopyToNewRound) === 'function') {
-      this.props.onCopyToNewRound(e, data);
-    }
-  }
-  onCopyToEndOfRound(e, data){
-    if (typeof(this.props.onCopyToEndOfRound) === 'function') {
-      this.props.onCopyToEndOfRound(e, data);
-    }
-  }
-  onCopySelectedAbove(e, data){
-    if (typeof(this.props.onCopySelectedAbove) === 'function') {
-      this.props.onCopySelectedAbove(e, data);
-    }
-  }
-  onCopySelectedBelow(e, data){
-    if (typeof(this.props.onCopySelectedBelow) === 'function') {
-      this.props.onCopySelectedBelow(e, data);
-    }
-  }
-  onPersistNewRow(e, data){
-    if (typeof(this.props.onPersistNewRow) === 'function') {
-      this.props.onPersistNewRow(e, data);
-    }
-  }
-  render() {
-    var multipleSelected = this.props.multipleSelected;
-    var newRows = this.props.newRows;
-    return (
-      <ContextMenu>
-        <MenuItem data={{rowIdx: this.props.rowIdx, idx: this.props.idx}} onClick={this.onPersistNewRow} disabled={!newRows}>Save Row(s)</MenuItem>
-        <SubMenu title="Insert Row" disabled={multipleSelected}>
-          <MenuItem data={{rowIdx: this.props.rowIdx, idx: this.props.idx}} onClick={this.onRowInsertBelow}>Below</MenuItem>
-          <MenuItem data={{rowIdx: this.props.rowIdx, idx: this.props.idx}} onClick={this.onRowInsertAbove}>Above</MenuItem>
-        </SubMenu>
-        <MenuItem data={{rowIdx: this.props.rowIdx, idx: this.props.idx}} onClick={this.onRowDelete} disabled={multipleSelected}>Delete Row</MenuItem>
-      </ContextMenu>
-    );
-  }
-}
- 
-export class RowRenderer extends  React.Component {
-  setScrollLeft(scrollBy) {
-    this.refs.row.setScrollLeft(scrollBy);
-  }
-  render() {
-    var colorColIdx = 7;
-    var row = this.props.row;
-    var id = (row.id || "")
-    var color = (row.color || "").toLowerCase();
-    var notes = (row.notes || "").toLowerCase();
-    var columns = this.props.columns;
-    var pgc = this.props.getProgramColors(row.style_code);
-
-    var rowStyle = classnames({
-      'bg-success': id.substring(0, 4) == "TEMP",
-      'bg-normal': id.substring(0, 4) != "TEMP",
-      'service': color.includes("service"),
-      'dontship': notes.includes("do not ship"),
-      'shipifgood': notes.includes('ship if good'),
-      'build': notes.includes("build")
-    });
-
-    if(pgc == undefined) pgc = [{color_desc:"999"}];
-
-    if(columns[colorColIdx].key != "color"){
-      for(var i = 0; i < columns.length; i++){
-        if (columns[i].key == "color") colorColIdx = i;
-      }
-    }
-    columns[colorColIdx].editor = <AutoCompleteEditor options={pgc} />
-
-    return (<ReactDataGrid.Row className={rowStyle} ref="row" extraClasses={rowStyle} {...this.props}/>)
-  }
-}
-
-export class PaintScheduleEditor extends React.Component{
-
-  constructor(props,context){
-    super(props,context);
-    this.state={
-      groupBy: [], expandedRows: {},
+export class PaintScheduleEditor extends Component {
+  constructor(props, context) {
+    super(props, context);
+    this._rows = [];
+    this.state = {
       // env: this.props.route.env,
       initialRows: [],
-      rows : [],
+      rows: [],
       roundSummary: [],
       queuedUpdates: {},
       changedRows: [],
-      selectedIds: [],
       styleCodes: [],
       programColors: [],
       selectedRound: null,
       numSelected: 0,
       newRows: 0,
-      height: window.innerHeight-heightOffset,
+      height: window.innerHeight - heightOffset,
       firstLoad: true
-    }
+    };
   }
-  getDefaultProps (){
-    return {rowKey: 'id', ruleSet: {}}
-  }
-  componentWillMount(){
+
+  componentWillMount() {
     this.getPaintSchedule();
     this.getStyleCodesAndProgramColors();
   }
-  componentDidMount (){
-    window.addEventListener('resize', this.handleResize);
+  componentDidMount() {
+    window.addEventListener("resize", this.handleResize);
   }
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.handleResize);
-  }
-  componentDidUpdate (prevProps, prevState){
-    if(this.state.firstLoad){
-      if(this.state.rows.length > 0){
-        document.querySelector('.react-grid-Canvas').scrollTop = document.querySelector('.react-grid-Canvas').scrollHeight;
-        this.setState({firstLoad: false});
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.firstLoad) {
+      if (this.state.rows.length > 0) {
+        document.querySelector(".react-grid-Canvas").scrollTop = document.querySelector(".react-grid-Canvas").scrollHeight;
+        this.setState({ firstLoad: false });
       }
     }
   }
-  handleResize(e) {
-    this.setState({height: window.innerHeight-heightOffset});
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.handleResize);
   }
-  getPaintSchedule(dateStr){
-    var url;
 
-    if(this.props.environment == 'production'){
+  getPaintSchedule(dateStr) {
+    let url;
+
+    if (this.props.environment === "production") {
       url = "../paint.asmx/GetPaintSchedule";
-    }else{
+    } else {
       url = "../paint.asmx/GetPaintScheduleTest";
     }
 
-    $.ajax({
-      method: "POST",
-      url: url,
-      data: JSON.stringify({}),
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      success (msg) {
-         var data = JSON.parse(msg.d);
-         var roundData = data[0] || [];
-         var roundSummaryData = data[1] || [];
-         var selectedRound;
-         if(roundSummaryData.length > 0){ selectedRound = roundSummaryData[roundSummaryData.length-1]['round'] }
-         else { selectedRound = null; }
-         var roundSummary = {};
-         if(data[1]){
-           for(var i = 0; i < data[1].length; i++){
-             roundSummary[data[1][i]['round']] = data[1][i];
-           }
-         }
+    const self = this;
 
-         this.setState({
-           rows: roundData.slice(),
-           initialRows: roundData.slice(),
-           roundSummary: roundSummary,
-           selectedRound: selectedRound
-         });
-      },
-      error (request, status, error) {
-         console.log(error);
-      }
-    });
+    const updateData = (data) => {
+      self._rows = data.RoundData.slice();
+      self.setState({
+        rows: self._rows,
+        initialRows: data.RoundData.slice(),
+        roundSummary: data.summary,
+        selectedRound: data.selectedRound
+      });
+    };
+    DataService.getPaintSchedule()
+      .then(updateData)
+      .catch((err) => {
+        console.error(err);
+      });
   }
-  getStyleCodesAndProgramColors(){
-    var url, url2;
 
-    if(this.props.environment == "production"){
-      url = "../paint.asmx/GetPaintScheduleStyles"
-    }else{
-      url = "../paint.asmx/GetPaintScheduleStyles" //test
-    }
-    $.ajax({
-      method: "POST",
-      url: url,
-      data: JSON.stringify({}),
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      success (msg) {
-         var data = JSON.parse(msg.d);
-         //console.log(data);
-         this.setState({ styleCodes: data.slice() });
-      },
-      error (request, status, error) {
-         console.log(error);
-      }
-    });
+  getStyleCodesAndProgramColors() {
+    let url;
+    let url2;
 
-    if(this.props.environment == "production"){
-      url2 = "../paint.asmx/GetProgramColors"
-    }else{
-      url2 = "../paint.asmx/GetProgramColors" //test
+    if (this.props.environment === "production") {
+      url = "../paint.asmx/GetPaintScheduleStyles";
+    } else {
+      url = "../paint.asmx/GetPaintScheduleStyles"; // test
     }
-    $.ajax({
-      method: "POST",
-      url: url2,
-      data: JSON.stringify({}),
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      success (msg) {
-         var data = JSON.parse(msg.d);
-         var hash = {};
-         for(var x = 0; x < data.length; x++){
-            if(!hash[data[x]['style_code']]){
-              hash[data[x]['style_code']] = [];
-            }
-            hash[data[x]['style_code']].push({id: data[x]['color_code'], title: data[x]['color_desc']});
-         }
-         this.setState({programColors: hash});
-      },
-      error (request, status, error) {
-         console.log(error);
-      }
-    });
+    const self = this;
+    const updateData = (data) => {
+      self.setState({ styleCodes: data.data.slice() });
+    };
+    DataService.GetStyleCodes()
+      .then(updateData)
+      .catch((err) => {
+        console.error(err);
+      });
+
+    DataService.GetColorCodes()
+      .then(d => self.setState({ programColors: d.hash }))
+      .catch((err) => {
+        console.error(err);
+      });
   }
-  getStyleCodePresets(style_code){
-    for(var i = 0; i < this.state.styleCodes.length; i++){
-       if(this.state.styleCodes[i].id == style_code){
-         return update(this.state.styleCodes[i], {$merge:{}});
-       }
+  getStyleCodePresets(style_code) {
+    for (let i = 0; i < this.state.styleCodes.length; i++) {
+      if (this.state.styleCodes[i].id === style_code) {
+        return update(this.state.styleCodes[i], { $merge: {} });
+      }
     }
     return {};
   }
-  getProgramColors(style_code){
-    return this.state.programColors[style_code];
-    var style_metadata = this.getStyleCodePresets(style_code);
-    var color_change_program = style_metadata.color_change_program;
-    var programColors = [];
 
-    for (var i = 0; i < this.state.programColors.length; i++){
-      if(this.state.programColors[i].style_code == style_code) programColors.push(this.state.programColors[i]);
-      if(parseInt(this.state.programColors[i].style_code) > parseInt(style_code)) break;
+  getProgramColors(style_code) {
+    return this.state.programColors[style_code];
+    const style_metadata = this.getStyleCodePresets(style_code);
+    const color_change_program = style_metadata.color_change_program;
+    const programColors = [];
+
+    for (let i = 0; i < this.state.programColors.length; i++) {
+      if (this.state.programColors[i].style_code === style_code) {
+        programColors.push(this.state.programColors[i]);
+      }
+      if (parseInt(this.state.programColors[i].style_code, 10) > parseInt(style_code, 10)) break;
     }
 
     return programColors;
   }
-  rowGetter(rowIdx){
-    return this.state.rows[rowIdx]
+
+  updatePaintSchedule(data) {
+    this._rows = data.RoundData.slice();
+    this.setState({
+      rows: this._rows,
+      initialRows: data.RoundData.slice(),
+      roundSummary: data.summary,
+      selectedRound: data.selectedRound
+    });
   }
+
+  handleResize(e) {
+    this.setState({ height: window.innerHeight - heightOffset });
+  }
+
   deleteRow(e, data) {
-    var rowIdx = data.rowIdx;
-    var rows = this.state.rows;
-    var newRows = this.state.newRows;
-    var temp = (rows[rowIdx].id.includes("TEMP"));
+    const rowIdx = data.rowIdx;
+    const rows = this.state.rows;
+    const newRows = this.state.newRows;
+    let temp = rows[rowIdx].id.includes("TEMP");
 
-    var currentRound = parseInt(rows[rowIdx].round);
-    var currentPos = parseInt(rows[rowIdx].round_position);
+    const currentRound = parseInt(rows[rowIdx].round, 10);
+    const currentPos = parseInt(rows[rowIdx].round_position, 10);
 
-    var changedRows = this.state.changedRows;
-    var deletedRow = this.state.rows[data.rowIdx];
+    const changedRows = this.state.changedRows;
+    const deletedRow = this.state.rows[data.rowIdx];
 
-    var temp = update(deletedRow, {$merge: {action:'DELETE'}})
-    var hash = "{0}:{1}:{2}".formatUnicorn(deletedRow.id, JSON.stringify({action:'DELETE'}), JSON.stringify(temp)).hashCode().toString();
+    temp = update(deletedRow, { $merge: { action: "DELETE" } });
+    const hash = "{0}:{1}:{2}"
+      .formatUnicorn(deletedRow.id, JSON.stringify({ action: "DELETE" }), JSON.stringify(temp))
+      .hashCode()
+      .toString();
 
     this.persistRow(hash, temp);
     /*
-    changedRows.push(update(deletedRow, {$merge: {action: 'DELETE'}}));
+    changedRows.push(update(deletedRow, {$merge: {action: "DELETE"}}));
 
 
     for(var i = rowIdx; i < rows.length; i++){
@@ -333,7 +179,7 @@ export class PaintScheduleEditor extends React.Component{
       this.setState({rows: this.state.rows, changedRows: changedRows});
     }else{
       this.setState({rows: this.state.rows, changedRows: changedRows, newRows: newRows-1});
-    }*/
+    } */
   }
   insertRowAbove(e, data) {
     this.insertRow(data.rowIdx);
@@ -342,92 +188,94 @@ export class PaintScheduleEditor extends React.Component{
     this.insertRow(data.rowIdx + 1);
   }
   insertRow(rowIdx2) {
+    if (this.state.insertingRow) return;
+    this.setState({ insertingRow: true });
 
-    if(this.state.insertingRow) return;
-    this.setState({insertingRow: true});
+    const rows = this.state.rows;
+    const length = rows.length;
+    const lastRow = rowIdx2 == length;
+    const rowIdx = lastRow ? rowIdx2 - 1 : rowIdx2;
 
-    var rows = this.state.rows;
-    var length = rows.length;
-    var lastRow = (rowIdx2 == length);
-    var rowIdx = (lastRow) ? rowIdx2 - 1 : rowIdx2
+    const currentRound = parseInt(rows[rowIdx].round, 10);
+    const currentPos = parseInt(rows[rowIdx].round_position, 10);
+    const newRows = this.state.newRows;
 
-    var currentRound = parseInt(rows[rowIdx].round);
-    var currentPos = parseInt(rows[rowIdx].round_position);
-    var newRows = this.state.newRows;
-
-    for(var i = rowIdx; i < rows.length; i++){
-      if(parseInt(rows[i].round) == currentRound && parseInt(rows[i].round_position) >= currentPos){
-        rows[i].round_position = (parseInt(rows[i].round_position) + 1).toString();
+    for (let i = rowIdx; i < rows.length; i++) {
+      if (
+        parseInt(rows[i].round, 10) === currentRound &&
+        parseInt(rows[i].round_position, 10) >= currentPos
+      ) {
+        rows[i].round_position = (parseInt(rows[i].round_position, 10) + 1).toString();
       }
     }
 
-    var newRow = {
-      id: "TEMP-ID-" + this.state.newRows,
+    const newRow = {
+      id: `TEMP-ID-${this.state.newRows}`,
       round: currentRound,
       round_position: lastRow ? currentPos + 1 : currentPos,
       color: "",
       notes: ""
-    }
+    };
     rows.splice(rowIdx2, 0, newRow);
-    this.setState({rows: rows, newRows: newRows+1});
+    this.setState({ rows, newRows: newRows + 1 });
   }
-  handleRowUpdated(e){
-    //merge updated row with current row and rerender by setting state
-    var rows = update(this.state.rows, {$merge: {}});
-    var tempRows = update(rows, {$merge: {}});
-    tempRows[e.rowIdx] = update(tempRows[e.rowIdx],  {$merge: e.updated});
-    var changed = update(this.state.changedRows, {$merge: {}});
+  handleRowUpdated(e) {
+    // merge updated row with current row and rerender by setting state
+    const rows = update(this.state.rows, { $merge: {} });
+    const tempRows = update(rows, { $merge: {} });
+    tempRows[e.rowIdx] = update(tempRows[e.rowIdx], { $merge: e.updated });
+    const changed = update(this.state.changedRows, { $merge: {} });
 
-    if(rows[e.rowIdx][e.cellKey] != e.updated[e.cellKey]){
-      if(e.cellKey == "style_code"){
-        var style_metadata = this.getStyleCodePresets(e.updated[e.cellKey]);
-        var new_rowdata = {
+    if (rows[e.rowIdx][e.cellKey] !== e.updated[e.cellKey]) {
+      if (e.cellKey === "style_code") {
+        const style_metadata = this.getStyleCodePresets(e.updated[e.cellKey]);
+        const new_rowdata = {
           style_code: style_metadata.style_code,
           assembly_flow: style_metadata.assembly_flow,
           customer: style_metadata.customer,
           program: style_metadata.style_name
-        }
-        tempRows[e.rowIdx] = update(tempRows[e.rowIdx],  {$merge: new_rowdata});
+        };
+        tempRows[e.rowIdx] = update(tempRows[e.rowIdx], { $merge: new_rowdata });
       }
-      //get last changes
-      var changed_row = tempRows[e.rowIdx];
-      var previous_changedRowIdx = this.rowPreviouslyChanged(changed_row.id);
+      // get last changes
+      const changed_row = tempRows[e.rowIdx];
+      const previous_changedRowIdx = this.rowPreviouslyChanged(changed_row.id);
 
-      if(previous_changedRowIdx == -1){
-        changed.push(update(changed_row, {$merge: {action:'UPDATE'}}));
-      }else{
-        changed[previous_changedRowIdx] = update(changed[previous_changedRowIdx], {$merge: tempRows[e.rowIdx]});
+      if (previous_changedRowIdx === -1) {
+        changed.push(update(changed_row, { $merge: { action: "UPDATE" } }));
+      } else {
+        changed[previous_changedRowIdx] = update(changed[previous_changedRowIdx], {
+          $merge: tempRows[e.rowIdx]
+        });
       }
 
-      if(this.applyRuleSet(tempRows)){
-        rows[e.rowIdx] = update(rows[e.rowIdx], {$merge: tempRows[e.rowIdx]});
-        this.setState({rows:rows, changedRows: changed});
-      }else{
+      if (this.applyRuleSet(tempRows)) {
+        rows[e.rowIdx] = update(rows[e.rowIdx], { $merge: tempRows[e.rowIdx] });
+        this.setState({ rows, changedRows: changed });
+      } else {
         console.log("failed pass ruleset");
       }
     }
   }
-  handleRowUpdateFailed(){}
+  handleRowUpdateFailed() {}
   handleGridRowsUpdated({ fromRow, toRow, updated }) {
+    if (fromRow !== toRow) return;
 
-    if (fromRow !== toRow)
-    return;
-
-    let rows = this.state.rows.slice();
-    let changedRows = this.state.changedRows.slice();
+    const rows = this.state.rows.slice();
+    const changedRows = this.state.changedRows.slice();
     for (let i = fromRow; i <= toRow; i++) {
       var changed = false;
-      let rowToUpdate = rows[i];
-      let updatedRow = update(rowToUpdate, {$merge: updated});
+      const rowToUpdate = rows[i];
+      let updatedRow = update(rowToUpdate, { $merge: updated });
 
-      Object.keys(updated).map(function(key, idx){
-        if(rowToUpdate[key] != updatedRow[key]) changed = true;
+      Object.keys(updated).map((key, idx) => {
+        if (rowToUpdate[key] !== updatedRow[key]) changed = true;
       });
 
-      if(changed){
-        if(updated.style_code){
-          var style_metadata = this.getStyleCodePresets(updated.style_code);
-          var new_rowdata = {
+      if (changed) {
+        if (updated.style_code) {
+          const style_metadata = this.getStyleCodePresets(updated.style_code);
+          const new_rowdata = {
             assembly_flow: style_metadata.assembly_flow,
             customer: style_metadata.customer,
             program: style_metadata.description,
@@ -435,290 +283,314 @@ export class PaintScheduleEditor extends React.Component{
             mold_wip_density: style_metadata.mold_wip_rack_density,
             total_crs: 1,
             total_pcs: 1 * style_metadata.PartsPerCarrier
-          }
-          updatedRow = update(updatedRow, {$merge: new_rowdata});
+          };
+          updatedRow = update(updatedRow, { $merge: new_rowdata });
         }
 
         /*
         var previous_changedRowIdx = this.rowPreviouslyChanged(updatedRow.id);
         if(previous_changedRowIdx == -1){
           if(updatedRow.id.includes("TEMP")){
-            changedRows.push(update(updatedRow, {$merge: {action:'INSERT'}}));
+            changedRows.push(update(updatedRow, {$merge: {action:"INSERT"}}));
           }else{
-            changedRows.push(update(updatedRow, {$merge: {action:'UPDATE'}}));
+            changedRows.push(update(updatedRow, {$merge: {action:"UPDATE"}}));
           }
         }else{
           changedRows[previous_changedRowIdx] = update(changedRows[previous_changedRowIdx], {$merge: updated});
         }
         */
-        if(updatedRow.id.includes("TEMP")){
-          if(!updatedRow['style_code'] || !(parseInt(updatedRow['pieces']) >= 0) || !updatedRow['program'] || !updatedRow['round'] || !(parseInt(updatedRow['total_crs']) >= 0) || !(parseInt(updatedRow['total_pcs']) >= 0) || updatedRow['customer'] == undefined || !(parseInt(updatedRow['mold_wip_density']) >= 0) || !updatedRow['round_position']){
+        if (updatedRow.id.includes("TEMP")) {
+          if (
+            !updatedRow.style_code ||
+            !(parseInt(updatedRow.pieces, 10) >= 0) ||
+            !updatedRow.program ||
+            !updatedRow.round ||
+            !(parseInt(updatedRow.total_crs, 10) >= 0) ||
+            !(parseInt(updatedRow.total_pcs, 10) >= 0) ||
+            updatedRow.customer == undefined ||
+            !(parseInt(updatedRow.mold_wip_density, 10) >= 0) ||
+            !updatedRow.round_position
+          ) {
             rows[i] = updatedRow;
-            this.setState({ rows: rows });
-          }else{
-            var temp = update(updatedRow, {$merge: {action:'INSERT'}})
-            var hash = "{0}:{1}:{2}".formatUnicorn(updatedRow.id, JSON.stringify(updated), JSON.stringify(temp)).hashCode().toString();
+            this.setState({ rows });
+          } else {
+            var temp = update(updatedRow, { $merge: { action: "INSERT" } });
+            var hash = "{0}:{1}:{2}"
+              .formatUnicorn(updatedRow.id, JSON.stringify(updated), JSON.stringify(temp))
+              .hashCode()
+              .toString();
             this.persistRow(hash, temp);
-
           }
-        }else{
-          var temp = update(updatedRow, {$merge: {action:'UPDATE'}})
-          var hash = "{0}:{1}:{2}".formatUnicorn(updatedRow.id, JSON.stringify(updated), JSON.stringify(temp)).hashCode().toString();
+        } else {
+          var temp = update(updatedRow, { $merge: { action: "UPDATE" } });
+          var hash = "{0}:{1}:{2}"
+            .formatUnicorn(updatedRow.id, JSON.stringify(updated), JSON.stringify(temp))
+            .hashCode()
+            .toString();
           this.persistRow(hash, temp);
         }
-        //rows[i] = updatedRow;
+        // rows[i] = updatedRow;
       }
     }
 
-    //this.setState({ rows: rows, changedRows: changedRows });
+    // this.setState({ rows: rows, changedRows: changedRows });
   }
-  handleCellSelect(selected){
-    this.setState({selectedRound: this.state.rows[selected.rowIdx]['round']});
+  handleCellSelect(selected) {
+    this.setState({ selectedRound: this.state.rows[selected.rowIdx].round });
   }
-  persistNewRow(e, data){
-    console.log('very persistent ;)');
+  persistNewRow(e, data) {
+    console.log("very persistent ;)");
   }
-  persistRow(hash, row){
-    var url = "../paint.asmx/UpdatePaintSchedule";
-    if(this.state.env == "development") url = "../paint.asmx/UpdatePaintScheduleTest";
-    var updateq = Object.assign({}, this.state.queuedUpdates);
+  persistRow(hash, row) {
+    let url = "../paint.asmx/UpdatePaintSchedule";
+    if (this.state.env === "development") url = "../paint.asmx/UpdatePaintScheduleTest";
+    const updateq = Object.assign({}, this.state.queuedUpdates);
 
-    if(updateq[hash]) return;
+    if (updateq[hash]) return;
     updateq[hash] = 1;
 
-    this.setState({queuedUpdates: updateq});
+    this.setState({ queuedUpdates: updateq });
 
+    DataService.UpdatePaintSchedule(row);
     $.ajax({
       method: "POST",
-      url: url,
-      data: JSON.stringify({ss: [row]}),
+      url,
+      data: JSON.stringify({ ss: [row] }),
       contentType: "application/json; charset=utf-8",
       dataType: "json",
-      success (msg) {
-         var data = JSON.parse(msg.d);
-         var updateq2 = Object.assign({}, this.state.queuedUpdates);
-         updateq2[hash] = 0;
-         delete updateq2[hash];
-         this.setState({queuedUpdates: updateq2, insertingRow: false});
-         this.getPaintSchedule();
+      success(msg) {
+        const data = JSON.parse(msg.d);
+        const updateq2 = Object.assign({}, this.state.queuedUpdates);
+        updateq2[hash] = 0;
+        delete updateq2[hash];
+        this.setState({ queuedUpdates: updateq2, insertingRow: false });
+        this.getPaintSchedule();
       },
-      error (request, status, error) {
-         console.log(error);
+      error(request, status, error) {
+        console.log(error);
       }
     });
   }
-  rowPreviouslyChanged(key){
-    for(var i = 0; i < this.state.changedRows.length; i++){
-      if(this.state.changedRows[i].id == key) return i;
+  rowPreviouslyChanged(key) {
+    const result = this.state.changedRows.findIndex((value, index, obj) => {});
+    for (let i = 0; i < this.state.changedRows.length; i++) {
+      if (this.state.changedRows[i].id === key) return i;
     }
     return -1;
   }
-  addNewRound(){
-    var string = "Add new round?";
+  addNewRound() {
+    let question = "Add new round?";
 
-    var url = "../paint.asmx/ScheduleNewRoundTest"
-    if(this.state.env == "development") url = "../paint.asmx/ScheduleNewRoundTest"
+    let url = "../paint.asmx/ScheduleNewRoundTest";
+    if (this.state.env == "development") url = "../paint.asmx/ScheduleNewRoundTest";
 
-    if(this.state.newRows > 0) string = "Unsaved rows will be lost! Continue?";
+    if (this.state.newRows > 0) question = "Unsaved rows will be lost! Continue?";
 
-if(true){//}    if(confirm(string)){
+    if (true) {
+      // }    if(confirm(string)){
       $.ajax({
         method: "POST",
-        url: url,
+        url,
         data: JSON.stringify({
           selectedDate: this.state.selectedDate
         }),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        success (msg) {
-          var data = JSON.parse(msg.d);
-          var roundData = data[0] || [];
-          var roundSummary = {};
-          if(data[1]){
-            for(var i = 0; i < data[1].length; i++){
-              roundSummary[data[1][i]['round']] = data[1][i];
+        success(msg) {
+          const data = JSON.parse(msg.d);
+          const roundData = data[0] || [];
+          const roundSummary = {};
+          if (data[1]) {
+            for (let i = 0; i < data[1].length; i++) {
+              roundSummary[data[1][i].round] = data[1][i];
             }
           }
 
           this.setState({
             rows: roundData.slice(),
             initialRows: roundData.slice(),
-            roundSummary: roundSummary,
-            selectedRound: data[1][data[1].length-1]['round']
+            roundSummary,
+            selectedRound: data[1][data[1].length - 1].round
           });
         },
-        error (request, status, error) {
-           console.log(error);
+        error(request, status, error) {
+          console.log(error);
         }
       });
     }
   }
-  applyRuleSet(newTable){
-    //var tableCopy = update(newTable, {$merge:{}});
-    //var Results = [];
-    //for(var i = 0; i < RuleSet.rules.length; i++){
+  applyRuleSet(newTable) {
+    // var tableCopy = update(newTable, {$merge:{}});
+    // var Results = [];
+    // for(var i = 0; i < RuleSet.rules.length; i++){
     //  var currentRule = RuleSet.rules[i];
     //  for(var j = 0; j < tableCopy.length - 1; j++){
     //    var thisRow = tableCopy[j], nextRow = tableCopy[j+1];
     //      if(!currentRule.check(thisRow, nextRow)) return false;
     //  }
-    //}
+    // }
     return true;
   }
-  reset(){
-    if(this.state.changedRows.length > 0){
+  reset() {
+    if (this.state.changedRows.length > 0) {
       this.setState({
-        rows : this.state.initialRows.slice(),
+        rows: this.state.initialRows.slice(),
         changedRows: [],
         selectedIds: [],
         numSelected: 0,
-        newRows: 0,
+        newRows: 0
       });
     }
   }
-  render(){
+  render() {
+    const changes = this.state.changedRows < 1;
+    const numSelected = this.state.numSelected;
+    const newrows = this.state.newRows;
 
-    var changes = this.state.changedRows < 1;
-    var numSelected = this.state.numSelected
-    var newrows = this.state.newRows;
-
-//Columns definition
-var columns = [
-  {
-    key: 'round',
-    name: 'Round',
-    width: 65,
-    editable : false
-  },
-  {
-    key: 'style_code',
-    name: 'Style Code',
-    width: 90,
-    editable: true
-  },
-  {
-    key: 'pieces',
-    name: 'PPC',
-    width: 50,
-    editable : true
-  },
-  {
-    key: 'assembly_flow',
-    name: 'Assembly Flow',
-    width: 125,
-    editable : true
-  },
-  {
-      key: 'program',
-      name: 'Program',
-      editable : true,
-      width: 125
-    },
-    {
-      key: 'mold_skin_style',
-      name: 'Mold Skin/Style',
-      editable: true,
-      width: 225,
-    },
-    {
-      key: 'notes',
-      name: 'Notes',
-      width: 250,
-      editable: true,
-      formatter: NotesFormatter
-    },
-    {
-      key: 'rework_color_chart',
-      name: 'Rework Color Chart',
-      editable : true,
-      width: 200,
-    },
-    {
-      key: 'color',
-      name: 'Color',
-      editable : true,
-      width: 125,
-    },
-    {
-        key: 'add_take_off',
-        name: 'ATO',
+    // Columns definition
+    const columns = [
+      {
+        key: "round",
+        name: "Round",
+        width: 65,
+        editable: false
+      },
+      {
+        key: "style_code",
+        name: "Style Code",
+        width: 90,
+        editable: true
+      },
+      {
+        key: "pieces",
+        name: "PPC",
         width: 50,
-        editable : true
-    },
-    {
-      key: 'total_crs',
-      name: 'Total Crs',
-      width: 75,
-      editable : true
-    },
-    {
-      key: 'total_pcs',
-      name: 'Total Pcs',
-      width: 90,
-      editable : true
-    },
-    {
-      key: 'customer',
-      name: 'Customer',
-      editable : true,
-      width: 100
-    },
-    {
-      key: 'crs_real_time',
-      name: 'Carriers Real Time',
-      width: 150,
-      editable : true
-    },
-    {
-      key: 'mold_wip_density',
-      name: 'WIP Density',
-      width: 110,
-      editable : true
-    },
-    {
-      key: 'loc',
-      name: 'WIP Location',
-      width: 200,
-      editable: true
-    },
-    {
-      key: 'assy_build_option',
-      name: 'Build Option',
-      width: 150,
-      editable: true
-    }
-]
+        editable: true
+      },
+      {
+        key: "assembly_flow",
+        name: "Assembly Flow",
+        width: 125,
+        editable: true
+      },
+      {
+        key: "program",
+        name: "Program",
+        editable: true,
+        width: 125
+      },
+      {
+        key: "mold_skin_style",
+        name: "Mold Skin/Style",
+        editable: true,
+        width: 225
+      },
+      {
+        key: "notes",
+        name: "Notes",
+        width: 250,
+        editable: true,
+        formatter: NotesFormatter
+      },
+      {
+        key: "rework_color_chart",
+        name: "Rework Color Chart",
+        editable: true,
+        width: 200
+      },
+      {
+        key: "color",
+        name: "Color",
+        editable: true,
+        width: 125
+      },
+      {
+        key: "add_take_off",
+        name: "ATO",
+        width: 50,
+        editable: true
+      },
+      {
+        key: "total_crs",
+        name: "Total Crs",
+        width: 75,
+        editable: true
+      },
+      {
+        key: "total_pcs",
+        name: "Total Pcs",
+        width: 90,
+        editable: true
+      },
+      {
+        key: "customer",
+        name: "Customer",
+        editable: true,
+        width: 100
+      },
+      {
+        key: "crs_real_time",
+        name: "Carriers Real Time",
+        width: 150,
+        editable: true
+      },
+      {
+        key: "mold_wip_density",
+        name: "WIP Density",
+        width: 110,
+        editable: true
+      },
+      {
+        key: "loc",
+        name: "WIP Location",
+        width: 200,
+        editable: true
+      },
+      {
+        key: "assy_build_option",
+        name: "Build Option",
+        width: 150,
+        editable: true
+      }
+    ];
 
-    return(
-
-      <div className='rdg'>
-     
-         <RoundSummary round={this.state.selectedRound}
-          roundSummary={this.state.roundSummary}/>
+    return (
+      <div className="rdg">
+        <RoundSummary round={this.state.selectedRound} roundSummary={this.state.roundSummary} />
         <ReactDataGrid
-          // contextMenu={
-          //   <PaintScheduleEditorContextMenu
-          //     multipleSelected={numSelected > 0}
-          //     newRows={this.state.newRows > 0}
-          //     onRowDelete={this.deleteRow}
-          //     onRowInsertAbove={this.insertRowAbove}
-          //     onRowInsertBelow={this.insertRowBelow}
-          //     onPersistNewRow={this.persistNewRow}
-          //   />
-          // }
+          contextMenu={
+            <PaintScheduleEditorContextMenu
+              multipleSelected={numSelected > 0}
+              newRows={this.state.newRows > 0}
+              onRowDelete={this.deleteRow}
+              onRowInsertAbove={this.insertRowAbove}
+              onRowInsertBelow={this.insertRowBelow}
+              onPersistNewRow={this.persistNewRow}
+            />
+          }
           enableCellSelect={true}
-          onCellSelected = {this.handleCellSelect}
+          onCellSelected={cell =>
+            this.setState({ selectedRound: this.state.rows[cell.rowIdx].round })
+          }
           columns={columns}
           rowHeight={50}
-          rowGetter={this.rowGetter}
+          rowGetter={idx => this.state.rows[idx]}
           rowsCount={this.state.rows.length}
           minHeight={this.state.height}
           onGridRowsUpdated={this.handleGridRowsUpdated}
-          rowRenderer={<RowRenderer getProgramColors={this.getProgramColors}/>}
-        /> 
+          rowRenderer={<RowRenderer getProgramColors={idx => this.state.programColors[idx]} />}
+        />
 
-      <ReactiveBtn clickEvent={this.addNewRound} text="New Round"  />
+        <ReactiveBtn clickEvent={this.addNewRound} text="New Round" />
       </div>
-    )
+    );
   }
 }
+PaintScheduleEditor.defaultProps = {
+  rowKey: "id",
+  ruleSet: {}
+};
+PaintScheduleEditor.propTypes = {
+  rowKey: PropTypes.string,
+  ruleSet: PropTypes.object
+};

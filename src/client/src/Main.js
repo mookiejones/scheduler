@@ -8,33 +8,18 @@ import { PaintApp } from "./components/PaintApp";
 import { Login } from "./components/Login";
 import { DriverPerformance } from "./components/DriverPerformance";
 
-class RenderRoute extends Component {
-  constructor(props, context) {
-    super(props, context);
-    console.log("hello there");
-  }
-  onRender(props) {
-
-  }
-  render() {
-    return <Route path="/edit" render={this.onRender} />;
-  }
-}
-
-export class Main extends React.Component {
+export class Main extends Component {
   render() {
     return (
       <Router>
         <Switch>
-          <Route path="/" />
-          <RenderRoute path="/edit" component={PaintScheduleEditor} />
-          {/* <Route path="/edit" component={PaintScheduleEditor} /> */}
+          <Route path="/ScheduleEditor" component={PaintScheduleEditor} />
           <Route path="/style-codes" component={StyleCodeEditor} />
           <Route path="/paint-app" component={PaintApp} />
-          <Route path="/excel-import" component={ExcelImport} />
+          <Route path="/ExcelImport" component={ExcelImport} />
           {/* <Route path="/sign-in" component={SignIn} /> */}
           <Route path="/login" component={Login} />
-          <Route path="/drivers" component={DriverPerformance} />
+          <Route path="/DriverPerformance" component={DriverPerformance} />
         </Switch>
       </Router>
     );
