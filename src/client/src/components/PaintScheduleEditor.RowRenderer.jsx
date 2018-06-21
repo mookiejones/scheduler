@@ -8,10 +8,15 @@ import * as classnames from "classnames";
 const AutoCompleteEditor = ReactDataGridPlugins.Editors.AutoComplete;
 
 export default class RowRenderer extends Component {
+  constructor(props, context) {
+    super(props, context);
+    this.rowRef = React.createRef();
+  }
   setScrollLeft(scrollBy) {
-    this.refs.row.setScrollLeft(scrollBy);
+    this.btnRef.setScrollLeft(scrollBy);
   }
   render() {
+    const myRef = el => (this.btnRef = el);
     let colorColIdx = 7;
     const { row, columns } = this.props;
     const id = row.id || "";
@@ -38,7 +43,7 @@ export default class RowRenderer extends Component {
     }
     columns[colorColIdx].editor = <AutoCompleteEditor options={pgc} />;
 
-    return <Row className={rowStyle} ref="row" extraClasses={rowStyle} {...this.props} />;
+    return <Row className={rowStyle} ref={myRef} extraClasses={rowStyle} {...this.props} />;
   }
 }
 

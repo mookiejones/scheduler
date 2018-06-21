@@ -29,7 +29,7 @@ export default class Header extends Component {
           <Navbar.Brand>
             <a href="#home">
               <div className="row">
-                <img src="magna_m.svg" alt="" height="20" width="20" />
+                <img src="./img/magna_m.svg" alt="" height="20" width="20" />
                 <span> Magna</span>
               </div>
             </a>
@@ -47,14 +47,13 @@ export default class Header extends Component {
                 icon={item.icon}
               />
             ))}
-
-            <Navbar.Form pullLeft>
-              <FormGroup>
-                <FormControl type="text" placeholder="Search" />
-              </FormGroup>{" "}
-              <Button type="submit">Submit</Button>
-            </Navbar.Form>
           </Nav>
+          <Navbar.Form pullLeft>
+            <FormGroup>
+              <FormControl type="text" placeholder="Search" />
+            </FormGroup>{" "}
+            <Button type="submit">Submit</Button>
+          </Navbar.Form>
         </Navbar.Collapse>
       </Navbar>
     );

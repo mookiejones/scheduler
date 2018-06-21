@@ -1,31 +1,38 @@
-import React from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
 import ReactDataGridPlugins from "react-data-grid-addons";
 
-const { ContextMenu, MenuItem, SubMenu } = ReactDataGridPlugins.Menu;
+const {
+  Menu: { ContextMenu, MenuItem, SubMenu }
+} = require("react-data-grid-addons");
 
-const propTypes = {
-  rowIdx: PropTypes.number,
-  idx: PropTypes.number,
-  onRowDelete: PropTypes.func,
-  onDeleteSelectedRows: PropTypes.func,
-  onRowInsertAbove: PropTypes.func,
-  onRowInsertBelow: PropTypes.func,
-  onCopyToNewRound: PropTypes.func,
-  onCopyToEndOfRound: PropTypes.func,
-  onCopySelectedAbove: PropTypes.func,
-  onCopySelectedBelow: PropTypes.func,
-  onPersistNewRow: PropTypes.func,
-  multipleSelected: PropTypes.bool,
-  newRows: PropTypes.bool
-};
+export default class PaintScheduleEditorContextMenu extends Component {
+  static propTypes = {
+    id: PropTypes.string,
+    rowIdx: PropTypes.number,
+    idx: PropTypes.number,
+    onRowDelete: PropTypes.func,
+    onDeleteSelectedRows: PropTypes.func,
+    onRowInsertAbove: PropTypes.func,
+    onRowInsertBelow: PropTypes.func,
+    onCopyToNewRound: PropTypes.func,
+    onCopyToEndOfRound: PropTypes.func,
+    onCopySelectedAbove: PropTypes.func,
+    onCopySelectedBelow: PropTypes.func,
+    onPersistNewRow: PropTypes.func,
+    multipleSelected: PropTypes.bool,
+    newRows: PropTypes.bool
+  };
 
-class PaintScheduleEditorContextMenu extends ContextMenu {
-  onRowDelete(e, data) {
+  constructor(props, context) {
+    super(props, context);
+    this.self = this;
+  }
+  onRowDelete = (e, data) => {
     if (typeof this.props.onRowDelete === "function") {
       this.props.onRowDelete(e, data);
     }
-  }
+  };
   onDeleteSelectedRows(e, data) {
     if (typeof this.props.onDeleteSelectedRows === "function") {
       this.props.onDeleteSelectedRows(e, data);
@@ -68,43 +75,28 @@ class PaintScheduleEditorContextMenu extends ContextMenu {
   }
 
   render() {
-    const { multipleSelected, newRows } = this.props;
+    const { id, idx, rowIdx, multipleSelected, newRows, onRowDelete } = this.props;
 
     return (
-      <ContextMenu>
-        <MenuItem
-          data={{ rowIdx: this.props.rowIdx, idx: this.props.idx }}
-          onClick={this.onPersistNewRow}
-          disabled={!newRows}
-        >
+      <ContextMenu id={id}>
+        {/* Save Rows */}
+        <MenuItem data={{ rowIdx, idx }} onClick={this.onPersistNewRow} disabled={!newRows}>
           Save Row(s)
         </MenuItem>
+        {/* Insert Row */}
         <SubMenu title="Insert Row" disabled={multipleSelected}>
-          <MenuItem
-            data={{ rowIdx: this.props.rowIdx, idx: this.props.idx }}
-            onClick={this.onRowInsertBelow}
-          >
+          <MenuItem data={{ rowIdx, idx }} onClick={this.onRowInsertBelow}>
             Below
           </MenuItem>
-          <MenuItem
-            data={{ rowIdx: this.props.rowIdx, idx: this.props.idx }}
-            onClick={this.onRowInsertAbove}
-          >
+          <MenuItem data={{ rowIdx, idx }} onClick={this.onRowInsertAbove}>
             Above
           </MenuItem>
         </SubMenu>
-        <MenuItem
-          data={{ rowIdx: this.props.rowIdx, idx: this.props.idx }}
-          onClick={this.onRowDelete}
-          disabled={multipleSelected}
-        >
+        {/* Delete Row */}
+        <MenuItem data={{ rowIdx, idx }} onClick={this.onRowDelete} disabled={multipleSelected}>
           Delete Row
         </MenuItem>
       </ContextMenu>
     );
   }
 }
-
-PaintScheduleEditorContextMenu.propTypes = propTypes;
-
-export default PaintScheduleEditorContextMenu;

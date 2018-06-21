@@ -40,25 +40,29 @@ export default class PaintScheduleEditor extends Component {
   }
   componentDidMount() {
     window.addEventListener("resize", () =>
-      this.setState({ height: window.innerHeight - heightOffset }));
+      this.setState({ height: window.innerHeight - heightOffset })
+    );
   }
   componentDidUpdate() {
     if (this.state.firstLoad) {
       if (this.state.rows.length > 0) {
-        document.querySelector(".react-grid-Canvas").scrollTop = document.querySelector(".react-grid-Canvas").scrollHeight;
+        document.querySelector(".react-grid-Canvas").scrollTop = document.querySelector(
+          ".react-grid-Canvas"
+        ).scrollHeight;
         this.setState({ firstLoad: false });
       }
     }
   }
   componentWillUnmount() {
     window.removeEventListener("resize", () =>
-      this.setState({ height: window.innerHeight - heightOffset }));
+      this.setState({ height: window.innerHeight - heightOffset })
+    );
   }
 
   getPaintSchedule() {
     const self = this;
 
-    const updateData = (data) => {
+    const updateData = data => {
       self._rows = data.RoundData.slice();
       self.setState({
         rows: self._rows,
@@ -69,25 +73,25 @@ export default class PaintScheduleEditor extends Component {
     };
     DataService.getPaintSchedule()
       .then(updateData)
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
       });
   }
 
   getStyleCodesAndProgramColors() {
     const self = this;
-    const updateData = (data) => {
+    const updateData = data => {
       self.setState({ styleCodes: data.programs.slice() });
     };
     DataService.GetStyleCodes()
       .then(updateData)
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
       });
 
     DataService.GetColorCodes()
       .then(d => self.setState({ programColors: d.hash }))
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
       });
   }
@@ -130,7 +134,7 @@ export default class PaintScheduleEditor extends Component {
     this.setState({ height: window.innerHeight - heightOffset });
   }
 
-  deleteRow(e, data) {
+  deleteRow = (e, data) => {
     const rowIdx = data.rowIdx;
     const rows = this.state.rows;
     const newRows = this.state.newRows;
@@ -140,7 +144,7 @@ export default class PaintScheduleEditor extends Component {
     const currentPos = parseInt(rows[rowIdx].round_position, 10);
 
     const changedRows = this.state.changedRows;
-    const deletedRow = this.state.rows[data.rowIdx];
+    const deletedRow = this.state.rows[rowIdx];
 
     temp = update(deletedRow, { $merge: { action: "DELETE" } });
     const hash = "{0}:{1}:{2}"
@@ -166,7 +170,7 @@ export default class PaintScheduleEditor extends Component {
     }else{
       this.setState({rows: this.state.rows, changedRows: changedRows, newRows: newRows-1});
     } */
-  }
+  };
   insertRowAbove(e, data) {
     this.insertRow(data.rowIdx);
   }
@@ -179,7 +183,7 @@ export default class PaintScheduleEditor extends Component {
 
     const rows = this.state.rows;
     const length = rows.length;
-    const lastRow = rowIdx2 == length;
+    const lastRow = rowIdx2 === length;
     const rowIdx = lastRow ? rowIdx2 - 1 : rowIdx2;
 
     const currentRound = parseInt(rows[rowIdx].round, 10);
@@ -244,7 +248,7 @@ export default class PaintScheduleEditor extends Component {
     }
   }
   handleRowUpdateFailed() {}
-  handleGridRowsUpdated({ fromRow, toRow, updated }) {
+  handleGridRowsUpdated = ({ fromRow, toRow, updated }) => {
     if (fromRow !== toRow) return;
 
     const rows = this.state.rows.slice();
@@ -320,7 +324,7 @@ export default class PaintScheduleEditor extends Component {
     }
 
     // this.setState({ rows: rows, changedRows: changedRows });
-  }
+  };
   handleCellSelect(selected) {
     this.setState({ selectedRound: this.state.rows[selected.rowIdx].round });
   }
@@ -368,7 +372,7 @@ export default class PaintScheduleEditor extends Component {
     let question = "Add new round?";
 
     let url = "../paint.asmx/ScheduleNewRoundTest";
-    if (this.state.env == "development") url = "../paint.asmx/ScheduleNewRoundTest";
+    if (this.state.env === "development") url = "../paint.asmx/ScheduleNewRoundTest";
 
     if (this.state.newRows > 0) question = "Unsaved rows will be lost! Continue?";
 
@@ -406,6 +410,7 @@ export default class PaintScheduleEditor extends Component {
     }
   }
   applyRuleSet(newTable) {
+    console.log("apply rule set");
     // var tableCopy = update(newTable, {$merge:{}});
     // var Results = [];
     // for(var i = 0; i < RuleSet.rules.length; i++){
@@ -418,6 +423,7 @@ export default class PaintScheduleEditor extends Component {
     return true;
   }
   reset() {
+    console.log("reset");
     if (this.state.changedRows.length > 0) {
       this.setState({
         rows: this.state.initialRows.slice(),
@@ -428,6 +434,10 @@ export default class PaintScheduleEditor extends Component {
       });
     }
   }
+  rowGetter = idx => {
+    return this.state.rows[idx];
+  };
+
   render() {
     const { numSelected } = this.state;
 
@@ -453,18 +463,21 @@ export default class PaintScheduleEditor extends Component {
       { key: "assy_build_option", name: "BuildOption", width: 150, editable: true }
     ];
     /* eslint-enable */
+
     return (
       <div className="rdg">
         <RoundSummary round={this.state.selectedRound} roundSummary={this.state.roundSummary} />
         <ReactDataGrid
           contextMenu={
             <PaintScheduleEditorContextMenu
+              id="customizedContextMenu"
               multipleSelected={numSelected > 0}
               newRows={this.state.newRows > 0}
               onRowDelete={this.deleteRow}
               onRowInsertAbove={this.insertRowAbove}
               onRowInsertBelow={this.insertRowBelow}
               onPersistNewRow={this.persistNewRow}
+              minHeight={500}
             />
           }
           enableCellSelect={true}
@@ -473,10 +486,10 @@ export default class PaintScheduleEditor extends Component {
           }
           columns={columns}
           rowHeight={50}
-          rowGetter={idx => this.state.rows[idx]}
+          rowGetter={this.rowGetter}
           rowsCount={this.state.rows.length}
           minHeight={this.state.height}
-          onGridRowsUpdated={this.handleGridRowsUpdated}
+          onGridRowsUpdated={() => this.handleGridRowsUpdated}
           rowRenderer={<RowRenderer getProgramColors={idx => this.state.programColors[idx]} />}
         />
 

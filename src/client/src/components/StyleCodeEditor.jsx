@@ -265,7 +265,7 @@ export default class StyleCodeEditor extends Component {
     let valid = [],
       temp = [];
     var url =
-      this.state.env == "production"
+      this.state.env === "production"
         ? "api/paint/UpdateStyleCode"
         : "api/paint/UpdateStyleCodeTest";
 
@@ -323,7 +323,7 @@ export default class StyleCodeEditor extends Component {
   handleRowUpdateFailed() {}
   rowPreviouslyChanged(key) {
     for (let i = 0; i < this.state.changedRows.length; i++) {
-      if (this.state.changedRows[i].id == key) return i;
+      if (this.state.changedRows[i].id === key) return i;
     }
     return -1;
   }
@@ -339,12 +339,12 @@ export default class StyleCodeEditor extends Component {
       const updatedRow = update(rowToUpdate, { $merge: updated });
 
       Object.keys(updated).map((key, idx) => {
-        if (rowToUpdate[key] != updatedRow[key]) changed = true;
+        if (rowToUpdate[key] !== updatedRow[key]) changed = true;
       });
 
       if (changed) {
         const previous_changedRowIdx = this.rowPreviouslyChanged(updatedRow.id);
-        if (previous_changedRowIdx == -1) {
+        if (previous_changedRowIdx === -1) {
           changedRows.push(update(updatedRow, { $merge: { action: "UPDATE" } }));
         } else {
           changedRows[previous_changedRowIdx] = update(changedRows[previous_changedRowIdx], {
@@ -360,12 +360,12 @@ export default class StyleCodeEditor extends Component {
   handleGridSort(sortColumn, sortDirection) {
     const comparer = (a, b) => {
       if (sortDirection === "ASC") {
-        if (sortColumn == "id") {
+        if (sortColumn === "id") {
           return parseInt(a[sortColumn], 10) > parseInt(b[sortColumn], 10) ? 1 : -1;
         }
         return a[sortColumn] > b[sortColumn] ? 1 : -1;
       } else if (sortDirection === "DESC") {
-        if (sortColumn == "id") {
+        if (sortColumn === "id") {
           return parseInt(a[sortColumn], 10) < parseInt(b[sortColumn], 10) ? 1 : -1;
         }
         return a[sortColumn] < b[sortColumn] ? 1 : -1;
