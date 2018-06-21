@@ -1,29 +1,11 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import ReactDataGridPlugins from "react-data-grid-addons";
 
 const {
   Menu: { ContextMenu, MenuItem, SubMenu }
 } = require("react-data-grid-addons");
 
 export default class PaintScheduleEditorContextMenu extends Component {
-  static propTypes = {
-    id: PropTypes.string,
-    rowIdx: PropTypes.number,
-    idx: PropTypes.number,
-    onRowDelete: PropTypes.func,
-    onDeleteSelectedRows: PropTypes.func,
-    onRowInsertAbove: PropTypes.func,
-    onRowInsertBelow: PropTypes.func,
-    onCopyToNewRound: PropTypes.func,
-    onCopyToEndOfRound: PropTypes.func,
-    onCopySelectedAbove: PropTypes.func,
-    onCopySelectedBelow: PropTypes.func,
-    onPersistNewRow: PropTypes.func,
-    multipleSelected: PropTypes.bool,
-    newRows: PropTypes.bool
-  };
-
   constructor(props, context) {
     super(props, context);
     this.self = this;
@@ -100,3 +82,20 @@ export default class PaintScheduleEditorContextMenu extends Component {
     );
   }
 }
+
+PaintScheduleEditorContextMenu.propTypes = {
+  id: PropTypes.string,
+  rowIdx: PropTypes.number,
+  idx: PropTypes.number,
+  onRowDelete: PropTypes.func,
+  onDeleteSelectedRows: PropTypes.func,
+  onRowInsertAbove: PropTypes.func,
+  onRowInsertBelow: PropTypes.func,
+  onCopyToNewRound: PropTypes.func,
+  onCopyToEndOfRound: PropTypes.func,
+  onCopySelectedAbove: PropTypes.func,
+  onCopySelectedBelow: PropTypes.func,
+  onPersistNewRow: PropTypes.func,
+  multipleSelected: PropTypes.bool,
+  newRows: PropTypes.bool
+};

@@ -7,6 +7,7 @@ class RoundDataItem {
    * @param {*} value Returned JSON value for Round Data Item
    */
   constructor(value) {
+    console.log("Round Data Item");
     this.id = value.id || undefined;
     this.round = value.round || undefined;
     this.round_position = value.round_position || undefined;

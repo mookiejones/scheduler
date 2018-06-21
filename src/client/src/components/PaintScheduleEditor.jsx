@@ -10,7 +10,7 @@ import { RoundSummary } from "./RoundSummary";
 import { NotesFormatter } from "./NotesFormatter";
 import DataService from "../api/DataService";
 import PaintScheduleEditorContextMenu from "./PaintScheduleEditor.ContextMenu";
-
+ 
 const heightOffset = 250;
 
 export default class PaintScheduleEditor extends Component {
@@ -130,20 +130,16 @@ export default class PaintScheduleEditor extends Component {
     });
   }
 
-  handleResize(e) {
+  handleResize = e => {
     this.setState({ height: window.innerHeight - heightOffset });
-  }
+  };
 
   deleteRow = (e, data) => {
     const rowIdx = data.rowIdx;
     const rows = this.state.rows;
-    const newRows = this.state.newRows;
+
     let temp = rows[rowIdx].id.includes("TEMP");
 
-    const currentRound = parseInt(rows[rowIdx].round, 10);
-    const currentPos = parseInt(rows[rowIdx].round_position, 10);
-
-    const changedRows = this.state.changedRows;
     const deletedRow = this.state.rows[rowIdx];
 
     temp = update(deletedRow, { $merge: { action: "DELETE" } });

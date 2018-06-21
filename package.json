@@ -4,7 +4,8 @@
   "description": "Paint Scheduling Application",
   "scripts": {
     "client": "cd src/client && npm start",
-    "server": "node ./src/server/bin/www"
+    "server": "node ./src/server/bin/www",
+    "both": "npm run server && npm run client"
   },
   "author": "Charles Berman <Charles.Berman@Magna.com>",
   "private": true,
