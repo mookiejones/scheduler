@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import PaintList from "./PaintList";
-import { Login } from "./Login";
+import Login from "./Login";
 
-export class PaintApp extends Component {
+export default class PaintApp extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
@@ -54,9 +54,7 @@ export class PaintApp extends Component {
     }
     return (
       <Login
-        setUser={(user, name, role) =>
-          this.setState({ currentUser: { id: user, name }, role })
-        }
+        setUser={(user, name, role) => this.setState({ currentUser: { id: user, name }, role })}
       />
     );
   }

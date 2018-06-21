@@ -36,7 +36,7 @@ function eis(e, s, a = null) {
   return idx;
 }
 
-export class StyleCodeEditor extends Component {
+export default class StyleCodeEditor extends Component {
   constructor(props, context) {
     super(props, context);
     this._columns = [

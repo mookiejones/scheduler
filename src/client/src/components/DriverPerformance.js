@@ -33,7 +33,7 @@ function breakIntoSeries(arr, format) {
   return series;
 }
 
-export class DriverPerformance extends Component {
+export default class DriverPerformance extends Component {
   constructor(props, context) {
     super(props, context);
     const now = moment();

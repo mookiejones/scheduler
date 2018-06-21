@@ -7,10 +7,34 @@
 .hidden {
   display: none;
 }
+
+.img {
+  text-align: center;
+}
 .invalid-carrier-range {
   color: #ff1744;
   font-weight: 900;
 }
+
+@media (min-width: 768px) {
+  .navbar > .container .navbar-brand,
+  .navbar > .container-fluid .navbar-brand {
+    margin-left: 0px;
+  }
+}
+
+#root
+  > div
+  > nav
+  > div
+  > div.navbar-collapse.collapse
+  > ul
+  > li
+  > a
+  > span.collapse.in {
+  display: inline;
+}
+
 .header-row {
   display: flex;
   align-items: stretch;

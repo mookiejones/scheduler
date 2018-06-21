@@ -41,6 +41,7 @@
     "react-data-grid-addons": "^4.0.8",
     "react-date-picker": "^6.10.4",
     "react-dom": "^16.4.1",
+    "react-fontawesome": "^1.6.1",
     "react-hammerjs": "^1.0.1",
     "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.4",

@@ -13,7 +13,7 @@ import PaintScheduleEditorContextMenu from "./PaintScheduleEditor.ContextMenu";
 
 const heightOffset = 250;
 
-export class PaintScheduleEditor extends Component {
+export default class PaintScheduleEditor extends Component {
   constructor(props, context) {
     super(props, context);
     this._rows = [];
@@ -39,9 +39,10 @@ export class PaintScheduleEditor extends Component {
     this.getStyleCodesAndProgramColors();
   }
   componentDidMount() {
-    window.addEventListener("resize", this.handleResize);
+    window.addEventListener("resize", () =>
+      this.setState({ height: window.innerHeight - heightOffset }));
   }
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate() {
     if (this.state.firstLoad) {
       if (this.state.rows.length > 0) {
         document.querySelector(".react-grid-Canvas").scrollTop = document.querySelector(".react-grid-Canvas").scrollHeight;
@@ -50,18 +51,11 @@ export class PaintScheduleEditor extends Component {
     }
   }
   componentWillUnmount() {
-    window.removeEventListener("resize", this.handleResize);
+    window.removeEventListener("resize", () =>
+      this.setState({ height: window.innerHeight - heightOffset }));
   }
 
-  getPaintSchedule(dateStr) {
-    let url;
-
-    if (this.props.environment === "production") {
-      url = "../paint.asmx/GetPaintSchedule";
-    } else {
-      url = "../paint.asmx/GetPaintScheduleTest";
-    }
-
+  getPaintSchedule() {
     const self = this;
 
     const updateData = (data) => {
@@ -81,17 +75,9 @@ export class PaintScheduleEditor extends Component {
   }
 
   getStyleCodesAndProgramColors() {
-    let url;
-    let url2;
-
-    if (this.props.environment === "production") {
-      url = "../paint.asmx/GetPaintScheduleStyles";
-    } else {
-      url = "../paint.asmx/GetPaintScheduleStyles"; // test
-    }
     const self = this;
     const updateData = (data) => {
-      self.setState({ styleCodes: data.data.slice() });
+      self.setState({ styleCodes: data.programs.slice() });
     };
     DataService.GetStyleCodes()
       .then(updateData)
@@ -105,26 +91,26 @@ export class PaintScheduleEditor extends Component {
         console.error(err);
       });
   }
-  getStyleCodePresets(style_code) {
+  getStyleCodePresets(styleCode) {
     for (let i = 0; i < this.state.styleCodes.length; i++) {
-      if (this.state.styleCodes[i].id === style_code) {
+      if (this.state.styleCodes[i].id === styleCode) {
         return update(this.state.styleCodes[i], { $merge: {} });
       }
     }
     return {};
   }
 
-  getProgramColors(style_code) {
-    return this.state.programColors[style_code];
-    const style_metadata = this.getStyleCodePresets(style_code);
-    const color_change_program = style_metadata.color_change_program;
+  getProgramColors(styleCode) {
+    return this.state.programColors[styleCode];
+    const styleMetaData = this.getStyleCodePresets(styleCode);
+    const colorChangeProgram = styleMetaData.color_change_program;
     const programColors = [];
 
     for (let i = 0; i < this.state.programColors.length; i++) {
-      if (this.state.programColors[i].style_code === style_code) {
+      if (this.state.programColors[i].style_code === styleCode) {
         programColors.push(this.state.programColors[i]);
       }
-      if (parseInt(this.state.programColors[i].style_code, 10) > parseInt(style_code, 10)) break;
+      if (parseInt(this.state.programColors[i].style_code, 10) > parseInt(styleCode, 10)) break;
     }
 
     return programColors;
@@ -443,117 +429,30 @@ export class PaintScheduleEditor extends Component {
     }
   }
   render() {
-    const changes = this.state.changedRows < 1;
-    const numSelected = this.state.numSelected;
-    const newrows = this.state.newRows;
+    const { numSelected } = this.state;
 
     // Columns definition
+    /* eslint-disable */
     const columns = [
-      {
-        key: "round",
-        name: "Round",
-        width: 65,
-        editable: false
-      },
-      {
-        key: "style_code",
-        name: "Style Code",
-        width: 90,
-        editable: true
-      },
-      {
-        key: "pieces",
-        name: "PPC",
-        width: 50,
-        editable: true
-      },
-      {
-        key: "assembly_flow",
-        name: "Assembly Flow",
-        width: 125,
-        editable: true
-      },
-      {
-        key: "program",
-        name: "Program",
-        editable: true,
-        width: 125
-      },
-      {
-        key: "mold_skin_style",
-        name: "Mold Skin/Style",
-        editable: true,
-        width: 225
-      },
-      {
-        key: "notes",
-        name: "Notes",
-        width: 250,
-        editable: true,
-        formatter: NotesFormatter
-      },
-      {
-        key: "rework_color_chart",
-        name: "Rework Color Chart",
-        editable: true,
-        width: 200
-      },
-      {
-        key: "color",
-        name: "Color",
-        editable: true,
-        width: 125
-      },
-      {
-        key: "add_take_off",
-        name: "ATO",
-        width: 50,
-        editable: true
-      },
-      {
-        key: "total_crs",
-        name: "Total Crs",
-        width: 75,
-        editable: true
-      },
-      {
-        key: "total_pcs",
-        name: "Total Pcs",
-        width: 90,
-        editable: true
-      },
-      {
-        key: "customer",
-        name: "Customer",
-        editable: true,
-        width: 100
-      },
-      {
-        key: "crs_real_time",
-        name: "Carriers Real Time",
-        width: 150,
-        editable: true
-      },
-      {
-        key: "mold_wip_density",
-        name: "WIP Density",
-        width: 110,
-        editable: true
-      },
-      {
-        key: "loc",
-        name: "WIP Location",
-        width: 200,
-        editable: true
-      },
-      {
-        key: "assy_build_option",
-        name: "Build Option",
-        width: 150,
-        editable: true
-      }
+      { key: "round", name: "Round", width: 65, editable: false },
+      { key: "style_code", name: "StyleCode", width: 90, editable: true },
+      { key: "pieces", name: "PPC", width: 50, editable: true },
+      { key: "assembly_flow", name: "AssemblyFlow", width: 125, editable: true },
+      { key: "program", name: "Program", editable: true, width: 125 },
+      { key: "mold_skin_style", name: "MoldSkin/Style", editable: true, width: 225 },
+      { key: "notes", name: "Notes", width: 250, editable: true, formatter: NotesFormatter },
+      { key: "rework_color_chart", name: "ReworkColorChart", editable: true, width: 200 },
+      { key: "color", name: "Color", editable: true, width: 125 },
+      { key: "add_take_off", name: "ATO", width: 50, editable: true },
+      { key: "total_crs", name: "TotalCrs", width: 75, editable: true },
+      { key: "total_pcs", name: "TotalPcs", width: 90, editable: true },
+      { key: "customer", name: "Customer", editable: true, width: 100 },
+      { key: "crs_real_time", name: "CarriersRealTime", width: 150, editable: true },
+      { key: "mold_wip_density", name: "WIPDensity", width: 110, editable: true },
+      { key: "loc", name: "WIPLocation", width: 200, editable: true },
+      { key: "assy_build_option", name: "BuildOption", width: 150, editable: true }
     ];
-
+    /* eslint-enable */
     return (
       <div className="rdg">
         <RoundSummary round={this.state.selectedRound} roundSummary={this.state.roundSummary} />

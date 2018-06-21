@@ -5,7 +5,6 @@
   "scripts": {
     "start": "set PORT=3001 && node bin/www"
   },
-  "proxy": "http://localhost:3001",
   "author": "Charles Berman <Charles.Berman@Magna.com>",
   "private": true,
   "license": "None",

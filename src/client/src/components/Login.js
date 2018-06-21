@@ -40,7 +40,7 @@ const loginAction = (options) => {
   });
 };
 
-export class Login extends Component {
+export default class Login extends Component {
   constructor(props, context) {
     super(props, context);
     this.input = createRef();

@@ -3,9 +3,8 @@ import PropTypes from "prop-types";
 import { Button } from "react-bootstrap";
 
 const ReactiveBtn = ({ numChanged, clickEvent, text }) => (
-  <Button active={numChanged > 0} onClick={clickEvent} bsStyle="warning">
-    {" "}
-    {text}
+  <Button active={numChanged > 0} onClick={clickEvent} bsStyle="primary">
+    {` ${text}`}
   </Button>
 );
 
