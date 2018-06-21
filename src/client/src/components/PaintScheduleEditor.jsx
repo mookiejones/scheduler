@@ -1,6 +1,7 @@
 import * as $ from "jquery";
 import * as ReactDataGrid from "react-data-grid";
 import React, { Component } from "react";
+import { Alert } from "react-bootstrap";
 import update from "react-addons-update";
 import PropTypes from "prop-types";
 
@@ -10,7 +11,7 @@ import { RoundSummary } from "./RoundSummary";
 import { NotesFormatter } from "./NotesFormatter";
 import DataService from "../api/DataService";
 import PaintScheduleEditorContextMenu from "./PaintScheduleEditor.ContextMenu";
- 
+import AlertDismissable from "./AlertDismissable";
 const heightOffset = 250;
 
 export default class PaintScheduleEditor extends Component {
@@ -18,6 +19,11 @@ export default class PaintScheduleEditor extends Component {
     super(props, context);
     this._rows = [];
     this.state = {
+      msg: {
+        show: false,
+        text: "",
+        title: ""
+      },
       // env: this.props.route.env,
       initialRows: [],
       rows: [],
@@ -149,6 +155,8 @@ export default class PaintScheduleEditor extends Component {
       .toString();
 
     this.persistRow(hash, temp);
+    this.setState({ msg: { show: true } });
+    console.log("show have deleted row");
     /*
     changedRows.push(update(deletedRow, {$merge: {action: "DELETE"}}));
 
@@ -328,8 +336,11 @@ export default class PaintScheduleEditor extends Component {
     console.log("very persistent ;)");
   }
   persistRow(hash, row) {
-    let url = "../paint.asmx/UpdatePaintSchedule";
-    if (this.state.env === "development") url = "../paint.asmx/UpdatePaintScheduleTest";
+    let url =
+      this.state.env === "development"
+        ? "../paint.asmx/UpdatePaintScheduleTest"
+        : "../paint.asmx/UpdatePaintSchedule";
+
     const updateq = Object.assign({}, this.state.queuedUpdates);
 
     if (updateq[hash]) return;
@@ -337,7 +348,7 @@ export default class PaintScheduleEditor extends Component {
 
     this.setState({ queuedUpdates: updateq });
 
-    DataService.UpdatePaintSchedule(row);
+    let newRow = DataService.UpdatePaintSchedule(row);
     $.ajax({
       method: "POST",
       url,
@@ -462,6 +473,11 @@ export default class PaintScheduleEditor extends Component {
 
     return (
       <div className="rdg">
+        <AlertDismissable
+          title={this.state.msg.title}
+          text={this.state.msg.Text}
+          show={this.state.msg.show}
+        />
         <RoundSummary round={this.state.selectedRound} roundSummary={this.state.roundSummary} />
         <ReactDataGrid
           contextMenu={

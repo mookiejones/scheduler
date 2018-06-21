@@ -12,6 +12,10 @@ export default class RowRenderer extends Component {
     super(props, context);
     this.rowRef = React.createRef();
   }
+  onKeyDown(event) {
+    console.log("onKeyDown");
+  }
+
   setScrollLeft(scrollBy) {
     this.btnRef.setScrollLeft(scrollBy);
   }
@@ -43,7 +47,15 @@ export default class RowRenderer extends Component {
     }
     columns[colorColIdx].editor = <AutoCompleteEditor options={pgc} />;
 
-    return <Row className={rowStyle} ref={myRef} extraClasses={rowStyle} {...this.props} />;
+    return (
+      <Row
+        className={rowStyle}
+        ref={myRef}
+        extraClasses={rowStyle}
+        {...this.props}
+        onKeyDown={this.onKeyPress}
+      />
+    );
   }
 }
 

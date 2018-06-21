@@ -5,6 +5,7 @@ import StyleCodeProgramData from "./StyleCodeProgramData";
 import PaintScheduleProgramsData from "./PaintScheduleProgramsData";
 import PaintLoadAssistData from "./PaintLoadAssistData";
 import PaintLoadData from "./PaintLoadData";
+import { DELETE_KEY } from "../Constants";
 
 const asPromise = value => new Promise(resolve => resolve(value));
 
@@ -25,6 +26,16 @@ class DataService {
   }
 
   static UpdatePaintSchedule(value) {
+    switch (value.action) {
+      case DELETE_KEY:
+        const schedules = DataService.GetPaintScheduleSync();
+        const index = schedules.RoundData.findIndex((v, i, n) => v.id === value.id);
+        const result = schedules.RoundData.splice(index, 1);
+        return result;
+        console.info(`Found index at ${index}, item is ${schedules.RoundData[index]}`);
+
+        break;
+    }
     const data = { ss: [value] };
   }
 
@@ -43,6 +54,9 @@ class DataService {
   static GetPaintSchedulePrograms() {
     const result = sendData(PaintScheduleProgramsData.fetch(DataService.isTest));
     return result;
+  }
+  static GetPaintScheduleSync() {
+    return PaintScheduleData.fetch(DataService.isTest);
   }
   static getPaintSchedule(arg) {
     const result = sendData(PaintScheduleData.fetch(DataService.isTest));

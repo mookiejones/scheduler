@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Nav, Navbar, FormGroup, FormControl, Button } from "react-bootstrap";
 import CollapsingNavItemWithIcon from "../components/CollapsingNavItemWithIcon";
+import SearchBar from "../components/SearchBar";
 
 export default class Header extends Component {
   constructor(props, context) {
@@ -49,10 +50,7 @@ export default class Header extends Component {
             ))}
           </Nav>
           <Navbar.Form pullLeft>
-            <FormGroup>
-              <FormControl type="text" placeholder="Search" />
-            </FormGroup>{" "}
-            <Button type="submit">Submit</Button>
+            <SearchBar flex />
           </Navbar.Form>
         </Navbar.Collapse>
       </Navbar>

@@ -511,6 +511,7 @@ export default class PaintList extends Component{
       let idx = -1;
       let data = update(this.state.data, {$push: []});
       data.map(function(rowData, rowIdx){
+        debugger;
         if(rowData[0]===row[0]) idx = rowIdx;
       });
   
@@ -524,6 +525,7 @@ export default class PaintList extends Component{
       let exists = false;
       let data = update(this.state.data, {$push: []});
       data.map((rowData, rowIdx) => {
+        debugger;
         if(rowData[0]===newData[0]) exists = true;
       });
   
@@ -636,6 +638,7 @@ export default class PaintList extends Component{
             </thead>
             <tbody>
               {this.state.data.map((rowData, rowIdx) => {
+                debugger;
                 if(rowIdx < 26){
                   return (
                     <HammerRow
@@ -649,6 +652,7 @@ export default class PaintList extends Component{
                       currentUser = {this.state.currentUser}
                       >
                       {COLUMN_DEFINITIONS.map((columnMetaData, colIdx) => {
+                        debugger;
                         if(columnMetaData.visible !== false){
                           if(columnMetaData.CellRenderer) return (<columnMetaData.CellRenderer role={this.props.role} key={rowData[0] + "-" + colIdx} rowData={rowData} updatePartialQty={this.updatePartialQty} currentUser={this.state.currentUser}>{rowData[columnMetaData.data]}</columnMetaData.CellRenderer>)
                           else return (<td className={columnMetaData.className ? columnMetaData.className : ""} key={rowData[0] + "-" + colIdx}>{rowData[columnMetaData.data]}</td>);
