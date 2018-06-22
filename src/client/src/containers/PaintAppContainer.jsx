@@ -1,5 +1,5 @@
 import React from "react";
-import PaintApp from "../components/PaintApp";
+import PaintApp from "../components/PaintApp/PaintApp";
 
 const PaintAppContainer = () => <PaintApp />;
 

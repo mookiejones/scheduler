@@ -14,6 +14,7 @@ export default class Header extends Component {
   render() {
     const items = [
       { href: "/ScheduleEditor", text: "Schedule Editor", icon: "edit" },
+      { href: "/ScheduleEditor2", text: "Schedule Editor2", icon: "edit" },
       { href: "/StyleCodes", text: "Style Codes", icon: "qrcode" },
       { href: "/PaintApp", text: "Paint App", icon: "paint-brush" },
       { href: "/ExcelImport", text: "Excel Import", icon: "upload" },

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PaintList from "./PaintList";
-import Login from "./Login";
+import Login from "../Login";
 
 export default class PaintApp extends Component {
   constructor(props, context) {

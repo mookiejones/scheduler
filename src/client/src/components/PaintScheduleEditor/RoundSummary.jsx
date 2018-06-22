@@ -13,10 +13,10 @@ export class RoundSummary extends Component {
   render() {
     if (this.props.round > 0) {
       const badges = [
-        { name: "Round", content: "round" },
-        { name: "Build Count", content: "build_count" },
-        { name: "Carrier Removal", content: "carrier_removal" },
-        { name: "Tray Counter", content: "tray_counter" }
+        { name: "Round", content: "round", color: "default" },
+        { name: "Build Count", content: "build_count", color: "success" },
+        { name: "Carrier Removal", content: "carrier_removal", color: "secondary" },
+        { name: "Tray Counter", content: "tray_counter", color: "primary" }
       ];
       return (
         <div className="data-grid-header-row">
@@ -24,7 +24,9 @@ export class RoundSummary extends Component {
             <div key={badge.content} className="col-sm-3">
               <p>
                 <b>{badge.name}: </b>
-                <Badge pullRight>{this.props.roundSummary[this.props.round][badge.content]}</Badge>
+                <Badge pullRight bsStyle={badge.color}>
+                  {this.props.roundSummary[this.props.round][badge.content]}
+                </Badge>
               </p>
             </div>
           ))}

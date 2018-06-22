@@ -4,6 +4,7 @@ import PaintScheduleColorsData from "./PaintScheduleColorsData";
 import StyleCodeProgramData from "./StyleCodeProgramData";
 import PaintScheduleProgramsData from "./PaintScheduleProgramsData";
 import PaintLoadAssistData from "./PaintLoadAssistData";
+import PaintStageData from "./PaintStageData";
 import PaintLoadData from "./PaintLoadData";
 import { DELETE_KEY } from "../Constants";
 
@@ -39,6 +40,9 @@ class DataService {
     const data = { ss: [value] };
   }
 
+  static GetPaintStageList() {
+    return sendData(PaintStageData.fetch(DataService.isTest));
+  }
   static GetPaintLoadAssist() {
     return sendData(PaintLoadAssistData.fetch(DataService.isTest));
   }

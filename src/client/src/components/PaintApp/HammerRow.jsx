@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import * as Hammer from "react-hammerjs";
-
 import * as classnames from "classnames";
 
 export class HammerRow extends Component {

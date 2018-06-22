@@ -11,6 +11,8 @@
   "private": true,
   "license": "None",
   "dependencies": {
+    "firebase": "^5.1.0",
+    "react-bootstrap-table": "^4.3.1",
     "react-date-picker": "^6.10.4",
     "react-datepicker": "^1.5.0",
     "react-fontawesome": "^1.6.1"
