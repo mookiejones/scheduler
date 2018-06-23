@@ -535,7 +535,7 @@ export default class PaintScheduleEditor2 extends Component {
     if (row.color && /service/i.test(row.color)) result.push("service");
 
     if (row.notes) {
-      if (/do not ship/i.test(row.notes)) result.push("dont ship");
+      if (/do not ship/i.test(row.notes)) result.push("dontship");
 
       if (/ship if good/i.test(row.notes)) result.push("shipifgood");
 
