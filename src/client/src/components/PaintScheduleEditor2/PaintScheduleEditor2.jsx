@@ -10,6 +10,7 @@ import DataService from "../../api/DataService";
 import AlertDismissable from "../AlertDismissable";
 import SettingsModal from "./SettingsModal";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import classnames from "classnames";
 
 const heightOffset = 250;
 
@@ -522,23 +523,24 @@ export default class PaintScheduleEditor2 extends Component {
 
   getRowFormat(row, index) {
     const rowStyle = classnames({
-      "bg-success": id.substring(0, 4) === "TEMP",
-      "bg-normal": id.substring(0, 4) !== "TEMP",
-      service: color.includes("service"),
-      dontship: notes.includes("do not ship"),
-      shipifgood: notes.includes("ship if good"),
-      build: notes.includes("build")
+      "bg-success": row.id.substring(0, 4) === "TEMP",
+      "bg-normal": row.id.substring(0, 4) !== "TEMP",
+      service: row.color && row.color.includes("service"),
+      dontship: row.notes && row.notes.includes("do not ship"),
+      shipifgood: row.notes && row.notes.includes("ship if good"),
+      build: row.notes && row.notes.includes("build")
     });
     let result = [];
-    result.push(id.substring(0, 4) === "TEMP" ? "bg-success" : "bg-normal");
-    if (/service/i.test(row.color)) result.push("service");
+    result.push(row.id.substring(0, 4) === "TEMP" ? "bg-success" : "bg-normal");
+    if (row.color && /service/i.test(row.color)) result.push("service");
 
-    if (/do not ship/i.test(row.notes)) result.push("dont ship");
+    if (row.notes) {
+      if (/do not ship/i.test(row.notes)) result.push("dont ship");
 
-    if (/ship if good/i.test(row.notes)) result.push("shipifgood");
+      if (/ship if good/i.test(row.notes)) result.push("shipifgood");
 
-    if (/build/i.test(row.notes)) result.push("build");
-    debugger;
+      if (/build/i.test(row.notes)) result.push("build");
+    }
     return result;
   }
   render() {

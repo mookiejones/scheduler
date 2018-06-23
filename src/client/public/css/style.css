@@ -338,16 +338,16 @@ a:hover {
   display: none;
 }
 
-.shipifgood>div {
+.shipifgood>td {
   font-weight: bold;
   background-color: #81c784;
 }
 
-.service>div {
+.service>td {
   background-color: #eceff1;
 }
 
-.build>div {
+.build>td {
   font-weight: bold;
   background-color: #fff176;
 }
@@ -362,13 +362,13 @@ a:hover {
   padding-right: 8px;
 }
 
-.dontship>div {
+.dontship>td {
   font-weight: bold;
   background-color: #ff1744;
   color: white;
 }
 
-.dontship:hover>div {
+.dontship:hover>td {
   color: black;
 }
 
