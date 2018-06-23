@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Badge, Glyphicon, Button } from "react-bootstrap";
+import { Grid, Row, Col, Label, Glyphicon, Button } from "react-bootstrap";
+import FontAwesome from "react-fontawesome";
 
 export class RoundSummary extends Component {
   constructor(props, context) {
@@ -15,25 +16,29 @@ export class RoundSummary extends Component {
       const badges = [
         { name: "Round", content: "round", color: "default" },
         { name: "Build Count", content: "build_count", color: "success" },
-        { name: "Carrier Removal", content: "carrier_removal", color: "secondary" },
+        {
+          name: "Carrier Removal",
+          content: "carrier_removal",
+          color: "secondary"
+        },
         { name: "Tray Counter", content: "tray_counter", color: "primary" }
       ];
       return (
-        <div className="data-grid-header-row">
-          {badges.map(badge => (
-            <div key={badge.content} className="col-sm-3">
-              <p>
-                <b>{badge.name}: </b>
-                <Badge pullRight bsStyle={badge.color}>
+        <Grid>
+          <Row>
+            {badges.map(badge => (
+              <Col sm={3} key={badge.content}>
+                {badge.name}
+                <Label bsClass={`label label-round label-${badge.color}`}>
                   {this.props.roundSummary[this.props.round][badge.content]}
-                </Badge>
-              </p>
-            </div>
-          ))}
-          <Button onClick={this.props.onClick}>
-            <Glyphicon glyph="cog" />
-          </Button>
-        </div>
+                </Label>
+              </Col>
+            ))}
+            <Button bsStyle="link">
+              <FontAwesome name="cog" size="2x" onClick={this.props.onClick} />
+            </Button>
+          </Row>
+        </Grid>
       );
     }
     return (

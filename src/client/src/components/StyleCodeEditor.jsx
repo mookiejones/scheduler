@@ -4,7 +4,11 @@ import React, { Component } from "react";
 import ReactDataGrid from "react-data-grid";
 import RowRenderer from "./StyleCodeEditor.RowRenderer";
 import { StyleCodeEditorContextMenu } from "./Context";
-import { CustomerOptionsEditor, AssemblyFlowOptionsEditor, LocationOptionsEditor } from "./Editors";
+import {
+  CustomerOptionsEditor,
+  AssemblyFlowOptionsEditor,
+  LocationOptionsEditor
+} from "./Editors";
 import DataService from "../api/DataService";
 
 const heightOffset = 150;
@@ -127,8 +131,13 @@ export default class StyleCodeEditor extends Component {
   componentWillMount() {
     this.getStyles();
   }
+  handleResize(e) {
+    this.setState({ height: window.innerHeight - heightOffset });
+  }
   componentDidMount() {
-    window.addEventListener("resize", this.handleResize);
+    window.addEventListener("resize", () =>
+      this.setState({ height: window.innerHeight - heightOffset })
+    );
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -137,7 +146,9 @@ export default class StyleCodeEditor extends Component {
     }
   }
   componentWillUnmount() {
-    window.removeEventListener("resize", this.handleResize);
+    window.removeEventListener("resize", () =>
+      this.setState({ height: window.innerHeight - heightOffset })
+    );
   }
   getStyles() {
     const self = this;
@@ -198,9 +209,12 @@ export default class StyleCodeEditor extends Component {
       if (previous_changedRowIdx === -1) {
         changed.push(update(changed_row, { $merge: { action: "UPDATE" } }));
       } else {
-        changed[previous_changedRowIdx] = update(changed[previous_changedRowIdx], {
-          $merge: e.updated
-        });
+        changed[previous_changedRowIdx] = update(
+          changed[previous_changedRowIdx],
+          {
+            $merge: e.updated
+          }
+        );
       }
 
       Object.assign(rows[e.rowIdx], e.updated);
@@ -327,9 +341,7 @@ export default class StyleCodeEditor extends Component {
     }
     return -1;
   }
-  handleResize(e) {
-    this.setState({ height: window.innerHeight - heightOffset });
-  }
+
   handleGridRowsUpdated({ fromRow, toRow, updated }) {
     const rows = this.state.rows.slice();
     const changedRows = this.state.changedRows.slice();
@@ -345,11 +357,16 @@ export default class StyleCodeEditor extends Component {
       if (changed) {
         const previous_changedRowIdx = this.rowPreviouslyChanged(updatedRow.id);
         if (previous_changedRowIdx === -1) {
-          changedRows.push(update(updatedRow, { $merge: { action: "UPDATE" } }));
+          changedRows.push(
+            update(updatedRow, { $merge: { action: "UPDATE" } })
+          );
         } else {
-          changedRows[previous_changedRowIdx] = update(changedRows[previous_changedRowIdx], {
-            $merge: updated
-          });
+          changedRows[previous_changedRowIdx] = update(
+            changedRows[previous_changedRowIdx],
+            {
+              $merge: updated
+            }
+          );
         }
         rows[i] = updatedRow;
       }
@@ -361,19 +378,25 @@ export default class StyleCodeEditor extends Component {
     const comparer = (a, b) => {
       if (sortDirection === "ASC") {
         if (sortColumn === "id") {
-          return parseInt(a[sortColumn], 10) > parseInt(b[sortColumn], 10) ? 1 : -1;
+          return parseInt(a[sortColumn], 10) > parseInt(b[sortColumn], 10)
+            ? 1
+            : -1;
         }
         return a[sortColumn] > b[sortColumn] ? 1 : -1;
       } else if (sortDirection === "DESC") {
         if (sortColumn === "id") {
-          return parseInt(a[sortColumn], 10) < parseInt(b[sortColumn], 10) ? 1 : -1;
+          return parseInt(a[sortColumn], 10) < parseInt(b[sortColumn], 10)
+            ? 1
+            : -1;
         }
         return a[sortColumn] < b[sortColumn] ? 1 : -1;
       }
     };
 
     const rows =
-      sortDirection === "NONE" ? this.state.originalRows.slice(0) : this.state.rows.sort(comparer);
+      sortDirection === "NONE"
+        ? this.state.originalRows.slice(0)
+        : this.state.rows.sort(comparer);
 
     this.setState({ rows });
   }

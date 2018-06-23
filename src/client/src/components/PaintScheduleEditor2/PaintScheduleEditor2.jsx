@@ -8,8 +8,8 @@ import ReactiveBtn from "./ReactiveBtn";
 import { RoundSummary } from "./RoundSummary";
 import DataService from "../../api/DataService";
 import AlertDismissable from "../AlertDismissable";
+import SettingsModal from "./SettingsModal";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
-import { Modal, Button, ButtonToolbar } from "react-bootstrap";
 
 const heightOffset = 250;
 
@@ -35,7 +35,9 @@ function afterSearch(searchText, result) {
   console.log("Your search text is " + searchText);
   console.log("Result is:");
   for (let i = 0; i < result.length; i++) {
-    console.log("Fruit: " + result[i].id + ", " + result[i].name + ", " + result[i].price);
+    console.log(
+      "Fruit: " + result[i].id + ", " + result[i].name + ", " + result[i].price
+    );
   }
 }
 const options = {
@@ -59,107 +61,6 @@ const defaultOptions = {
   onRowDoubleClick: row => {},
   afterSearch: afterSearch // define a after search hook
 };
-
-class SettingsModal extends Component {
-  constructor(props, context) {
-    super(props, context);
-
-    this.handleShow = this.handleShow.bind(this);
-    this.handleHid = this.handleHide.bind(this);
-    this.state = { show: false };
-  }
-  handleShow() {
-    this.setState({ show: true });
-  }
-
-  handleHide() {
-    this.setState({ show: false });
-  }
-  render() {
-    return (
-      <ButtonToolbar>
-        <Button bsStyle="primary" onClick={this.handleShow}>
-          Launch demo modal
-        </Button>
-
-        <Modal
-          {...this.props}
-          show={this.state.show}
-          onHide={this.handleHide}
-          dialogClassName="custom-modal"
-        >
-          <Modal.Header closeButton>
-            <Modal.Title id="contained-modal-title-lg">Modal heading</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <h4>Wrapped Text</h4>
-            <p>
-              Ipsum molestiae natus adipisci modi eligendi? Debitis amet quae unde commodi
-              aspernatur enim, consectetur. Cumque deleniti temporibus ipsam atque a dolores
-              quisquam quisquam adipisci possimus laboriosam. Quibusdam facilis doloribus debitis!
-              Sit quasi quod accusamus eos quod. Ab quos consequuntur eaque quo rem! Mollitia
-              reiciendis porro quo magni incidunt dolore amet atque facilis ipsum deleniti rem!
-              Dolores debitis voluptatibus ipsum dicta. Dolor quod amet ab sint esse distinctio
-              tenetur. Veritatis laudantium quibusdam quidem corporis architecto veritatis. Ex
-              facilis minima beatae sunt perspiciatis placeat. Quasi corporis odio eaque
-              voluptatibus ratione magnam nulla? Amet cum maiores consequuntur totam dicta!
-              Inventore adipisicing vel vero odio modi doloremque? Vitae porro impedit ea minima
-              laboriosam quisquam neque. Perspiciatis omnis obcaecati consequatur sunt deleniti
-              similique facilis sequi. Ipsum harum vitae modi reiciendis officiis. Quas laudantium
-              laudantium modi corporis nihil provident consectetur omnis, natus nulla distinctio
-              illum corporis. Sit ex earum odio ratione consequatur odit minus laborum? Eos? Sit
-              ipsum illum architecto aspernatur perspiciatis error fuga illum, tempora harum earum,
-              a dolores. Animi facilis inventore harum dolore accusamus fuga provident molestiae
-              eum! Odit dicta error dolorem sunt reprehenderit. Sit similique iure quae obcaecati
-              harum. Eum saepe fugit magnam dicta aliquam? Sapiente possimus aliquam fugiat officia
-              culpa sint! Beatae voluptates voluptatem excepturi molestiae alias in tenetur beatae
-              placeat architecto. Sit possimus rerum fugiat sapiente aspernatur. Necessitatibus
-              tempora animi dicta perspiciatis tempora a velit in! Doloribus perspiciatis doloribus
-              suscipit nam earum. Deleniti veritatis eaque totam assumenda fuga sapiente! Id
-              recusandae. Consectetur necessitatibus eaque velit nobis aliquid? Fugit illum qui
-              suscipit aspernatur alias ipsum repudiandae! Quia omnis quisquam dignissimos a
-              mollitia. Suscipit aspernatur eum maiores repellendus ipsum doloribus alias voluptatum
-              consequatur. Consectetur quibusdam veniam quas tenetur necessitatibus repudiandae? Rem
-              optio vel alias neque optio sapiente quidem similique reiciendis tempore. Illum
-              accusamus officia cum enim minima eligendi consectetur nemo veritatis nam nisi!
-              Adipisicing nobis perspiciatis dolorum adipisci soluta architecto doloremque
-              voluptatibus omnis debitis quas repellendus. Consequuntur assumenda illum commodi
-              mollitia asperiores? Quis aspernatur consequatur modi veritatis aliquid at? Atque vel
-              iure quos. Amet provident voluptatem amet aliquam deserunt sint, elit dolorem ipsa,
-              voluptas? Quos esse facilis neque nihil sequi non? Voluptates rem ab quae dicta culpa
-              dolorum sed atque molestias debitis omnis! Sit sint repellendus deleniti officiis
-              distinctio. Impedit vel quos harum doloribus corporis. Laborum ullam nemo quaerat
-              reiciendis recusandae minima dicta molestias rerum. Voluptas et ut omnis est ipsum
-              accusamus harum. Amet exercitationem quasi velit inventore neque doloremque!
-              Consequatur neque dolorem vel impedit sunt voluptate. Amet quo amet magni
-              exercitationem libero recusandae possimus pariatur. Cumque eum blanditiis vel vitae
-              distinctio! Tempora! Consectetur sit eligendi neque sunt soluta laudantium natus qui
-              aperiam quisquam consectetur consequatur sit sint a unde et. At voluptas ut officiis
-              esse totam quasi dolorem! Hic deserunt doloribus repudiandae! Lorem quod ab nostrum
-              asperiores aliquam ab id consequatur, expedita? Tempora quaerat ex ea temporibus in
-              tempore voluptates cumque. Quidem nam dolor reiciendis qui dolor assumenda ipsam
-              veritatis quasi. Esse! Sit consectetur hic et sunt iste! Accusantium atque elit
-              voluptate asperiores corrupti temporibus mollitia! Placeat soluta odio ad blanditiis
-              nisi. Eius reiciendis id quos dolorum eaque suscipit magni delectus maxime. Sit odit
-              provident vel magnam quod. Possimus eligendi non corrupti tenetur culpa accusantium
-              quod quis. Voluptatum quaerat animi dolore maiores molestias voluptate? Necessitatibus
-              illo omnis laborum hic enim minima! Similique. Dolor voluptatum reprehenderit nihil
-              adipisci aperiam voluptatem soluta magnam accusamus iste incidunt tempore consequatur
-              illo illo odit. Asperiores nesciunt iusto nemo animi ratione. Sunt odit similique
-              doloribus temporibus reiciendis! Ullam. Dolor dolores veniam animi sequi dolores
-              molestias voluptatem iure velit. Elit dolore quaerat incidunt enim aut distinctio.
-              Ratione molestiae laboriosam similique laboriosam eum et nemo expedita. Consequuntur
-              perspiciatis cumque dolorem.
-            </p>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button onClick={this.handleHide}>Close</Button>
-          </Modal.Footer>
-        </Modal>
-      </ButtonToolbar>
-    );
-  }
-}
 
 export default class PaintScheduleEditor2 extends Component {
   constructor(props, context) {
@@ -248,11 +149,8 @@ export default class PaintScheduleEditor2 extends Component {
       });
   }
   getStyleCodePresets(styleCode) {
-    for (let i = 0; i < this.state.styleCodes.length; i++) {
-      if (this.state.styleCodes[i].id === styleCode) {
-        return update(this.state.styleCodes[i], { $merge: {} });
-      }
-    }
+    let result = this.state.styleCodes.find(code => code.id === styleCode);
+    if (result != null) return update(result, { $merge: {} });
     return {};
   }
 
@@ -266,7 +164,11 @@ export default class PaintScheduleEditor2 extends Component {
       if (this.state.programColors[i].style_code === styleCode) {
         programColors.push(this.state.programColors[i]);
       }
-      if (parseInt(this.state.programColors[i].style_code, 10) > parseInt(styleCode, 10)) break;
+      if (
+        parseInt(this.state.programColors[i].style_code, 10) >
+        parseInt(styleCode, 10)
+      )
+        break;
     }
 
     return programColors;
@@ -296,7 +198,11 @@ export default class PaintScheduleEditor2 extends Component {
 
     temp = update(deletedRow, { $merge: { action: "DELETE" } });
     const hash = "{0}:{1}:{2}"
-      .formatUnicorn(deletedRow.id, JSON.stringify({ action: "DELETE" }), JSON.stringify(temp))
+      .formatUnicorn(
+        deletedRow.id,
+        JSON.stringify({ action: "DELETE" }),
+        JSON.stringify(temp)
+      )
       .hashCode()
       .toString();
 
@@ -345,7 +251,9 @@ export default class PaintScheduleEditor2 extends Component {
         parseInt(rows[i].round, 10) === currentRound &&
         parseInt(rows[i].round_position, 10) >= currentPos
       ) {
-        rows[i].round_position = (parseInt(rows[i].round_position, 10) + 1).toString();
+        rows[i].round_position = (
+          parseInt(rows[i].round_position, 10) + 1
+        ).toString();
       }
     }
 
@@ -375,7 +283,9 @@ export default class PaintScheduleEditor2 extends Component {
           customer: style_metadata.customer,
           program: style_metadata.style_name
         };
-        tempRows[e.rowIdx] = update(tempRows[e.rowIdx], { $merge: new_rowdata });
+        tempRows[e.rowIdx] = update(tempRows[e.rowIdx], {
+          $merge: new_rowdata
+        });
       }
       // get last changes
       const changed_row = tempRows[e.rowIdx];
@@ -384,9 +294,12 @@ export default class PaintScheduleEditor2 extends Component {
       if (previous_changedRowIdx === -1) {
         changed.push(update(changed_row, { $merge: { action: "UPDATE" } }));
       } else {
-        changed[previous_changedRowIdx] = update(changed[previous_changedRowIdx], {
-          $merge: tempRows[e.rowIdx]
-        });
+        changed[previous_changedRowIdx] = update(
+          changed[previous_changedRowIdx],
+          {
+            $merge: tempRows[e.rowIdx]
+          }
+        );
       }
 
       if (this.applyRuleSet(tempRows)) {
@@ -419,7 +332,9 @@ export default class PaintScheduleEditor2 extends Component {
             assembly_flow: style_metadata.assembly_flow,
             customer: style_metadata.customer,
             program: style_metadata.description,
-            pieces: style_metadata.PartsPerCarrier ? style_metadata.PartsPerCarrier : 0,
+            pieces: style_metadata.PartsPerCarrier
+              ? style_metadata.PartsPerCarrier
+              : 0,
             mold_wip_density: style_metadata.mold_wip_rack_density,
             total_crs: 1,
             total_pcs: 1 * style_metadata.PartsPerCarrier
@@ -456,7 +371,11 @@ export default class PaintScheduleEditor2 extends Component {
           } else {
             var temp = update(updatedRow, { $merge: { action: "INSERT" } });
             var hash = "{0}:{1}:{2}"
-              .formatUnicorn(updatedRow.id, JSON.stringify(updated), JSON.stringify(temp))
+              .formatUnicorn(
+                updatedRow.id,
+                JSON.stringify(updated),
+                JSON.stringify(temp)
+              )
               .hashCode()
               .toString();
             this.persistRow(hash, temp);
@@ -464,7 +383,11 @@ export default class PaintScheduleEditor2 extends Component {
         } else {
           var temp = update(updatedRow, { $merge: { action: "UPDATE" } });
           var hash = "{0}:{1}:{2}"
-            .formatUnicorn(updatedRow.id, JSON.stringify(updated), JSON.stringify(temp))
+            .formatUnicorn(
+              updatedRow.id,
+              JSON.stringify(updated),
+              JSON.stringify(temp)
+            )
             .hashCode()
             .toString();
           this.persistRow(hash, temp);
@@ -525,9 +448,11 @@ export default class PaintScheduleEditor2 extends Component {
     let question = "Add new round?";
 
     let url = "../paint.asmx/ScheduleNewRoundTest";
-    if (this.state.env === "development") url = "../paint.asmx/ScheduleNewRoundTest";
+    if (this.state.env === "development")
+      url = "../paint.asmx/ScheduleNewRoundTest";
 
-    if (this.state.newRows > 0) question = "Unsaved rows will be lost! Continue?";
+    if (this.state.newRows > 0)
+      question = "Unsaved rows will be lost! Continue?";
 
     if (true) {
       // }    if(confirm(string)){
@@ -590,9 +515,31 @@ export default class PaintScheduleEditor2 extends Component {
   rowGetter = idx => {
     return this.state.rows[idx];
   };
-  showSettings() {
+  showSettings(e) {
     debugger;
     this.setState({ showSettings: true });
+  }
+
+  getRowFormat(row, index) {
+    const rowStyle = classnames({
+      "bg-success": id.substring(0, 4) === "TEMP",
+      "bg-normal": id.substring(0, 4) !== "TEMP",
+      service: color.includes("service"),
+      dontship: notes.includes("do not ship"),
+      shipifgood: notes.includes("ship if good"),
+      build: notes.includes("build")
+    });
+    let result = [];
+    result.push(id.substring(0, 4) === "TEMP" ? "bg-success" : "bg-normal");
+    if (/service/i.test(row.color)) result.push("service");
+
+    if (/do not ship/i.test(row.notes)) result.push("dont ship");
+
+    if (/ship if good/i.test(row.notes)) result.push("shipifgood");
+
+    if (/build/i.test(row.notes)) result.push("build");
+    debugger;
+    return result;
   }
   render() {
     const { numSelected } = this.state;
@@ -613,9 +560,10 @@ export default class PaintScheduleEditor2 extends Component {
         <RoundSummary
           round={this.state.selectedRound}
           roundSummary={this.state.roundSummary}
-          onClick={this.showSettings}
+          onClick={() => this.showSettings(this)}
         />
         <BootstrapTable
+          trClassName={this.getRowFormat}
           insertRow={true}
           data={this.state.rows}
           striped
@@ -626,10 +574,19 @@ export default class PaintScheduleEditor2 extends Component {
           search={true}
           multiColumnSearch={true}
           cellEdit={cellEditProp}
-          pagination
         >
           {Columns.map(
-            ({ isKey, key, width, dataAlign, name, dataSort, hidden, editable, customEditor }) => (
+            ({
+              isKey,
+              key,
+              width,
+              dataAlign,
+              name,
+              dataSort,
+              hidden,
+              editable,
+              customEditor
+            }) => (
               <TableHeaderColumn
                 search={true}
                 editable={editable}
