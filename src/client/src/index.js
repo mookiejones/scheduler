@@ -6,7 +6,9 @@ import registerServiceWorker from "./registerServiceWorker";
 
 ReactDOM.render(<App />, document.getElementById("root"));
 
+
 /* eslint-disable */
+
 String.prototype.formatUnicorn = String.prototype.formatUnicorn || function () {
     let str = this.toString();
     if ( arguments.length ) {

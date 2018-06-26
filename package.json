@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "description": "Paint Scheduling Application",
   "scripts": {
+    "build-css": "node-sass-chokidar src/client/public/css -o src/client/public/css",
+    "watch-css": "npm run build-css && node-sass-chokidar src/client/public/css -o src/client/public/css --watch --recursive",
     "client": "cd src/client && npm start",
     "server": "node ./src/server/bin/www",
     "both": "npm run server && npm run client"
@@ -12,6 +14,7 @@
   "license": "None",
   "dependencies": {
     "firebase": "^5.1.0",
+
     "react-bootstrap-table": "^4.3.1",
     "react-date-picker": "^6.10.4",
     "react-datepicker": "^1.5.0",

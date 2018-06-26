@@ -33,12 +33,14 @@ const onAfterInsertRow = row => {
 
 const onAfterDeleteRow = rowKeys => {};
 function afterSearch(searchText, result) {
+  if (!searchText) {
+    console.log(`Nothing to search for`);
+    return;
+  }
   console.log("Your search text is " + searchText);
   console.log("Result is:");
   for (let i = 0; i < result.length; i++) {
-    console.log(
-      "Fruit: " + result[i].id + ", " + result[i].name + ", " + result[i].price
-    );
+    console.log("Fruit: " + result[i].id + ", " + result[i].name + ", " + result[i].price);
   }
 }
 const options = {
@@ -165,11 +167,7 @@ export default class PaintScheduleEditor2 extends Component {
       if (this.state.programColors[i].style_code === styleCode) {
         programColors.push(this.state.programColors[i]);
       }
-      if (
-        parseInt(this.state.programColors[i].style_code, 10) >
-        parseInt(styleCode, 10)
-      )
-        break;
+      if (parseInt(this.state.programColors[i].style_code, 10) > parseInt(styleCode, 10)) break;
     }
 
     return programColors;
@@ -199,11 +197,7 @@ export default class PaintScheduleEditor2 extends Component {
 
     temp = update(deletedRow, { $merge: { action: "DELETE" } });
     const hash = "{0}:{1}:{2}"
-      .formatUnicorn(
-        deletedRow.id,
-        JSON.stringify({ action: "DELETE" }),
-        JSON.stringify(temp)
-      )
+      .formatUnicorn(deletedRow.id, JSON.stringify({ action: "DELETE" }), JSON.stringify(temp))
       .hashCode()
       .toString();
 
@@ -252,9 +246,7 @@ export default class PaintScheduleEditor2 extends Component {
         parseInt(rows[i].round, 10) === currentRound &&
         parseInt(rows[i].round_position, 10) >= currentPos
       ) {
-        rows[i].round_position = (
-          parseInt(rows[i].round_position, 10) + 1
-        ).toString();
+        rows[i].round_position = (parseInt(rows[i].round_position, 10) + 1).toString();
       }
     }
 
@@ -295,12 +287,9 @@ export default class PaintScheduleEditor2 extends Component {
       if (previous_changedRowIdx === -1) {
         changed.push(update(changed_row, { $merge: { action: "UPDATE" } }));
       } else {
-        changed[previous_changedRowIdx] = update(
-          changed[previous_changedRowIdx],
-          {
-            $merge: tempRows[e.rowIdx]
-          }
-        );
+        changed[previous_changedRowIdx] = update(changed[previous_changedRowIdx], {
+          $merge: tempRows[e.rowIdx]
+        });
       }
 
       if (this.applyRuleSet(tempRows)) {
@@ -333,9 +322,7 @@ export default class PaintScheduleEditor2 extends Component {
             assembly_flow: style_metadata.assembly_flow,
             customer: style_metadata.customer,
             program: style_metadata.description,
-            pieces: style_metadata.PartsPerCarrier
-              ? style_metadata.PartsPerCarrier
-              : 0,
+            pieces: style_metadata.PartsPerCarrier ? style_metadata.PartsPerCarrier : 0,
             mold_wip_density: style_metadata.mold_wip_rack_density,
             total_crs: 1,
             total_pcs: 1 * style_metadata.PartsPerCarrier
@@ -372,11 +359,7 @@ export default class PaintScheduleEditor2 extends Component {
           } else {
             var temp = update(updatedRow, { $merge: { action: "INSERT" } });
             var hash = "{0}:{1}:{2}"
-              .formatUnicorn(
-                updatedRow.id,
-                JSON.stringify(updated),
-                JSON.stringify(temp)
-              )
+              .formatUnicorn(updatedRow.id, JSON.stringify(updated), JSON.stringify(temp))
               .hashCode()
               .toString();
             this.persistRow(hash, temp);
@@ -384,11 +367,7 @@ export default class PaintScheduleEditor2 extends Component {
         } else {
           var temp = update(updatedRow, { $merge: { action: "UPDATE" } });
           var hash = "{0}:{1}:{2}"
-            .formatUnicorn(
-              updatedRow.id,
-              JSON.stringify(updated),
-              JSON.stringify(temp)
-            )
+            .formatUnicorn(updatedRow.id, JSON.stringify(updated), JSON.stringify(temp))
             .hashCode()
             .toString();
           this.persistRow(hash, temp);
@@ -449,11 +428,9 @@ export default class PaintScheduleEditor2 extends Component {
     let question = "Add new round?";
 
     let url = "../paint.asmx/ScheduleNewRoundTest";
-    if (this.state.env === "development")
-      url = "../paint.asmx/ScheduleNewRoundTest";
+    if (this.state.env === "development") url = "../paint.asmx/ScheduleNewRoundTest";
 
-    if (this.state.newRows > 0)
-      question = "Unsaved rows will be lost! Continue?";
+    if (this.state.newRows > 0) question = "Unsaved rows will be lost! Continue?";
 
     if (true) {
       // }    if(confirm(string)){
@@ -517,7 +494,6 @@ export default class PaintScheduleEditor2 extends Component {
     return this.state.rows[idx];
   };
   showSettings(e) {
-    debugger;
     this.setState({ showSettings: true });
   }
 
@@ -578,24 +554,15 @@ export default class PaintScheduleEditor2 extends Component {
           cellEdit={cellEditProp}
         >
           {Columns.map(
-            ({
-              isKey,
-              key,
-              width,
-              dataAlign,
-              name,
-              dataSort,
-              hidden,
-              editable,
-              customEditor
-            }) => (
+            ({ isKey, key, width, dataAlign, name, dataSort, hidden, editable, customEditor }) => (
               <TableHeaderColumn
+                key={key}
                 search={true}
                 editable={editable}
                 isKey={isKey}
                 dataSort={dataSort}
                 dataField={key}
-                width={width}
+                width="{width}"
                 dataAlign={dataAlign}
                 hidden={hidden}
                 customEditor={customEditor}
