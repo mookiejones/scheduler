@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import * as hammer from "hammerjs";
 import FontAwesome from "react-fontawesome";
+
 import {
   Row,
   ListGroup,
@@ -9,7 +10,7 @@ import {
   Label,
   Badge,
   Tooltip,
-  OverlayTrigger,
+  OverlayTrigger
 } from "react-bootstrap";
 import PropTypes from "prop-types";
 const styles = ["green", "yellow", "orange", "red", "purple", "blue"];
@@ -27,7 +28,7 @@ export default class PaintItem extends Component {
   }
   componentDidMount() {
     this.hammer = hammer(this.row);
-    this.hammer.on("tap", ev => {
+    this.hammer.on("tap", (ev) => {
       if (ev.target.classList.contains("tap") && this.props.TapActionHandler) {
         this.props.TapActionHandler(this.props.rowId, ev.target);
       }
@@ -39,7 +40,7 @@ export default class PaintItem extends Component {
           this.props.UndoActionHandler(this.props.rowId);
       }
     });
-    this.hammer.on("swipe", ev => {
+    this.hammer.on("swipe", (ev) => {
       if (this.props.SwipeActionHandler)
         this.props.SwipeActionHandler(this.props.rowId);
     });
@@ -61,7 +62,7 @@ export default class PaintItem extends Component {
       ) {
         return (
           <FontAwesome
-            ref={row => (this.row = row)}
+            ref={(row) => (this.row = row)}
             size="lg"
             className={`undo rack-group-${
               styles[parseInt(this.props.round_pos, 10) % styles.length]
@@ -79,7 +80,7 @@ export default class PaintItem extends Component {
       </Tooltip>
     );
     return (
-      <div className="list-group-item row" ref={row => (this.row = row)}>
+      <div className="list-group-item row" ref={(row) => (this.row = row)}>
         <Col xs={1} md={1} lg={1}>
           {getUndo()}
         </Col>
@@ -121,5 +122,5 @@ PaintItem.propTypes = {
   data: PropTypes.any,
   SwipeActionHandler: PropTypes.func,
   TapActionHandler: PropTypes.func,
-  currentUser: PropTypes.any,
+  currentUser: PropTypes.any
 };

@@ -17,6 +17,6 @@
     "update_via_cache": "none"
   },
   "lang": "en-US",
-  "name": "paint-schedule-manager",
-  "start_url": "./PaintScheduleManager"
+  "name": "paint-load-app",
+  "start_url": "./paint-load-app"
 }

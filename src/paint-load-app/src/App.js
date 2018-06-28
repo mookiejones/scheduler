@@ -19,12 +19,9 @@ class App extends Component {
 
   render() {
     return ( <
-      ErrorBoundry >
-      <
       Main / >
-      <
-      /ErrorBoundry>);
-    }
+    )
   }
+}
 
-  export default App;
+export default App;

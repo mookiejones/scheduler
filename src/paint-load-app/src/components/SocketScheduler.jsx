@@ -1,15 +1,15 @@
 import * as io from "socket.io-client";
+import { API_SERVER } from "../Constants";
 
 class SocketScheduler {
   constructor(isTesting) {
-    const url = isTesting
-      ? "http://localhost:5555/paint-load"
-      : "http://normagnaapps1:5555/paint-load";
+    debugger;
+    const url = `${API_SERVER}/paint-load`;
     this.socket = io(url);
   }
 
   subscribe(name, callback) {
-    this.socket.on(name, (msg) => {
+    this.socket.on(name, msg => {
       callback(msg);
     });
   }

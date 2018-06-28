@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+
+const VERSION_NUMBER="1.3";
 export default class ListTop extends Component {
   constructor(props, context) {
     super(props, context);
@@ -30,7 +32,7 @@ export default class ListTop extends Component {
     return (
       <div>
         <div style={{ margin: "8px 12px 0px 0px", textAlign: "right" }}>
-          version: 1.2
+          version: {VERSION_NUMBER}
         </div>
         <div className="centerDiv">
           <h3 style={{ textDecoration: "underline" }}>{paintLabel}</h3>
