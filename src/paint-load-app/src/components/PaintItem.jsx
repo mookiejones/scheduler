@@ -94,16 +94,21 @@ export default class PaintItem extends Component {
           </TextWithTooltip>
         </Col>
         <Col xs={2} md={2} lg={2}>
-          {this.props.data.mold_skin_style}
+          <TextWithTooltip tooltip="Mold skin style" id="t3">
+            {this.props.data.mold_skin_style}
+          </TextWithTooltip>
         </Col>
         <Col xs={2} md={2} lg={2}>
-          {this.props.data.rework_color_chart}
+          <TextWithTooltip tooltip="Rework color chart" id="t4">
+            {this.props.data.rework_color_chart}
+          </TextWithTooltip>
         </Col>
         <Col xs={1} md={1} lg={1}>
-          {"Quantity "}
-          <Badge>{this.props.data.quantity}</Badge>
+          <TextWithTooltip tooltip="Quantity" id="t5">
+            {this.props.data.quantity}
+          </TextWithTooltip>
         </Col>
-        <Col xs={1} md={1} lg={1} pullRight>
+        <Col xs={2} md={2} lg={2}>
           {this.props.data.picked_by}
         </Col>
       </div>
