@@ -13,12 +13,13 @@
   "private": true,
   "license": "None",
   "dependencies": {
+    "@types/socket.io": "^1.4.36",
     "firebase": "^5.1.0",
-
     "react-bootstrap-table": "^4.3.1",
     "react-date-picker": "^6.10.4",
     "react-datepicker": "^1.5.0",
     "react-fontawesome": "^1.6.1",
-    "react-swipe-to-reveal-options": "^0.3.6"
+    "react-swipe-to-reveal-options": "^0.3.6",
+    "socket.io": "^2.1.1"
   }
 }
