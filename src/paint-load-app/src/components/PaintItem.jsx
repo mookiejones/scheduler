@@ -2,16 +2,7 @@ import React, { Component } from "react";
 import * as hammer from "hammerjs";
 import FontAwesome from "react-fontawesome";
 
-import {
-  Row,
-  ListGroup,
-  ListGroupItem,
-  Col,
-  Label,
-  Badge,
-  Tooltip,
-  OverlayTrigger
-} from "react-bootstrap";
+import { Col, Tooltip, OverlayTrigger } from "react-bootstrap";
 import PropTypes from "prop-types";
 const styles = ["green", "yellow", "orange", "red", "purple", "blue"];
 const TextWithTooltip = ({ id, tooltip, children }) => (
@@ -29,6 +20,7 @@ export default class PaintItem extends Component {
   componentDidMount() {
     this.hammer = hammer(this.row);
     this.hammer.on("tap", (ev) => {
+      console.log("Tappy Tap");
       if (ev.target.classList.contains("tap") && this.props.TapActionHandler) {
         this.props.TapActionHandler(this.props.rowId, ev.target);
       }
@@ -41,6 +33,7 @@ export default class PaintItem extends Component {
       }
     });
     this.hammer.on("swipe", (ev) => {
+      console.log("Swipe");
       if (this.props.SwipeActionHandler)
         this.props.SwipeActionHandler(this.props.rowId);
     });
@@ -58,7 +51,7 @@ export default class PaintItem extends Component {
     const getUndo = () => {
       if (
         this.props.role === "assist" &&
-        this.props.data.picked_by != this.props.currentUser.name
+        this.props.data.picked_by !== this.props.currentUser.name
       ) {
         return (
           <FontAwesome
@@ -74,11 +67,7 @@ export default class PaintItem extends Component {
         return answer;
       }
     };
-    const description = (
-      <Tooltip id={2}>
-        <strong>Description</strong>
-      </Tooltip>
-    );
+
     return (
       <div className="list-group-item row" ref={(row) => (this.row = row)}>
         <Col xs={1} md={1} lg={1}>

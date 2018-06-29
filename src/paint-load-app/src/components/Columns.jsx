@@ -8,57 +8,68 @@ const Columns = [
   /* eslint-disable */
   {
     title: "",
-    data: 0,
+    data: "undo",
     className: "undo",
     orderable: false,
     CellRenderer: UndoCell,
+    visible: false
   },
-  { title: "master_id", data: 1, visible: false, orderable: false },
-  { title: "round", data: 2, visible: false, orderable: true },
-  { title: "round pos", data: 3, visible: false, orderable: true },
+  { title: "master_id", data: "master_id", visible: false, orderable: false },
+  { title: "round", data: "round", visible: false, orderable: true },
+  { title: "round pos", data: "round_pos", visible: false, orderable: true },
   {
     title: "Description",
-    data: 4,
+    data: "description",
     className: "tap",
     orderable: false,
-    CellRenderer: Description,
+    CellRenderer: Description
   },
-  { title: "notes", data: 5, visible: false, orderable: false },
-  { title: "Color", data: 6, className: "tap", orderable: false },
-  { title: "Mold Skin Style", data: 7, className: "tap", orderable: false },
-  { title: "Rework Color Chart", data: 8, className: "tap", orderable: false },
-  { title: "Quantity", data: 9, className: "tap", orderable: false },
+  { title: "notes", data: "notes", visible: false, orderable: false },
+  { title: "Color", data: "color", className: "tap", orderable: false },
+  {
+    title: "Mold Skin Style",
+    data: "mold_skin_style",
+    className: "tap",
+    orderable: false
+  },
+  {
+    title: "Rework Color Chart",
+    data: "rework_color_chart",
+    className: "tap",
+    orderable: false
+  },
+  { title: "Quantity", data: "quantity", className: "tap", orderable: false },
   {
     title: "",
     data: null,
     className: "action",
     orderable: false,
     visible: true,
-    CellRenderer: Calculator,
+    CellRenderer: Calculator
   },
-  { data: 10, visible: false },
+  { data: "ten", visible: false },
   {
     title: "StagedBy",
-    data: 11,
+    data: "staged_by",
     visible: false,
     className: "tap",
-    orderable: false,
+    orderable: false
   },
   {
     title: "handledBy",
-    data: 12,
+    data: "handled_by",
     visible: false,
     className: "tap",
-    orderable: false,
+    orderable: false
   },
   {
     title: "Picked By",
-    data: 13,
+    data: "picked_by",
     className: "pickedBy tap",
     orderable: false,
     visible: true,
-    CellRenderer: RackOwner,
-  },
+    CellRenderer: RackOwner
+  }
   /* eslint-enable */
 ];
 

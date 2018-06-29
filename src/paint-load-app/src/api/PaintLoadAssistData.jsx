@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import { API_SERVER } from "../Constants";
 
-const isArray = item => {
+const isArray = (item) => {
   return Object.prototype.toString.call(item) === "[object Array]";
 };
 const sortFn = (a, b) => {
@@ -31,15 +31,15 @@ class PaintLoadAssistData {
     console.info(`Fetching PaintLoadData testing: ${isTesting}`);
 
     return fetch(
-      `${API_SERVER}/reporting/paint.asmx/GetPaintLoadList? HTTP/1.1`,
+      `${API_SERVER}/reporting/paint.asmx/GetPaintLoadList? HTTP/1.1`
     )
-      .then(e => e.json())
-      .then(e => {
+      .then((e) => e.json())
+      .then((e) => {
         let result = e.sort(sortFn);
 
         return isArray(result) && isArray(result[1]) && result[0].length > 2
           ? {
-              data: result.map(item => {
+              data: result.map((item) => {
                 return {
                   id: item[0],
                   master_id: item[1],
@@ -55,15 +55,15 @@ class PaintLoadAssistData {
                   staged_by: item[11],
                   handled_by: item[12],
                   picked_by: item[13],
-                  master_id: item[14],
-                  master_id: item[15],
+                  extra1: item[14],
+                  extra2: item[15]
                 };
               }),
-              currentRoundNumber: result[0][2],
+              currentRoundNumber: result[0][2]
             }
           : {};
       })
-      .catch(e => {
+      .catch((e) => {
         debugger;
       });
 

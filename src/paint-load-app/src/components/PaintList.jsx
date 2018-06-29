@@ -2,52 +2,33 @@ import React, { Component } from "react";
 import * as update from "react-addons-update";
 import PropTypes from "prop-types";
 import UndoCell from "./UndoCell";
-import { ListGroup, ListGroupItem, Col } from "react-bootstrap";
+import { Table } from "react-bootstrap";
 import DataService from "../api/DataService";
 import SocketScheduler from "./SocketScheduler";
-import PaintItem from "./PaintItem";
-import * as hammer from "hammerjs";
+import TableRow from "./TableRow";
 import ListTop from "./ListTop";
+import Columns from "./Columns";
+import sortFn from "./sortFunction";
 
-const sortFn = (a, b) => {
-  const roundA = parseInt(a[2], 10);
-  const posA = parseInt(a[3], 10);
-  const roundB = parseInt(b[2], 10);
-  const posB = parseInt(b[3], 10);
-  const qtyA = parseInt(a[9], 10);
-  const qtyB = parseInt(b[9], 10);
-
-  if (roundA === roundB) {
-    // if round is the same, sort by round_position
-    if (posA === posB) {
-      if (qtyA < qtyB) {
-        return -1;
-      } else if (qtyA > qtyB) {
-        return 1;
-      }
-      return 0;
-    }
-    return posA < posB ? -1 : 1;
-  }
-  return roundA < roundB ? -1 : 1;
+const getTagType = (classname) => {
+  let result = /((?:undo|description|color|mold_skin_style|rework_color_chart|quantity|picked_by|staged_by))/i.exec(
+    classname
+  );
+  return result[0];
 };
-
-const UndoField = (column, attr, editorClass, ignoreEditable) => {
-  debugger;
-  return <div />;
-};
-
 export default class PaintList extends Component {
   constructor(props, context) {
     super(props, context);
     this.undocellRef = React.createRef();
     this.getUndoCell = this.getUndoCell.bind(this);
+    this.TapActionHandler = this.TapActionHandler.bind(this);
+    // this.UndoActionhandler = this.UndoActionhandler.bind(this);
     this.state = {
       data: [],
       currentUser: props.currentUser,
       env: props.environment,
       currentRevision: "",
-      currentRoundNumber: "",
+      currentRoundNumber: ""
     };
   }
   getUndoCell(cell, row) {
@@ -77,13 +58,14 @@ export default class PaintList extends Component {
         break;
     }
     DataService.GetPaintInfo(func)
-      .then(result => {
+      .then((result) => {
         this.setState({
           currentRoundNumber: result.currentRoundNumber,
-          data: result.data,
+          data: result.data
         });
+        console.log(this.state.data);
       })
-      .catch(error => {
+      .catch((error) => {
         debugger;
       });
 
@@ -91,7 +73,7 @@ export default class PaintList extends Component {
     SocketScheduler.subscribe("rowupdate", this.updateRow);
     SocketScheduler.subscribe("rowdelete", this.updateRow);
     SocketScheduler.subscribe("newrow", this.updateRow);
-    SocketScheduler.subscribe("update-notify", msg => {
+    SocketScheduler.subscribe("update-notify", (msg) => {
       setTimeout(this.performHardUpdate, 0);
     });
 
@@ -137,7 +119,7 @@ export default class PaintList extends Component {
         ) {
           this.setState({
             data: srtdData,
-            currentRoundNumber: srtdData[0][2],
+            currentRoundNumber: srtdData[0][2]
           });
         } else {
           this.setState({ data: srtdData });
@@ -151,7 +133,7 @@ export default class PaintList extends Component {
     request2.open("GET", "api/paint/getPntRevise", true);
     request2.setRequestHeader(
       "Content-Type",
-      "application/json; charest=utf-8",
+      "application/json; charest=utf-8"
     );
     request2.onload = () => {
       if (request2.status >= 200 && request2.status < 400) {
@@ -188,7 +170,7 @@ export default class PaintList extends Component {
     //request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     request.setRequestHeader(
       "Content-Type",
-      "application/x-www-form-urlencoded; charset=UTF-8",
+      "application/x-www-form-urlencoded; charset=UTF-8"
     );
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
@@ -209,7 +191,7 @@ export default class PaintList extends Component {
     const data = update(this.state.data, { $push: [] });
     data[rowIdx] = newData;
     this.setState({
-      data: data,
+      data: data
     });
     this.socket.emit("rowupdate", newData);
   }
@@ -231,7 +213,7 @@ export default class PaintList extends Component {
     //request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     request.setRequestHeader(
       "Content-Type",
-      "application/x-www-form-urlencoded; charset=UTF-8",
+      "application/x-www-form-urlencoded; charset=UTF-8"
     );
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
@@ -257,7 +239,7 @@ export default class PaintList extends Component {
     ) {
       this.setState({
         data: dd,
-        currentRoundNumber: dd[0][2],
+        currentRoundNumber: dd[0][2]
       });
     } else {
       this.setState({ data: dd });
@@ -286,7 +268,7 @@ export default class PaintList extends Component {
     //request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     request.setRequestHeader(
       "Content-Type",
-      "application/x-www-form-urlencoded; charset=UTF-8",
+      "application/x-www-form-urlencoded; charset=UTF-8"
     );
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
@@ -306,7 +288,7 @@ export default class PaintList extends Component {
     const data = update(this.state.data, { $push: [] });
     data[rowIdx] = newData;
     this.setState({
-      data: data,
+      data: data
     });
     this.socket.emit("rowupdate", newData);
   }
@@ -332,7 +314,7 @@ export default class PaintList extends Component {
     //request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     request.setRequestHeader(
       "Content-Type",
-      "application/x-www-form-urlencoded; charset=UTF-8",
+      "application/x-www-form-urlencoded; charset=UTF-8"
     );
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
@@ -351,7 +333,7 @@ export default class PaintList extends Component {
   stageSuccess(newData, rowIdx) {
     const data = update(this.state.data, { $splice: [[rowIdx, 1]] });
     this.setState({
-      data: data,
+      data: data
     });
     this.socket.emit("rowupdate", newData);
   }
@@ -372,7 +354,7 @@ export default class PaintList extends Component {
     //request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     request.setRequestHeader(
       "Content-Type",
-      "application/x-www-form-urlencoded; charset=UTF-8",
+      "application/x-www-form-urlencoded; charset=UTF-8"
     );
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
@@ -424,7 +406,7 @@ export default class PaintList extends Component {
       master_id: currentRowData[1],
       pickedBy: this.state.currentUser.id,
       amnt: updateAmt,
-      newAmnt: newQty,
+      newAmnt: newQty
     };
 
     if (this.props.environment === "production")
@@ -444,7 +426,7 @@ export default class PaintList extends Component {
           this.updatePartialQtySuccess(
             updatedRowData,
             newRowData,
-            responseData,
+            responseData
           );
         } else {
           this.performHardUpdate();
@@ -545,6 +527,7 @@ export default class PaintList extends Component {
   newRow(newData) {
     let exists = false;
     let data = update(this.state.data, { $push: [] });
+    debugger;
     data.map((rowData, rowIdx) => {
       debugger;
       if (rowData[0] === newData[0]) exists = true;
@@ -562,7 +545,7 @@ export default class PaintList extends Component {
     switch (this.props.role) {
       case "assist":
         if (
-          row[row.length - 1] === this.state.currentUser.name &&
+          row.picked_by === this.state.currentUser.name &&
           this.props.role === "assist"
         ) {
           this.release(row, rowIdx);
@@ -570,16 +553,16 @@ export default class PaintList extends Component {
         break;
       case "stage":
         if (
-          row[row.length - 1] !== "##AVAILABLE##" &&
-          row[row.length - 2] !== "##AVAILABLE##"
+          row.picked_by !== "##AVAILABLE##" &&
+          row.handled_by !== "##AVAILABLE##"
         ) {
           this.release(row, rowIdx);
         }
         break;
       case "load":
         if (
-          row[row.length - 1] !== "##AVAILABLE##" &&
-          row[row.length - 2] !== "##AVAILABLE##"
+          row.picked_by !== "##AVAILABLE##" &&
+          row.handled_by !== "##AVAILABLE##"
         ) {
           this.release(row, rowIdx);
         }
@@ -589,14 +572,17 @@ export default class PaintList extends Component {
     }
   }
   TapActionHandler(rowIdx, tapTarget) {
-    const row = update(this.state.data[rowIdx], { $push: [] });
+    debugger;
+    let tag = getTagType(tapTarget.className);
+    // const row = update(this.state.data[rowIdx], { $push: {} });
+    const row = this.state.data[rowIdx];
     switch (this.props.role) {
       case "assist":
-        if (row[row.length - 1] === "##AVAILABLE##") {
+        if (row.picked_by === "##AVAILABLE##") {
           this.checkOut(row, rowIdx);
         } else {
           if (
-            row[row.length - 1] === this.state.currentUser.name &&
+            row.picked_by === this.state.currentUser.name &&
             this.props.role === "assist" &&
             this.props.OSName === "Windows" &&
             tapTarget.classList.contains("label")
@@ -607,9 +593,9 @@ export default class PaintList extends Component {
         break;
       case "stage":
         if (
-          row[row.length - 1] !== "##AVAILABLE##" &&
-          row[row.length - 2] !== "##AVAILABLE##" &&
-          row[row.length - 3] !== "##AVAILABLE##" &&
+          row.picked_by !== "##AVAILABLE##" &&
+          row.handled_by !== "##AVAILABLE##" &&
+          row.staged_by !== "##AVAILABLE##" &&
           this.props.OSName === "Windows" &&
           tapTarget.classList.contains("label")
         ) {
@@ -618,8 +604,8 @@ export default class PaintList extends Component {
         break;
       case "load":
         if (
-          row[row.length - 1] !== "##AVAILABLE##" &&
-          row[row.length - 2] !== "##AVAILABLE##" &&
+          row.picked_by !== "##AVAILABLE##" &&
+          row.handled_by !== "##AVAILABLE##" &&
           this.props.OSName === "Windows" &&
           tapTarget.classList.contains("label")
         ) {
@@ -635,7 +621,7 @@ export default class PaintList extends Component {
     switch (this.props.role) {
       case "assist":
         if (
-          row[row.length - 1] === this.state.currentUser.name &&
+          row.picked_by === this.state.currentUser.name &&
           this.props.role === "assist"
         ) {
           this.checkIn(row, rowIdx);
@@ -643,16 +629,16 @@ export default class PaintList extends Component {
         break;
       case "stage":
         if (
-          row[row.length - 1] !== "##AVAILABLE##" &&
-          row[row.length - 2] !== "##AVAILABLE##"
+          row.picked_by !== "##AVAILABLE##" &&
+          row.handled_by !== "##AVAILABLE##"
         ) {
           this.stage(row, rowIdx);
         }
         break;
       case "load":
         if (
-          row[row.length - 1] !== "##AVAILABLE##" &&
-          row[row.length - 2] !== "##AVAILABLE##"
+          row.picked_by !== "##AVAILABLE##" &&
+          row.handled_by !== "##AVAILABLE##"
         ) {
           this.finalize(row);
         }
@@ -670,33 +656,6 @@ export default class PaintList extends Component {
 
   render() {
     var hidden = { display: "none" };
-    const options = {};
-    const props = this.props;
-    const keyBoardNav = {
-      customStyle: this.customStyle,
-    };
-    const styles = {
-      root: {
-        padding: "0 30px",
-      },
-      slide: {
-        padding: 15,
-        minHeight: 100,
-        color: "#fff",
-      },
-      slideContainer: {
-        padding: "0 10px",
-      },
-      slide1: {
-        backgroundColor: "#FEA900",
-      },
-      slide2: {
-        backgroundColor: "#B3DC4A",
-      },
-      slide3: {
-        backgroundColor: "#6AC0FF",
-      },
-    };
 
     return (
       <div>
@@ -706,19 +665,7 @@ export default class PaintList extends Component {
           environment={this.props.environment}
           role={this.props.role}
         />
-        <ListGroup>
-          {this.state.data.map((rowData, rowIdx) => (
-            <PaintItem
-              key={rowIdx}
-              data={rowData}
-              role={this.props.role}
-              currentUser={this.props.currentUser}
-              environment={this.props.environment}
-            />
-          ))}
-        </ListGroup>
-
-        {/* <table className="table table=bordered">
+        <Table striped bordered condensed hover>
           <thead>
             <tr>
               <th className="undo" />
@@ -739,18 +686,30 @@ export default class PaintList extends Component {
             {this.state.data.map((rowData, rowIdx) => {
               if (rowIdx < 26) {
                 return (
-                  <HammerRow
+                  <TableRow
+                    key={rowIdx}
+                    data={rowData}
                     role={this.props.role}
-                    key={rowData.id}
                     rowId={rowIdx}
-                    rowData={rowData}
+                    currentUser={this.props.currentUser}
                     UndoActionHandler={this.UndoActionHandler}
                     TapActionHandler={this.TapActionHandler}
-                    SwipeActionHandler={this.SwipeActionHandler}
-                    currentUser={this.state.currentUser}>
+                    SwipeActionHandler={this.SwipeActionHandler}>
+                    <td>
+                      <UndoCell
+                        children={this.props.children}
+                        role={this.props.role}
+                        key={rowData.id + "-0"}
+                        rowData={rowData}
+                        updatePartialQty={this.updatePartialQty}
+                        currentUser={this.state.currentUser}>
+                        {rowData}
+                      </UndoCell>
+                    </td>
+
                     {Columns.map((cell, colIdx) => {
                       if (cell.visible !== false) {
-                        if (cell.CellRenderer)
+                        if (cell.CellRenderer) {
                           return (
                             <cell.CellRenderer
                               children={this.props.children}
@@ -762,7 +721,7 @@ export default class PaintList extends Component {
                               {rowData[cell.data]}
                             </cell.CellRenderer>
                           );
-                        else
+                        } else {
                           return (
                             <td
                               className={cell.className ? cell.className : ""}
@@ -770,14 +729,15 @@ export default class PaintList extends Component {
                               {rowData[cell.data]}
                             </td>
                           );
+                        }
                       }
                     })}
-                  </HammerRow>
+                  </TableRow>
                 );
               }
             })}
           </tbody>
-        </table> */}
+        </Table>
       </div>
     );
   }
@@ -788,5 +748,5 @@ PaintList.propTypes = {
   currentUser: PropTypes.any,
   role: PropTypes.string,
   environment: PropTypes.string,
-  OSName: PropTypes.string,
+  OSName: PropTypes.string
 };

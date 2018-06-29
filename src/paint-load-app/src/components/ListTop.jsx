@@ -1,25 +1,25 @@
 import React, { Component } from "react";
 
-const VERSION_NUMBER="1.3";
+const VERSION_NUMBER = "1.3";
 export default class ListTop extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
       currentRoundNumber: 0,
-      currentRevision: 0,
+      currentRevision: 0
     };
   }
   getPaintLabel() {
     const result =
-      this.props.role == "load"
+      this.props.role === "load"
         ? "Load"
-        : this.props.role == "stage"
+        : this.props.role === "stage"
           ? "Staging"
           : "Pick";
     return `Paint ${result} List `;
   }
   getEnvironmentLabel() {
-    return this.props.environment == "production"
+    return this.props.environment === "production"
       ? ""
       : `(${this.props.environment})`;
   }

@@ -7,11 +7,11 @@ import PaintStageData from "./PaintStageData";
 import PaintLoadData from "./PaintLoadData";
 import { DELETE_KEY, API_SERVER } from "../Constants";
 import fetch from "node-fetch";
-const asPromise = value => new Promise(resolve => resolve(value));
+const asPromise = (value) => new Promise((resolve) => resolve(value));
 
-const sendData = value => asPromise(value);
+const sendData = (value) => asPromise(value);
 
-const isArray = item => {
+const isArray = (item) => {
   return Object.prototype.toString.call(item) === "[object Array]";
 };
 const sortFn = (a, b) => {
@@ -36,15 +36,7 @@ const sortFn = (a, b) => {
   }
   return roundA < roundB ? -1 : 1;
 };
-const defaultOptions = {
-  url: API_SERVER,
-  method: "POST",
-  mode: "cors",
-  headers: {
-    "Access-Control-Allow-Origin": "*",
-  },
-  body: null,
-};
+
 let testFlag = true;
 class DataService {
   constructor(bind) {
@@ -62,16 +54,16 @@ class DataService {
       request.open("POST", url, true);
       request.setRequestHeader(
         "Content-Type",
-        "application/json; charset=UTF-8",
+        "application/json; charset=UTF-8"
       );
       request.onload = () => {
         resolve(JSON.parse(request.response));
       };
-      request.onabort = e => {
+      request.onabort = (e) => {
         debugger;
       };
 
-      request.onerror = e => {
+      request.onerror = (e) => {
         debugger;
         console.error(e);
       };
@@ -87,18 +79,17 @@ class DataService {
       case DELETE_KEY:
         const schedules = DataService.GetPaintScheduleSync();
         const index = schedules.RoundData.findIndex(
-          (v, i, n) => v.id === value.id,
+          (v, i, n) => v.id === value.id
         );
         const result = schedules.RoundData.splice(index, 1);
         return result;
       default:
         console.info(
-          `Found index at ${index}, item is ${schedules.RoundData[index]}`,
+          `Found index at ${index}, item is ${schedules.RoundData[index]}`
         );
 
         break;
     }
-    const data = { ss: [value] };
   }
 
   static GetPaintStageList() {
@@ -118,12 +109,12 @@ class DataService {
   static GetPaintInfo(type) {
     const url = `${API_SERVER}/reporting/paint.asmx/${type}? HTTP/1.1`;
     return fetch(url)
-      .then(r => r.json())
-      .then(r => {
+      .then((r) => r.json())
+      .then((r) => {
         let result = r.sort(sortFn);
         return isArray(result) && isArray(result[1]) && result[0].length > 2
           ? {
-              data: result.map(item => {
+              data: result.map((item) => {
                 return {
                   id: item[0],
                   master_id: item[1],
@@ -139,22 +130,22 @@ class DataService {
                   staged_by: item[11],
                   handled_by: item[12],
                   picked_by: item[13],
-                  master_id: item[14],
-                  master_id: item[15],
+                  extra1: item[14],
+                  extra2: item[15]
                 };
               }),
-              currentRoundNumber: result[0][2],
+              currentRoundNumber: result[0][2]
             }
           : {};
       })
-      .catch(e => {
+      .catch((e) => {
         debugger;
       });
   }
   static GetPaintPickList() {}
   static GetPaintSchedulePrograms() {
     const result = sendData(
-      PaintScheduleProgramsData.fetch(DataService.isTest),
+      PaintScheduleProgramsData.fetch(DataService.isTest)
     );
     return result;
   }
