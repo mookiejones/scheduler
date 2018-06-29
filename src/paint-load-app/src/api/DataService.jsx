@@ -109,7 +109,10 @@ class DataService {
   static GetPaintInfo(type) {
     const url = `${API_SERVER}/reporting/paint.asmx/${type}? HTTP/1.1`;
     return fetch(url)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) debugger;
+        return r.json();
+      })
       .then((r) => {
         let result = r.sort(sortFn);
         return isArray(result) && isArray(result[1]) && result[0].length > 2

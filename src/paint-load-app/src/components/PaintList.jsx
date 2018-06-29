@@ -4,11 +4,13 @@ import PropTypes from "prop-types";
 import UndoCell from "./UndoCell";
 import { Table } from "react-bootstrap";
 import DataService from "../api/DataService";
+
 import SocketScheduler from "./SocketScheduler";
 import TableRow from "./TableRow";
 import ListTop from "./ListTop";
 import Columns from "./Columns";
 import sortFn from "./sortFunction";
+import { REFRESH_RATE } from "../Constants";
 
 const getTagType = (classname) => {
   let result = /((?:undo|description|color|mold_skin_style|rework_color_chart|quantity|picked_by|staged_by))/i.exec(
@@ -21,10 +23,12 @@ export default class PaintList extends Component {
     super(props, context);
     this.undocellRef = React.createRef();
     this.getUndoCell = this.getUndoCell.bind(this);
+    this.UndoActionHandler = this.UndoActionHandler.bind(this);
     this.TapActionHandler = this.TapActionHandler.bind(this);
-    // this.UndoActionhandler = this.UndoActionhandler.bind(this);
+    this.autoRefresh = this.autoRefresh.bind(this);
     this.state = {
       data: [],
+      connectionState: "disconnected",
       currentUser: props.currentUser,
       env: props.environment,
       currentRevision: "",
@@ -63,94 +67,91 @@ export default class PaintList extends Component {
           currentRoundNumber: result.currentRoundNumber,
           data: result.data
         });
-        console.log(this.state.data);
       })
       .catch((error) => {
         debugger;
       });
 
-    this.refresh = setTimeout(this.autoRefresh, 35 * 1000);
+    const connected = SocketScheduler.isConnected;
+    console.log(`Connection state is ${connected}`);
+
+    this.props.connectionStateChanged(connected);
+    this.setState({
+      connectionState: connected ? "connected" : "disconnected"
+    });
+    this.refresh = setTimeout(this.autoRefresh, REFRESH_RATE * 1000);
     SocketScheduler.subscribe("rowupdate", this.updateRow);
     SocketScheduler.subscribe("rowdelete", this.updateRow);
     SocketScheduler.subscribe("newrow", this.updateRow);
+    SocketScheduler.subscribe("update", (msg) => {
+      debugger;
+    });
     SocketScheduler.subscribe("update-notify", (msg) => {
       setTimeout(this.performHardUpdate, 0);
     });
 
     SocketScheduler.subscribe("disconnect", () => {
       console.log("disconnected");
+      this.setState({ connectionState: "disconnected" });
+      this.props.connectionStateChanged("disconnected");
     });
     SocketScheduler.subscribe("reconnect", () => {
-      console.log("reconnected");
+      console.log("reconnect");
+      this.setState({ connectionState: "reconnected" });
+      this.props.connectionStateChanged("connected");
     });
   }
+
   componentWillUnmount() {
     clearTimeout(this.refresh);
   }
 
+  /**
+   * @description Performs hard update of data
+   */
   performHardUpdate() {
-    let url = "api/paint/GetPaintPickList";
-    const request = new XMLHttpRequest();
-    const request2 = new XMLHttpRequest();
-
-    if (this.props.environment === "production") {
-      if (this.props.role === "stage") url = "api/paint/GetPaintStageList";
-      if (this.props.role === "load" || this.props.role === "watch")
-        url = "api/paint/GetPaintLoadList";
-    } else {
-      url = "api/paint/GetPaintPickListTest";
-      if (this.props.role === "stage") url = "api/paint/GetPaintStageListTest";
-      if (this.props.role === "load" || this.props.role === "watch")
-        url = "api/paint/GetPaintLoadListTest";
+    let cmd = "GetPaintPickList";
+    switch (this.props.role) {
+      case "stage":
+        cmd = "GetPaintStageList";
+        break;
+      case "load":
+      case "watch":
+        cmd = "GetPaintLoadList";
+        break;
     }
+    if (this.props.environment !== "production") {
+      // cmd += "Test";
+    }
+    DataService.GetPaintInfo(cmd)
+      .then((result) => {
+        this.setState({
+          data: result.data,
+          currentRoundNumber: result.currentRoundNumber
+        });
+      })
+      .catch((err) => {
+        debugger;
+      });
 
-    request.open("GET", url, true);
-    request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    request.onload = () => {
-      if (request.status >= 200 && request.status < 400) {
-        const data = JSON.parse(request.response);
-        const arr = data; //JSON.parse(data.d);
-
-        const srtdData = arr.sort(sortFn);
-        if (
-          Object.prototype.toString.call(srtdData) === "[object Array]" &&
-          Object.prototype.toString.call(srtdData[0]) === "[object Array]" &&
-          srtdData[0].length > 2
-        ) {
-          this.setState({
-            data: srtdData,
-            currentRoundNumber: srtdData[0][2]
-          });
-        } else {
-          this.setState({ data: srtdData });
-        }
-      } else {
-      }
-    };
-    //request.send(JSON.stringify({}));
-    request.send();
-
-    request2.open("GET", "api/paint/getPntRevise", true);
-    request2.setRequestHeader(
-      "Content-Type",
-      "application/json; charest=utf-8"
-    );
-    request2.onload = () => {
-      if (request2.status >= 200 && request2.status < 400) {
-        //let data = JSON.parse(request2.response).d;
-        const data = request2.response;
-        this.setState({ currentRevision: data });
-      } else {
-        console.log("error");
-      }
-    };
-    request2.send();
+    // DataService.GetPaintInfo(
+    //   this.props.environment !== "production"
+    //     ? "getPntReviseTest"
+    //     : "getPntRevise"
+    // )
+    //   .then((result) => {
+    //     debugger;
+    //   })
+    //   .catch((err) => {
+    //     debugger;
+    //   });
   }
   autoRefresh() {
-    //   this.performHardUpdate();
-    //   this.refresh = setTimeout(this.autoRefresh, 31 * 1000);
+    this.performHardUpdate();
+    this.refresh = setTimeout(this.autoRefresh, REFRESH_RATE * 1000);
   }
   checkOut(data, rowIdx) {
+    debugger;
     let url;
     const newdata = data;
     newdata[newdata.length - 1] = this.state.currentUser.name;
@@ -540,7 +541,8 @@ export default class PaintList extends Component {
     }
   }
   UndoActionHandler(rowIdx) {
-    const row = update(this.state.data[rowIdx], { $push: [] });
+    const row = this.state.data[rowIdx];
+    // const row = update(this.state.data[rowIdx], { $push: [] });
 
     switch (this.props.role) {
       case "assist":
@@ -663,6 +665,7 @@ export default class PaintList extends Component {
           currentRevision={this.state.currentRevision}
           currentRoundNumber={this.state.currentRoundNumber}
           environment={this.props.environment}
+          connectionState={this.state.connectionState}
           role={this.props.role}
         />
         <Table striped bordered condensed hover>
@@ -744,6 +747,7 @@ export default class PaintList extends Component {
 }
 
 PaintList.propTypes = {
+  connectionStateChanged: PropTypes.func,
   env: PropTypes.string,
   currentUser: PropTypes.any,
   role: PropTypes.string,

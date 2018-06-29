@@ -30,5 +30,7 @@ const appContext = {
 };
 
 const AppContext = React.createContext(appContext);
-
-export { AppContext };
+const ConnectionContext = React.createContext({
+  connectionState: "disconnected"
+});
+export { AppContext, ConnectionContext };

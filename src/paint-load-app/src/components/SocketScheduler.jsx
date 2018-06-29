@@ -7,6 +7,10 @@ class SocketScheduler {
     this.socket = io(url);
   }
 
+  get isConnected() {
+    return this.socket.connected ? "connected" : "disconnected";
+  }
+
   subscribe(name, callback) {
     this.socket.on(name, (msg) => {
       callback(msg);

@@ -1,9 +1,6 @@
 import React, { Component } from "react";
-import UndoCell from "./UndoCell";
-import Description from "./Description";
 import * as PropTypes from "prop-types";
 import * as hammer from "hammerjs";
-import { AppContext } from "../context/AppContext";
 
 export default class TableRow extends Component {
   constructor(props) {
@@ -39,10 +36,6 @@ export default class TableRow extends Component {
     this.hammer = null;
   }
   render() {
-    const grabbedBy = this.props.data.picked_by;
-    const handledBy = this.props.data.handled_by;
-    const stagedBy = this.props.data.staged_by;
-
     return <tr ref={(row) => (this.row = row)}>{this.props.children}</tr>;
   }
 }

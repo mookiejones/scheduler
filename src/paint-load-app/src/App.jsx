@@ -15,7 +15,13 @@ class App extends Component {
   render() {
     return (
       <AppContext.Consumer>
-        {(app) => <Main environment={app.environment} OSName={app.OSName} />}
+        {(app) => (
+          <Main
+            environment={app.environment}
+            OSName={app.OSName}
+            connectionState={app.connectionState}
+          />
+        )}
       </AppContext.Consumer>
     );
   }

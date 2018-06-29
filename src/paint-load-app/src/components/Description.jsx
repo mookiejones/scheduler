@@ -7,9 +7,9 @@ export default class Description extends Component {
     let description = this.props.description;
 
     let classname = "tap description";
-    let result = <td className={classname}>{this.props.children}</td>;
+    // let result = <td className={classname}>{this.props.children}</td>;
 
-    if (description != "") {
+    if (description !== "") {
       const style = classnames({
         tap: true,
         description: true,

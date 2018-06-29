@@ -1,6 +1,17 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
+import {
+  Grid,
+  Col,
+  Row,
+  Label,
+  Badge,
+  Panel,
+  PageHeader,
+  ListGroup,
+  ListGroupItem
+} from "react-bootstrap";
 
-const VERSION_NUMBER = "1.3";
 export default class ListTop extends Component {
   constructor(props, context) {
     super(props, context);
@@ -30,27 +41,36 @@ export default class ListTop extends Component {
     const paintLabel = this.getPaintLabel();
     const environmentLabel = this.getEnvironmentLabel();
     return (
-      <div>
-        <div style={{ margin: "8px 12px 0px 0px", textAlign: "right" }}>
-          version: {VERSION_NUMBER}
-        </div>
-        <div className="centerDiv">
-          <h3 style={{ textDecoration: "underline" }}>{paintLabel}</h3>
-          <h4>{environmentLabel}</h4>
-        </div>
-        <h1 style={{ marginLeft: "2.5%" }}>
-          {"Current Round: "}
-          <span id="roundDisplay" className="label label-default">
-            {this.state.currentRoundNumber}
-          </span>
-        </h1>
-        <h3 style={{ marginLeft: "5%" }}>
-          {"Schedule Revision: "}
-          <strong>
-            <span id="revisionDisplay">{this.state.currentRevision}</span>
-          </strong>
-        </h3>
-      </div>
+      <Panel>
+        <Panel.Heading>
+          <Panel.Title>{paintLabel}</Panel.Title>
+        </Panel.Heading>
+
+        <ListGroup>
+          <ListGroupItem>
+            <h3>
+              <span>Current Round:</span>
+              <Label bsStyle="primary" style={{ marginLeft: "57px" }}>
+                {this.state.currentRoundNumber}
+              </Label>
+            </h3>
+            <h3>
+              <span>Schedule Revision: </span>
+              <Label bsStyle="primary" style={{ marginLeft: "15px" }}>
+                {this.state.currentRevision}
+              </Label>
+            </h3>
+          </ListGroupItem>
+        </ListGroup>
+      </Panel>
     );
   }
 }
+
+ListTop.propTypes = {
+  currentRevision: PropTypes.string,
+  currentRoundNumber: PropTypes.string,
+  environment: PropTypes.string,
+  role: PropTypes.string,
+  connectionState: PropTypes.string
+};

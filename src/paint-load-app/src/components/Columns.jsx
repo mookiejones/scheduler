@@ -2,7 +2,6 @@ import UndoCell from "./UndoCell";
 import Description from "./Description";
 import Calculator from "./Calculator";
 import RackOwner from "./RackOwner";
-import HammerRow from "./HammerRow";
 
 const Columns = [
   /* eslint-disable */
