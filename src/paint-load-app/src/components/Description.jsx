@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import * as classnames from "classnames";
+import { Label } from "react-bootstrap";
 
 export default class Description extends Component {
   render() {
@@ -14,6 +15,10 @@ export default class Description extends Component {
         tap: true,
         description: true,
         label: true,
+        "label-default":
+          description != "Ship If Good" &&
+          description != "Build" &&
+          !/^(?:Do Not Ship|Red Hot !!)$/gi.test(description),
         "label-danger": /^(?:Do Not Ship|Red Hot !!)$/gi.test(description),
         "label-info": description === "Ship If Good",
         "label-warning": description === "Build"

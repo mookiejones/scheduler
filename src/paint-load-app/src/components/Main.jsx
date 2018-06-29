@@ -5,17 +5,7 @@ import { AppContext, ConnectionContext } from "../context/AppContext";
 import MagnaHeader from "./MagnaHeader";
 import PropTypes from "prop-types";
 import { Grid } from "react-bootstrap";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import SwipeableDrawer from "@material-ui/core/SwipeableDrawer";
 export default class Main extends Component {
-  state = {
-    top: false,
-    left: false,
-    bottom: false,
-    right: false
-  };
-
   constructor(props, context) {
     super(props, context);
 
@@ -29,11 +19,7 @@ export default class Main extends Component {
       role: ""
     };
   }
-  toggleDrawer = (side, open) => () => {
-    this.setState({
-      [side]: open
-    });
-  };
+
   setUser(userId, name, role) {
     debugger;
     this.setState({ currentUser: { id: userId, name }, role });
@@ -65,12 +51,7 @@ export default class Main extends Component {
     return (
       <div>
         <AppContext.Provider value={this.state}>
-          <AppBar position="static">
-            <Toolbar>
-              <MagnaHeader connectionState={this.state.connectionState} />
-            </Toolbar>
-          </AppBar>
-
+          <MagnaHeader connectionState={this.state.connectionState} />
           <Grid>{getContent()}</Grid>
         </AppContext.Provider>
       </div>
