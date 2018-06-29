@@ -1,6 +1,6 @@
 const DELETE_KEY = "DELETE";
 
-const PRODUCTION = false;
+const PRODUCTION = true;
 const AVAILABLE = "##AVAILABLE##";
 const VERSION_NUMBER = "1.3";
 /**
