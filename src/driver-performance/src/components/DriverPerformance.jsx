@@ -15,6 +15,7 @@ import {
   MenuItem,
   Paper
 } from "@material-ui/core";
+
 import PropTypes from "prop-types";
 import * as update from "react-addons-update";
 import * as Highcharts from "highcharts";
@@ -24,6 +25,7 @@ import DatePicker from "./DatePicker";
 const defaultFormat = "YYYY-MM-DDThh:mm";
 
 const chartTypes = ["scatter", "line"];
+
 function breakIntoSeries(arr, format) {
   const series = [];
   const s = {};
@@ -111,14 +113,18 @@ const styles = (theme) => ({
     display: "flex",
     flexWrap: "wrap"
   },
-  root: {
-    width: "100%",
+  paper: {
     marginTop: theme.spacing.unit * 3,
-    marginRight: theme.spacing.unit * 3,
-    marginLeft: theme.spacing.unit * 3
+    marginLeft: theme.spacing.unit * 2,
+    marginRight: theme.spacing.unit * 2
+  },
+  root: {
+    marginTop: theme.spacing.unit * 3
+    // marginRight: theme.spacing.unit * 4,
+    // marginLeft: theme.spacing.unit * 4
   },
   table: {
-    minWidth: 700
+    // minWidth: 700
   },
   textField: {
     marginLeft: theme.spacing.unit,
@@ -238,7 +244,7 @@ class DriverPerformance extends Component {
   getChart() {
     const { classes } = this.props;
     return (
-      <Grid>
+      <Grid item>
         <Paper className={classes.root}>
           <HighChart
             container="chart"
@@ -247,60 +253,68 @@ class DriverPerformance extends Component {
           />
         </Paper>
 
-        <div style={{ display: "flex" }}>
-          <Paper className={classes.root}>
-            <Toolbar>
-              <Typography variant="title">Slowest Picks</Typography>
-            </Toolbar>
-            <Table aria-labelledby="tableTitle" className={classes.table}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Driver</TableCell>
-                  <TableCell>Length</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {this.state.worsePerformers.map((row, idx) => (
-                  <TableRow
-                    hover
-                    onClick={(event) => this.props.onDriverSelected(event, row)}
-                    key={idx}>
-                    <TableCell>{row.full_name}</TableCell>
-                    <TableCell>
-                      {row.seconds} (~{Math.round((row.seconds / 60) * 100) /
-                        100}{" "}
-                      minutes)
-                    </TableCell>
+        <Grid container spacing={8}>
+          <Grid item xs={6}>
+            <Paper className={classes.paper}>
+              <Toolbar>
+                <Typography variant="title">Slowest Picks</Typography>
+              </Toolbar>
+              <Table aria-labelledby="tableTitle" className={classes.table}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Driver</TableCell>
+                    <TableCell>Length</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Paper>
-          <Paper className={classes.root}>
-            <Toolbar>
-              <Typography variant="title">Picks Under 10 seconds</Typography>
-            </Toolbar>
-            <Table aria-labelledby="tableTitle" className={classes.table}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Driver</TableCell>
-                  <TableCell>Number Of Picks</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {this.state.underTen.map((row, idx) => (
-                  <TableRow
-                    hover
-                    onClick={(event) => this.props.onDriverSelected(event, row)}
-                    key={idx}>
-                    <TableCell>{row.full_name}</TableCell>
-                    <TableCell>{row.c}</TableCell>
+                </TableHead>
+                <TableBody>
+                  {this.state.worsePerformers.map((row, idx) => (
+                    <TableRow
+                      hover
+                      onClick={(event) =>
+                        this.props.onDriverSelected(event, row)
+                      }
+                      key={idx}>
+                      <TableCell>{row.full_name}</TableCell>
+                      <TableCell>
+                        {row.seconds} (~{Math.round((row.seconds / 60) * 100) /
+                          100}{" "}
+                        minutes)
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Paper>
+          </Grid>
+          <Grid item xs={6}>
+            <Paper className={classes.paper}>
+              <Toolbar>
+                <Typography variant="title">Picks Under 10 seconds</Typography>
+              </Toolbar>
+              <Table aria-labelledby="tableTitle" className={classes.table}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Driver</TableCell>
+                    <TableCell>Number Of Picks</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Paper>
-        </div>
+                </TableHead>
+                <TableBody>
+                  {this.state.underTen.map((row, idx) => (
+                    <TableRow
+                      hover
+                      onClick={(event) =>
+                        this.props.onDriverSelected(event, row)
+                      }
+                      key={idx}>
+                      <TableCell>{row.full_name}</TableCell>
+                      <TableCell>{row.c}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Paper>
+          </Grid>
+        </Grid>
       </Grid>
     );
   }
@@ -311,7 +325,7 @@ class DriverPerformance extends Component {
       Options
     ) : (
       <Grid container>
-        <Grid item xs={12}>
+        <Grid item xs={11}>
           {Options}
         </Grid>
         <Grid item xs={12}>

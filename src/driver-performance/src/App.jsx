@@ -14,7 +14,6 @@ const theme = createMuiTheme({
 const App = () => (
   <React.Fragment>
     <MuiThemeProvider theme={theme}>
-      <CssBaseline />
       <Grid>
         <Main />
       </Grid>
