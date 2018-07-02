@@ -3,7 +3,7 @@ import * as update from "react-addons-update";
 import PropTypes from "prop-types";
 import UndoCell from "./UndoCell";
 import { Table } from "react-bootstrap";
-import DataService from "../api/DataService";
+import { DataService } from "../api";
 
 import SocketScheduler from "./SocketScheduler";
 import TableRow from "./TableRow";

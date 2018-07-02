@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import * as PropTypes from "prop-types";
 
-import DataService from "../api/DataService";
+import { DataService } from "../api";
 import { FormGroup, FormControl, Button } from "react-bootstrap";
 import FieldGroup from "./FieldGroup";
 import { AppContext } from "../context/AppContext";
