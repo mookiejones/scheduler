@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { VERSION_NUMBER } from "../Constants";
 import PropTypes from "prop-types";
-
+import ConnectionIndicator from "./ConnectionIndicator";
 import {
   AppBar,
   Toolbar,
@@ -15,9 +15,8 @@ import {
   Button
 } from "@material-ui/core";
 
-import { LocalShipping } from "@material-ui/icons";
 import { withStyles } from "@material-ui/core/styles";
-import { Wifi } from "@material-ui/icons";
+import { Wifi, LocalShipping } from "@material-ui/icons";
 import Logo from "./Logo";
 
 const drawerItems = (
@@ -63,11 +62,12 @@ class MagnaHeader extends Component {
     this.state = { drawer: false };
     this.openDrawer = this.openDrawer.bind(this);
     this.closeDrawer = this.closeDrawer.bind(this);
+    this.onConnectionStatusChanged = this.onConnectionStatusChanged.bind(this);
   }
   getWifi() {
     if (this.props.showConnectionState)
       return (
-        <IconButton>
+        <IconButton color={this.props.isConnected ? "primary" : "secondary"}>
           <Wifi />
         </IconButton>
       );
@@ -77,6 +77,10 @@ class MagnaHeader extends Component {
   }
   closeDrawer() {
     this.setState({ drawer: false });
+  }
+  onConnectionStatusChanged(name, args, status) {
+    if (this.props.onConnectionChanged)
+      this.props.onConnectionChanged(name, args, status);
   }
   render() {
     const { classes } = this.props;
@@ -92,6 +96,9 @@ class MagnaHeader extends Component {
             <Typography>Version : {VERSION_NUMBER}</Typography>
 
             {this.getWifi()}
+            <ConnectionIndicator
+              onConnectionChanged={this.onConnectionStatusChanged}
+            />
           </Toolbar>
         </AppBar>
         <SwipeableDrawer
@@ -116,7 +123,9 @@ class MagnaHeader extends Component {
 
 MagnaHeader.propTypes = {
   showConnectionState: PropTypes.bool,
-  connectionState: PropTypes.string,
+  onConnectionChanged: PropTypes.func,
+  isConnected: PropTypes.bool,
+
   classes: PropTypes.object.isRequired
 };
 

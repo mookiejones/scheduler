@@ -136,7 +136,15 @@ const styles = (theme) => ({
   }
 });
 
+/**
+ * @class DriverPerformance
+ * @description Tracks Performance of drivers
+ */
 class DriverPerformance extends Component {
+  /**
+   * @class DriverPerformance
+   * @description Constructor
+   */
   constructor(props, context) {
     super(props, context);
 
@@ -151,7 +159,8 @@ class DriverPerformance extends Component {
       defaultOptions: defaultOptions,
       options: { generated: moment().format("MM/DD/YYYY hh:mm:ss") },
       worsePerformers: [],
-      underTen: []
+      underTen: [],
+      connected: false
     };
 
     chartOptions.chart.type = this.state.chartType;
@@ -159,6 +168,7 @@ class DriverPerformance extends Component {
     this.onEndDateChanged = this.onEndDateChanged.bind(this);
     this.handleChartChange = this.handleChartChange.bind(this);
   }
+
   handleChartChange(e) {
     debugger;
   }
@@ -174,7 +184,12 @@ class DriverPerformance extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    let connectionChanged = this.props.isConnected != this.state.connected;
+    if (connectionChanged) {
+      this.setState({ connected: this.props.isConnected });
+    }
     if (
+      connectionChanged ||
       prevState.startTime !== this.state.startTime ||
       prevState.endTime !== this.state.endTime
     ) {
@@ -220,7 +235,7 @@ class DriverPerformance extends Component {
         }
       })
       .catch((error) => {
-        debugger;
+        console.error(error);
       });
   }
 
@@ -337,7 +352,8 @@ class DriverPerformance extends Component {
 }
 
 DriverPerformance.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  isConnected: PropTypes.bool
 };
 
 export default withStyles(styles)(DriverPerformance);

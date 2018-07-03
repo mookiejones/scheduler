@@ -2,7 +2,7 @@ const DELETE_KEY = "DELETE";
 
 const PRODUCTION = true;
 const AVAILABLE = "##AVAILABLE##";
-const VERSION_NUMBER = "1.3";
+const VERSION_NUMBER = "1.3.1";
 /**
  * Number of seconds for data to refresh
  */
