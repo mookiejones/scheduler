@@ -29,7 +29,6 @@ export default class EditableRow extends Component {
     // debugger;
   }
   handleChange(e, n) {
-    debugger;
     this.row[e.target.id] = e.target.value;
 
     this.setState({ row: this.row });
