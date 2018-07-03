@@ -1,47 +1,53 @@
-import * as $ from "jquery";
-
 import React, { Component } from "react";
 import update from "react-addons-update";
 import PropTypes from "prop-types";
 import Columns from "./Columns";
-import ReactiveBtn from "./ReactiveBtn";
 import { RoundSummary } from "./RoundSummary";
 import DataService from "../api/DataService";
 import AlertDismissable from "./AlertDismissable";
 import SettingsModal from "./SettingsModal";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import classnames from "classnames";
+import { Add } from "@material-ui/icons";
+import { withStyles } from "@material-ui/core/styles";
+import { headers } from "./TableConfig";
+import EditableRow from "./EditableRow";
+import {
+  Button, 
+  Table,
+  TableBody, 
+  TableCell,
+  TableHead,
+  TableRow,
+  Paper} from "@material-ui/core";
 
+const ReactiveButton = ({ numChanged, clickEvent, text }) => (
+  <Button onClick={clickEvent} variant="fab" color="primary" aria-label="add">
+    <Add />
+    {text}
+  </Button>
+);
+ReactiveButton.propTypes = {
+  numChanged: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+  clickEvent: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+  text: PropTypes.string
+};
 const heightOffset = 250;
 
-const selectRowProp = {
-  mode: "radio",
-  bgColor: "pink", // you should give a bgcolor, otherwise, you can't regonize which row has been selected
-  hideSelectColumn: true, // enable hide selection column.
-  clickToSelect: true, // you should enable clickToSelect, otherwise, you can't select column.
-  showOnlySelected: true,
-};
-
-const cellEditProp = {
-  mode: "dbclick",
-  blurToSave: true,
-};
-
-const onAfterInsertRow = row => {
+const onAfterInsertRow = (row) => {
   debugger;
 };
 
-const onAfterDeleteRow = rowKeys => {};
+const onAfterDeleteRow = (rowKeys) => {};
 function afterSearch(searchText, result) {
   if (!searchText) {
-    console.log(`Nothing to search for`);
+    console.log("Nothing to search for");
     return;
   }
   console.log("Your search text is " + searchText);
   console.log("Result is:");
   for (let i = 0; i < result.length; i++) {
     console.log(
-      "Fruit: " + result[i].id + ", " + result[i].name + ", " + result[i].price,
+      "Fruit: " + result[i].id + ", " + result[i].name + ", " + result[i].price
     );
   }
 }
@@ -51,21 +57,25 @@ const options = {
   sortIndicator: false, // disable sort indicator,
   afterInsertRow: onAfterInsertRow,
   afterDeleteRow: onAfterDeleteRow,
-  onRowClick: row => {},
-  onRowDoubleClick: row => {},
-  afterSearch: afterSearch, // define a after search hook
+  onRowClick: (row) => {},
+  onRowDoubleClick: (row) => {},
+  afterSearch: afterSearch // define a after search hook
 };
 
 export default class PaintScheduleEditor2 extends Component {
   constructor(props, context) {
     super(props, context);
     this._rows = [];
+    this.lastSelected = null;
     this.state = {
+      selected: [],
+      selectedRow: null,
       msg: {
         show: false,
         text: "",
-        title: "",
+        title: ""
       },
+      editing: false,
       showSettings: false,
       // env: this.props.route.env,
       initialRows: [],
@@ -79,18 +89,19 @@ export default class PaintScheduleEditor2 extends Component {
       numSelected: 0,
       newRows: 0,
       height: window.innerHeight - heightOffset,
-      firstLoad: true,
+      firstLoad: true
     };
     this.showSettings.bind(this);
-  }
-
-  componentWillMount() {
+    this.onEditorClosed = this.onEditorClosed.bind(this);
+    this.updateData = this.updateData.bind(this);
+    this.undoSelection = this.undoSelection.bind(this);
+  } 
+   
+  componentDidMount() {
     this.getPaintSchedule();
     this.getStyleCodesAndProgramColors();
-  }
-  componentDidMount() {
     window.addEventListener("resize", () =>
-      this.setState({ height: window.innerHeight - heightOffset }),
+      this.setState({ height: window.innerHeight - heightOffset })
     );
   }
   componentDidUpdate() {
@@ -102,48 +113,48 @@ export default class PaintScheduleEditor2 extends Component {
   }
   componentWillUnmount() {
     window.removeEventListener("resize", () =>
-      this.setState({ height: window.innerHeight - heightOffset }),
+      this.setState({ height: window.innerHeight - heightOffset })
     );
   }
 
+  updateData(data) {
+    this._rows = data.RoundData.slice();
+    this.setState({
+      rows: this._rows,
+      initialRows: data.RoundData.slice(),
+      roundSummary: data.summary,
+      selectedRound: data.selectedRound
+    });
+  }
   getPaintSchedule() {
     const self = this;
 
-    const updateData = data => {
-      self._rows = data.RoundData.slice();
-      self.setState({
-        rows: self._rows,
-        initialRows: data.RoundData.slice(),
-        roundSummary: data.summary,
-        selectedRound: data.selectedRound,
-      });
-    };
     DataService.getPaintSchedule()
-      .then(updateData)
-      .catch(err => {
+      .then(this.updateData)
+      .catch((err) => {
         console.error(err);
       });
   }
 
   getStyleCodesAndProgramColors() {
     const self = this;
-    const updateData = data => {
+    const updateData = (data) => {
       self.setState({ styleCodes: data.programs.slice() });
     };
     DataService.GetStyleCodes()
       .then(updateData)
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
       });
 
     DataService.GetColorCodes()
-      .then(d => self.setState({ programColors: d.hash }))
-      .catch(err => {
+      .then((d) => self.setState({ programColors: d.hash }))
+      .catch((err) => {
         console.error(err);
       });
   }
   getStyleCodePresets(styleCode) {
-    let result = this.state.styleCodes.find(code => code.id === styleCode);
+    let result = this.state.styleCodes.find((code) => code.id === styleCode);
     if (result != null) return update(result, { $merge: {} });
     return {};
   }
@@ -175,11 +186,11 @@ export default class PaintScheduleEditor2 extends Component {
       rows: this._rows,
       initialRows: data.RoundData.slice(),
       roundSummary: data.summary,
-      selectedRound: data.selectedRound,
+      selectedRound: data.selectedRound
     });
   }
 
-  handleResize = e => {
+  handleResize = (e) => {
     this.setState({ height: window.innerHeight - heightOffset });
   };
 
@@ -196,7 +207,7 @@ export default class PaintScheduleEditor2 extends Component {
       .formatUnicorn(
         deletedRow.id,
         JSON.stringify({ action: "DELETE" }),
-        JSON.stringify(temp),
+        JSON.stringify(temp)
       )
       .hashCode()
       .toString();
@@ -257,7 +268,7 @@ export default class PaintScheduleEditor2 extends Component {
       round: currentRound,
       round_position: lastRow ? currentPos + 1 : currentPos,
       color: "",
-      notes: "",
+      notes: ""
     };
     rows.splice(rowIdx2, 0, newRow);
     this.setState({ rows, newRows: newRows + 1 });
@@ -276,10 +287,10 @@ export default class PaintScheduleEditor2 extends Component {
           style_code: style_metadata.style_code,
           assembly_flow: style_metadata.assembly_flow,
           customer: style_metadata.customer,
-          program: style_metadata.style_name,
+          program: style_metadata.style_name
         };
         tempRows[e.rowIdx] = update(tempRows[e.rowIdx], {
-          $merge: new_rowdata,
+          $merge: new_rowdata
         });
       }
       // get last changes
@@ -292,8 +303,8 @@ export default class PaintScheduleEditor2 extends Component {
         changed[previous_changedRowIdx] = update(
           changed[previous_changedRowIdx],
           {
-            $merge: tempRows[e.rowIdx],
-          },
+            $merge: tempRows[e.rowIdx]
+          }
         );
       }
 
@@ -332,7 +343,7 @@ export default class PaintScheduleEditor2 extends Component {
               : 0,
             mold_wip_density: style_metadata.mold_wip_rack_density,
             total_crs: 1,
-            total_pcs: 1 * style_metadata.PartsPerCarrier,
+            total_pcs: 1 * style_metadata.PartsPerCarrier
           };
           updatedRow = update(updatedRow, { $merge: new_rowdata });
         }
@@ -369,7 +380,7 @@ export default class PaintScheduleEditor2 extends Component {
               .formatUnicorn(
                 updatedRow.id,
                 JSON.stringify(updated),
-                JSON.stringify(temp),
+                JSON.stringify(temp)
               )
               .hashCode()
               .toString();
@@ -381,7 +392,7 @@ export default class PaintScheduleEditor2 extends Component {
             .formatUnicorn(
               updatedRow.id,
               JSON.stringify(updated),
-              JSON.stringify(temp),
+              JSON.stringify(temp)
             )
             .hashCode()
             .toString();
@@ -413,24 +424,11 @@ export default class PaintScheduleEditor2 extends Component {
     this.setState({ queuedUpdates: updateq });
 
     let newRow = DataService.UpdatePaintSchedule(row);
-    $.ajax({
-      method: "POST",
-      url,
-      data: JSON.stringify({ ss: [row] }),
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      success(msg) {
-        const data = JSON.parse(msg.d);
-        const updateq2 = Object.assign({}, this.state.queuedUpdates);
-        updateq2[hash] = 0;
-        delete updateq2[hash];
-        this.setState({ queuedUpdates: updateq2, insertingRow: false });
-        this.getPaintSchedule();
-      },
-      error(request, status, error) {
-        console.log(error);
-      },
-    });
+    DataService.UpdateRow(row)
+      .then((o) => {
+        debugger;
+      })
+      .catch((error) => {});
   }
   rowPreviouslyChanged(key) {
     const result = this.state.changedRows.findIndex((value, index, obj) => {});
@@ -451,35 +449,13 @@ export default class PaintScheduleEditor2 extends Component {
 
     if (true) {
       // }    if(confirm(string)){
-      $.ajax({
-        method: "POST",
-        url,
-        data: JSON.stringify({
-          selectedDate: this.state.selectedDate,
-        }),
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success(msg) {
-          const data = JSON.parse(msg.d);
-          const roundData = data[0] || [];
-          const roundSummary = {};
-          if (data[1]) {
-            for (let i = 0; i < data[1].length; i++) {
-              roundSummary[data[1][i].round] = data[1][i];
-            }
-          }
-
-          this.setState({
-            rows: roundData.slice(),
-            initialRows: roundData.slice(),
-            roundSummary,
-            selectedRound: data[1][data[1].length - 1].round,
-          });
-        },
-        error(request, status, error) {
-          console.log(error);
-        },
-      });
+      DataService.AddRound(this.state.selectedDate)
+        .then((o) => {
+          debugger;
+        })
+        .catch((error) => {
+          debugger;
+        });
     }
   }
   applyRuleSet(newTable) {
@@ -503,11 +479,11 @@ export default class PaintScheduleEditor2 extends Component {
         changedRows: [],
         selectedIds: [],
         numSelected: 0,
-        newRows: 0,
+        newRows: 0
       });
     }
   }
-  rowGetter = idx => {
+  rowGetter = (idx) => {
     return this.state.rows[idx];
   };
   showSettings(e) {
@@ -521,7 +497,7 @@ export default class PaintScheduleEditor2 extends Component {
       service: row.color && row.color.includes("service"),
       dontship: row.notes && row.notes.includes("do not ship"),
       shipifgood: row.notes && row.notes.includes("ship if good"),
-      build: row.notes && row.notes.includes("build"),
+      build: row.notes && row.notes.includes("build")
     });
     let result = [];
     result.push(row.id.substring(0, 4) === "TEMP" ? "bg-success" : "bg-normal");
@@ -536,6 +512,42 @@ export default class PaintScheduleEditor2 extends Component {
     }
     return result;
   }
+
+  undoSelection() {
+    this.lastSelected = null;
+  }
+  onRowSelected(e, id, row) {
+    if (this.lastSelected == row) {
+      this.setState({ editing: true, selectedRow: row });
+    } else {
+      this.lastSelected = row;
+
+      setInterval(this.undoSelection, 1500);
+    }
+
+    const { selected } = this.state;
+    const selectedIndex = selected.indexOf(id);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1)
+      );
+    }
+
+    this.setState({ selected: newSelected });
+  }
+  isSelected = (id) => this.state.selected.indexOf(id) !== -1;
+  onEditorClosed(cancelled, row) {
+    this.setState({ editing: false });
+  }
   render() {
     const { numSelected } = this.state;
 
@@ -545,71 +557,74 @@ export default class PaintScheduleEditor2 extends Component {
 
     return (
       <div className="rdg">
+        <EditableRow
+          open={this.state.editing}
+          row={this.state.selectedRow}
+          onClosed={this.onEditorClosed}
+        />
         <SettingsModal show={this.state.showSettings} />
         <AlertDismissable
           title={this.state.msg.title}
           text={this.state.msg.Text}
           show={this.state.msg.show}
         />
-
-        <RoundSummary
-          round={this.state.selectedRound}
-          roundSummary={this.state.roundSummary}
-          onClick={() => this.showSettings(this)}
-        />
-        <BootstrapTable
-          trClassName={this.getRowFormat}
-          insertRow={true}
-          data={this.state.rows}
-          striped
-          hover
-          options={options}
-          selectRow={selectRowProp}
-          deleteRow={true}
-          search={true}
-          multiColumnSearch={true}
-          cellEdit={cellEditProp}>
-          {Columns.map(
-            ({
-              isKey,
-              key,
-              width,
-              dataAlign,
-              name,
-              dataSort,
-              hidden,
-              editable,
-              customEditor,
-            }) => (
-              <TableHeaderColumn
-                key={key}
-                search={true}
-                editable={editable}
-                isKey={isKey}
-                dataSort={dataSort}
-                dataField={key}
-                width="{width}"
-                dataAlign={dataAlign}
-                hidden={hidden}
-                customEditor={customEditor}
-                keyBoardNav>
-                {name}
-              </TableHeaderColumn>
-            ),
-          )}
-        </BootstrapTable>
-
-        <ReactiveBtn clickEvent={this.addNewRound} text="New Round" />
+        <Paper>
+          <RoundSummary
+            round={this.state.selectedRound}
+            roundSummary={this.state.roundSummary}
+            onClick={() => this.showSettings(this)}
+          />
+          <Table aria-labelledby="tableTitle">
+            <TableHead>
+              <TableRow>
+                {headers.map((header, idx) => (
+                  <TableCell
+                    padding={header.padding}
+                    key={"header-" + idx}
+                    style={{ width: header.width }}>
+                    {header.title}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {this.state.rows.map((row, row_idx) => {
+                const isSelected = this.isSelected(row_idx);
+                return (
+                  <TableRow
+                    key={"row-" + row_idx}
+                    selected={isSelected}
+                    hover
+                    onClick={(event) =>
+                      this.onRowSelected(event, row_idx, row)
+                    }>
+                    {headers.map((header, idx) => {
+                      return (
+                        <TableCell
+                          padding={header.padding}
+                          key={"cell-" + idx}
+                          width={header.width}>
+                          {row[header.value]}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </Paper>
+        <ReactiveButton clickEvent={this.addNewRound} text="New Round" />
       </div>
     );
   }
 }
 PaintScheduleEditor2.defaultProps = {
   rowKey: "id",
-  ruleSet: {},
+  ruleSet: {}
 };
 PaintScheduleEditor2.propTypes = {
   rowKey: PropTypes.string,
   ruleSet: PropTypes.object,
-  isConnected:PropTypes.bool
+  isConnected: PropTypes.bool
 };

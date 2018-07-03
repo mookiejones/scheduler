@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Grid, Row, Col, Label, Button } from "react-bootstrap";
+import { Grid, Button, Toolbar, Badge } from "@material-ui/core";
 import FontAwesome from "react-fontawesome";
 
 export class RoundSummary extends Component {
@@ -8,7 +8,7 @@ export class RoundSummary extends Component {
     super(props, context);
     this.state = {
       roundSummary: props.roundSummary,
-      round: props.round,
+      round: props.round
     };
   }
   render() {
@@ -19,26 +19,35 @@ export class RoundSummary extends Component {
         {
           name: "Carrier Removal",
           content: "carrier_removal",
-          color: "secondary",
+          color: "secondary"
         },
-        { name: "Tray Counter", content: "tray_counter", color: "primary" },
+        { name: "Tray Counter", content: "tray_counter", color: "primary" }
       ];
       return (
-        <Grid>
-          <Row>
-            {badges.map(badge => (
-              <Col sm={3} key={badge.content}>
-                {badge.name}
-                <Label bsClass={`label label-round label-${badge.color}`}>
-                  {this.props.roundSummary[this.props.round][badge.content]}
-                </Label>
-              </Col>
+        <Toolbar>
+          <Grid container spacing={24}>
+            {badges.map((badge) => (
+              <Grid item xs={3} key={badge.content}>
+                <Badge
+                  color="secondary"
+                  badgeContent={
+                    this.props.roundSummary[this.props.round][badge.content]
+                  }>
+                  {badge.name}
+                </Badge>
+              </Grid>
             ))}
-            <Button bsStyle="link">
-              <FontAwesome name="cog" size="2x" onClick={this.props.onClick} />
-            </Button>
-          </Row>
-        </Grid>
+            <Grid item xs={3}>
+              <Button>
+                <FontAwesome
+                  name="cog"
+                  size="2x"
+                  onClick={this.props.onClick}
+                />
+              </Button>
+            </Grid>
+          </Grid>
+        </Toolbar>
       );
     }
     return (
@@ -47,7 +56,7 @@ export class RoundSummary extends Component {
           width: "100%",
           height: "50px",
           backgroundColor: "rgb(249, 249, 249)",
-          margin: "auto",
+          margin: "auto"
         }}
       />
     );
@@ -57,5 +66,5 @@ export class RoundSummary extends Component {
 RoundSummary.propTypes = {
   round: PropTypes.string,
   roundSummary: PropTypes.any,
-  onClick: PropTypes.func,
+  onClick: PropTypes.func
 };

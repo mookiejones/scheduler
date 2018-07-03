@@ -1,11 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import ReactDataGridPlugins from "react-data-grid-addons";
-import { Row } from "react-data-grid";
 
 import * as classnames from "classnames";
-
-const AutoCompleteEditor = ReactDataGridPlugins.Editors.AutoComplete;
 
 export default class RowRenderer extends Component {
   constructor(props, context) {
@@ -20,7 +16,7 @@ export default class RowRenderer extends Component {
     this.btnRef.setScrollLeft(scrollBy);
   }
   render() {
-    const myRef = el => (this.btnRef = el);
+    const myRef = (el) => (this.btnRef = el);
     let colorColIdx = 7;
     const { row, columns } = this.props;
     const id = row.id || "";

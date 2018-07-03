@@ -95,7 +95,6 @@ class MagnaHeader extends Component {
             <Typography className={classes.flex} />
             <Typography>Version : {VERSION_NUMBER}</Typography>
 
-            {this.getWifi()}
             <ConnectionIndicator
               onConnectionChanged={this.onConnectionStatusChanged}
             />
