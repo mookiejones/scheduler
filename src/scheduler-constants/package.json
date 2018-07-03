@@ -1,0 +1,12 @@
+{
+  "name": "scheduler-constants",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "private": true,
+  "dependencies": {
+
+  },
+  "scripts": {
+
+  }
+}

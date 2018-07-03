@@ -11,8 +11,6 @@ import {
   TableHead,
   TableRow,
   Toolbar,
-  Select,
-  MenuItem,
   Paper
 } from "@material-ui/core";
 
@@ -23,8 +21,6 @@ import DataService from "../api/DataService";
 import DatePicker from "./DatePicker";
 
 const defaultFormat = "YYYY-MM-DDThh:mm";
-
-const chartTypes = ["scatter", "line"];
 
 function breakIntoSeries(arr, format) {
   const series = [];
@@ -149,13 +145,13 @@ class DriverPerformance extends Component {
     super(props, context);
 
     const now = moment();
-    const then = moment().subtract(4, "days");
+    const then = moment().subtract(2, "days");
     let chartOptions = defaultOptions;
 
     this.state = {
       chartType: "scatter",
-      endTime: now,
-      startTime: then,
+      to: now,
+      from: then,
       defaultOptions: defaultOptions,
       options: { generated: moment().format("MM/DD/YYYY hh:mm:ss") },
       worsePerformers: [],
@@ -173,10 +169,20 @@ class DriverPerformance extends Component {
     debugger;
   }
   onEndDateChanged(e) {
-    debugger;
+    let value = e.target.value;
+
+    let t = moment(value);
+
+    this.setState({ to: t });
+    this.getDriverAverages();
   }
   onStartDateChanged(e) {
-    debugger;
+    let value = e.target.value;
+
+    let t = moment(value);
+
+    this.setState({ from: t });
+    this.getDriverAverages();
   }
 
   componentWillMount() {
@@ -184,14 +190,14 @@ class DriverPerformance extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    let connectionChanged = this.props.isConnected != this.state.connected;
+    let connectionChanged = this.props.isConnected !== this.state.connected;
     if (connectionChanged) {
       this.setState({ connected: this.props.isConnected });
     }
     if (
       connectionChanged ||
-      prevState.startTime !== this.state.startTime ||
-      prevState.endTime !== this.state.endTime
+      prevState.from !== this.state.from ||
+      prevState.to !== this.state.to
     ) {
       this.getDriverAverages();
     }
@@ -201,8 +207,8 @@ class DriverPerformance extends Component {
   }
   getDriverAverages() {
     const params = {
-      startdate: this.state.startTime.format("YYYY-MM-DD HH:mm:ss"),
-      enddate: this.state.endTime.format("YYYY-MM-DD HH:mm:ss")
+      startdate: this.state.from.format("YYYY-MM-DD HH:mm:ss"),
+      enddate: this.state.to.format("YYYY-MM-DD HH:mm:ss")
     };
 
     const format = "MM/DD/YYYY hh:mm:ss A";
@@ -244,12 +250,12 @@ class DriverPerformance extends Component {
       <Grid container spacing={24}>
         <DatePicker
           label="Start Date"
-          time={this.state.endTime.format(defaultFormat)}
+          time={this.state.to.format(defaultFormat)}
           onChange={this.onStartDateChanged}
         />
         <DatePicker
           label="End Date"
-          time={this.state.startTime.format(defaultFormat)}
+          time={this.state.from.format(defaultFormat)}
           onChange={this.onEndDateChanged}
         />
       </Grid>

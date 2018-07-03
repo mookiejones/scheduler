@@ -1,16 +1,11 @@
 import React, { Component } from "react";
 import MagnaHeader from "./MagnaHeader";
-import DriverPeformance from "./DriverPerformance";
 import { Grid, Snackbar, SnackbarContent } from "@material-ui/core";
-import Logger from "../Logger";
 
-Logger.log("creating");
-
+import PaintScheduleEditor2 from "./PaintScheduleEditor2";
 export default class Main extends Component {
   constructor(props) {
     super(props);
-
-    Logger.log("starting");
 
     this.state = {
       connected: false,
@@ -28,13 +23,16 @@ export default class Main extends Component {
         message = "Connected";
         break;
       case "reconnect_error":
+
       case "pong":
       case "ping":
       case "connect_error":
         message = this.state.message;
+
         break;
       case "reconnect_attempt":
         message = `Disconnected, Attempt ${args} to reconnect`;
+
         break;
       case "reconnecting":
         message = `Reconnecting, Attempt ${args} to reconnect`;
@@ -44,8 +42,10 @@ export default class Main extends Component {
         debugger;
         break;
     }
+    let requiresUpdate = this.state.connected == false && status;
     this.setState({ message: message, connected: status });
   }
+
   render() {
     return (
       <Grid>
@@ -57,7 +57,7 @@ export default class Main extends Component {
 
         <Snackbar
           anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          open={this.state.connected === false}
+          open={this.state.connected == false}
           ContentProps={{ "aria-describedby": "message-id" }}>
           <SnackbarContent
             style={{ backgroundColor: "red" }}
@@ -65,7 +65,7 @@ export default class Main extends Component {
             message={<span id="client-snackbar">{this.state.message}</span>}
           />
         </Snackbar>
-        <DriverPeformance isConnected={this.state.connected} />
+        <PaintScheduleEditor2 isConnected={this.state.connected} />
       </Grid>
     );
   }

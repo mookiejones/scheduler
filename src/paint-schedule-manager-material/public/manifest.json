@@ -1,0 +1,22 @@
+{
+
+
+  "short_name": "Paint Scheduler",
+  "description": "Paint Scheduler Application",
+  "dir": "ltr",
+  "icons": [ {
+    "src": "./img/favicon.ico",
+    "sizes": "64x64 32x32 24x24 16x16",
+    "type": "image/x-icon"
+  } ],
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "serviceworker": {
+    "src": "service-worker.js",
+    "update_via_cache": "none"
+  },
+  "lang": "en-US",
+  "name": "paint-schedule-manager",
+  "start_url": "./PaintScheduleManager"
+}

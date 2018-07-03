@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import * as Highcharts from "highcharts";
-import PropTypes from "prop-types";
 export class HighChart extends Component {
   // When the DOM is ready, create the chart.
   componentDidMount() {
