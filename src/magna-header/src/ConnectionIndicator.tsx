@@ -1,6 +1,6 @@
-import Wifi from "@material-ui/icons/Wifi";
+import { IconButton } from "@material-ui/core";
+import { Wifi } from "@material-ui/icons";
 import debug from "debug";
-import PropTypes from "prop-types";
 import * as React from 'react';
 import { Component } from "react";
 import { API_SERVER } from "scheduler-constants";
@@ -23,17 +23,21 @@ log.enabled = /norweb\//i.test(API_SERVER);
 interface IState {
   connected:boolean
 }
+
+interface IProp{
+  onConnectionChanged:(name:string,args:any,connected:boolean)=>void
+}
 /**
  * @description Component used to handle Connection Status
  */
-export default class ConnectionIndicator extends Component<any,IState> {
+export default class ConnectionIndicator extends Component<IProp,IState> {
   
   /**
    * @description Socket Communication
    */
   socket:SocketIOClient.Socket;
 
-  constructor(props:any) {
+  constructor(props:IProp) {
     super(props);
 
     const url = `${API_SERVER}/paint-load`;
@@ -98,13 +102,17 @@ export default class ConnectionIndicator extends Component<any,IState> {
    * @description Fired when an error occurs.
    * @param {Object} error error object
    */
-  onErrorHandler(error:Error) {}
+  onErrorHandler(error:Error) {
+    this.updateStatus("error",error);
+  }
 
   /**
    * Fired upon a disconnection.
    * @param {String} reason either 'io server disconnect' or 'io client disconnect'
    */
-  onDisconnectedHandler(reason:string) {}
+  onDisconnectedHandler(reason:string) {
+    this.updateStatus("disconnected",reason);
+  }
 
   /**
    * @description Fired upon a successful reconnection.
@@ -187,7 +195,3 @@ export default class ConnectionIndicator extends Component<any,IState> {
     );
   }
 }
-
-ConnectionIndicator.propTypes = {
-  onConnectionChanged: PropTypes.func
-};

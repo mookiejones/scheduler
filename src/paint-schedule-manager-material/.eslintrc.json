@@ -5,6 +5,7 @@
         "node": true
     },
     "rules": {
+    "jsx-a11y/anchor-is-valid": ["warn", { "aspects": ["invalidHref"] }],
         "linebreak-style": ["error", "windows"],
         "no-console": "off",
         "comma-dangle": "off",

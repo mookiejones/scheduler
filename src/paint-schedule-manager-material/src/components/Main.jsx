@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import MagnaHeader from "./MagnaHeader";
+import MagnaHeader from "magna-header";
 import { Grid, Snackbar, SnackbarContent } from "@material-ui/core";
 
 import PaintScheduleEditor2 from "./PaintScheduleEditor2";
@@ -23,12 +23,17 @@ export default class Main extends Component {
         message = "Connected";
         break;
       case "reconnect_error":
+      message = this.state.message;
+      break;
 
       case "pong":
-      case "ping":
-      case "connect_error":
+      message = this.state.message;
+      break;
+    case "ping":
+      message = this.state.message;
+      break;
+    case "connect_error":
         message = this.state.message;
-
         break;
       case "reconnect_attempt":
         message = `Disconnected, Attempt ${args} to reconnect`;
@@ -42,7 +47,7 @@ export default class Main extends Component {
         debugger;
         break;
     }
-    let requiresUpdate = this.state.connected == false && status;
+    // let requiresUpdate = this.state.connected == false && status;
     this.setState({ message: message, connected: status });
   }
 
@@ -52,8 +57,7 @@ export default class Main extends Component {
         <MagnaHeader
           isConnected={this.state.connected}
           onConnectionChanged={this.onConnectionChanged}
-          showConnectionState={true}
-        />
+          showConnectionState={true} />
 
         <Snackbar
           anchorOrigin={{ vertical: "bottom", horizontal: "center" }}

@@ -15,6 +15,7 @@
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.10.0",
     "lodash.times": "^4.3.2",
+    "magna-header": "file:../magna-header",
     "prop-types": "^15.6.2",
     "react": "^16.4.1",
     "react-addons-update": "^15.6.2",
@@ -25,9 +26,8 @@
     "source-map-explorer": "^1.5.0"
   },
   "scripts": {
-    "clean":"rm -rf node_modules",
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build:react": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "publish": "yarn build && gulp prepare",
@@ -35,7 +35,6 @@
     "publish:test": "npm run prepare && gulp test --hello",
     "analyze": "source-map-explorer build/static/js/main.*"
   },
-
   "peerDependencies": {
     "react": "*",
     "react-dom": "*"
