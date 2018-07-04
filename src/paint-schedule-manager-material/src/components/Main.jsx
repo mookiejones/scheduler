@@ -10,8 +10,8 @@ export default class Main extends Component {
     this.state = {
       connected: false,
       message: "Disconnected",
+      showSettings: false,
     };
-
     this.onConnectionChanged = this.onConnectionChanged.bind(this);
   }
 
@@ -61,6 +61,7 @@ export default class Main extends Component {
           isConnected={this.state.connected}
           onConnectionChanged={this.onConnectionChanged}
           showConnectionState={true}
+          showSettings={() => this.setState({ showSettings: !this.state.showSettings })}
         />
 
         <Snackbar
@@ -74,7 +75,10 @@ export default class Main extends Component {
             message={<span id="client-snackbar">{this.state.message}</span>}
           />
         </Snackbar>
-        <PaintScheduleEditor isConnected={this.state.connected} />
+        <PaintScheduleEditor
+          isConnected={this.state.connected}
+          showSettings={this.state.showSettings}
+        />
       </Grid>
     );
   }

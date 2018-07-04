@@ -1,4 +1,4 @@
 import AlertDismissable from "./AlertDismissable";
 import SettingsModal from "./SettingsModal";
-
-export {AlertDismissable,SettingsModal}
+import RulesDialog from "./RulesDialog";
+export { AlertDismissable, SettingsModal, RulesDialog };

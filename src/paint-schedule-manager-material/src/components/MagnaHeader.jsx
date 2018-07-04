@@ -13,10 +13,10 @@ import {
   ListItemIcon,
   ListItemText,
   SwipeableDrawer,
-  Button
+  Button,
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
-import { Wifi, LocalShipping } from "@material-ui/icons";
+import { Wifi, LocalShipping, Settings } from "@material-ui/icons";
 import Logo from "./Logo";
 
 const drawerItems = (
@@ -25,35 +25,33 @@ const drawerItems = (
       <ListItemIcon>
         <LocalShipping />
       </ListItemIcon>
-      <ListItemText
-        primary={<a href="/driver-performance.html">Driver Performance</a>}
-      />
+      <ListItemText primary={<a href="/driver-performance.html">Driver Performance</a>} />
     </ListItem>
   </div>
 );
 const drawerWidth = 240;
-const styles = (theme) => ({
+const styles = theme => ({
   list: {
-    width: 250
+    width: 250,
   },
   fullList: {
-    width: "auto"
+    width: "auto",
   },
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   drawerPaper: {
     position: "relative",
-    width: drawerWidth
+    width: drawerWidth,
   },
   flex: {
-    flex: 1
+    flex: 1,
   },
   textField: {
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
-    width: 200
-  }
+    width: 200,
+  },
 });
 
 class MagnaHeader extends Component {
@@ -79,8 +77,7 @@ class MagnaHeader extends Component {
     this.setState({ drawer: false });
   }
   onConnectionStatusChanged(name, args, status) {
-    if (this.props.onConnectionChanged)
-      this.props.onConnectionChanged(name, args, status);
+    if (this.props.onConnectionChanged) this.props.onConnectionChanged(name, args, status);
   }
   render() {
     const { classes } = this.props;
@@ -95,9 +92,10 @@ class MagnaHeader extends Component {
             <Typography className={classes.flex} />
             <Typography>Version : {VERSION_NUMBER}</Typography>
 
-            <ConnectionIndicator
-              onConnectionChanged={this.onConnectionStatusChanged}
-            />
+            <ConnectionIndicator onConnectionChanged={this.onConnectionStatusChanged} />
+            <IconButton>
+              <Settings onClick={this.props.showSettings} />
+            </IconButton>
           </Toolbar>
         </AppBar>
         <SwipeableDrawer
@@ -105,13 +103,10 @@ class MagnaHeader extends Component {
           onOpen={this.openDrawer}
           onClose={this.closeDrawer}
           classes={{
-            paper: classes.drawerPaper
-          }}>
-          <div
-            tabIndex={0}
-            rule="button"
-            onClick={this.closeDrawer}
-            onKeyDown={this.closeDrawer}>
+            paper: classes.drawerPaper,
+          }}
+        >
+          <div tabIndex={0} rule="button" onClick={this.closeDrawer} onKeyDown={this.closeDrawer}>
             <List>{drawerItems}</List>
           </div>
         </SwipeableDrawer>
@@ -124,8 +119,8 @@ MagnaHeader.propTypes = {
   showConnectionState: PropTypes.bool,
   onConnectionChanged: PropTypes.func,
   isConnected: PropTypes.bool,
-
-  classes: PropTypes.object.isRequired
+  showSettings: PropTypes.func.isRequired,
+  classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(MagnaHeader);

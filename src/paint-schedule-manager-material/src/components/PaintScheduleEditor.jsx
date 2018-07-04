@@ -3,7 +3,7 @@ import update from "react-addons-update";
 import PropTypes from "prop-types";
 import { RoundSummary } from "./RoundSummary";
 import DataService from "../api/DataService";
-import { AlertDismissable, SettingsModal } from "./Dialogs";
+import { AlertDismissable, SettingsModal, RulesDialog } from "./Dialogs";
 import classnames from "classnames";
 import { headers } from "./TableConfig";
 import EditableRow from "./EditableRow";
@@ -18,8 +18,6 @@ export default class PaintScheduleEditor extends Component {
   constructor(props, context) {
     super(props, context);
 
-    getColors();
-
     this._rows = [];
     this.lastSelected = null;
     this.state = {
@@ -33,6 +31,7 @@ export default class PaintScheduleEditor extends Component {
       editing: false,
       showSettings: false,
       // env: this.props.route.env,
+      rules: [],
       initialRows: [],
       rows: [],
       roundSummary: [],
@@ -50,9 +49,18 @@ export default class PaintScheduleEditor extends Component {
     this.onEditorClosed = this.onEditorClosed.bind(this);
     this.updateData = this.updateData.bind(this);
     this.undoSelection = this.undoSelection.bind(this);
+    this.setRules = this.setRules.bind(this);
   }
-
+  setRules(rules) {
+    this.setState({ rules: rules });
+  }
   componentDidMount() {
+    getColors()
+      .then(this.setRules)
+      .catch(error => {
+        debugger;
+      });
+
     this.getPaintSchedule();
     this.getStyleCodesAndProgramColors();
     window.addEventListener("resize", () =>
@@ -493,7 +501,8 @@ export default class PaintScheduleEditor extends Component {
           row={this.state.selectedRow}
           onClosed={this.onEditorClosed}
         />
-        <SettingsModal show={this.state.showSettings} />
+        <RulesDialog show={this.props.showSettings} />
+        <SettingsModal show={this.props.showSettings} />
         <AlertDismissable
           title={this.state.msg.title}
           text={this.state.msg.Text}
@@ -560,4 +569,5 @@ PaintScheduleEditor.propTypes = {
   rowKey: PropTypes.string,
   ruleSet: PropTypes.object,
   isConnected: PropTypes.bool,
+  showSettings: PropTypes.bool,
 };
