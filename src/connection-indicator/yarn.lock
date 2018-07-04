@@ -10524,7 +10524,7 @@ sax@>=0.6.0, sax@^1.2.1, sax@^1.2.4, sax@~1.2.1:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
 
-"scheduler-constants@file:./../scheduler-constants":
+"scheduler-constants@file:../scheduler-constants":
   version "0.1.0"
 
 schema-utils@^0.3.0:
