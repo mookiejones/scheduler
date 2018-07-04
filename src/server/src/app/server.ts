@@ -1,15 +1,11 @@
 /* app/server.ts */
 
 // Import everything from express and assign it to the express variable
-import * as express from "express";
-
-import { Request, Response, NextFunction } from "express";
-import createError from "http-errors";
-
 import * as bodyParser from "body-parser";
-
+import * as express from "express";
+import { NextFunction, Request, Response } from "express";
+import createError from "http-errors";
 import * as methodOverride from "method-override";
-
 // Import APIController from controllers entry point
 import { APIController } from "./controllers";
 
@@ -51,6 +47,18 @@ export class Server {
   api() {
     // Mount the WelcomeController at the /welcome route
     this.app.use("/api", APIController);
+    this.app.get("*", (req: Request, res: Response, next: NextFunction) => {
+      console.log("Any Request");
+      debugger;
+    });
+    this.app.get(
+      "/api/colors",
+      (req: Request, res: Response, next: NextFunction) => {
+        debugger;
+        console.log("Color Request");
+      }
+    );
+
     // set the static files location /public/img will be /img for users
 
     // app.use(express.static("dist"));
@@ -62,7 +70,12 @@ export class Server {
     });
 
     // error handler
-    this.app.use(function(err: any, req: Request, res: Response, next: NextFunction) {
+    this.app.use(function(
+      err: any,
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ) {
       console.log("there was an error");
       // set locals, only providing error in development
       res.locals.message = err.message;

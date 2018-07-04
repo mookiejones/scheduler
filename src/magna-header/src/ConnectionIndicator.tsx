@@ -4,7 +4,7 @@ import debug from "debug";
 import * as React from 'react';
 import { Component } from "react";
 import { API_SERVER } from "scheduler-constants";
-import io from "socket.io-client";
+import * as io from "socket.io-client";
 
 const connect_error = "connect_error";
 const connect_timeout = "connect_timeout";
