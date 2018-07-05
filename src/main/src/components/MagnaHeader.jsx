@@ -8,8 +8,6 @@ import {
   Toolbar,
   Typography,
   IconButton,
-  Tabs,
-  Tab,
   List,
   ListItem,
   ListItemIcon,
@@ -21,7 +19,6 @@ import { withStyles } from "@material-ui/core/styles";
 import { Wifi, LocalShipping, Settings } from "@material-ui/icons";
 import Logo from "./Logo";
 
-const tabs = ["Schedule Editor", "Excel Import", "Paint Load"];
 const drawerItems = (
   <div>
     <ListItem button href="/help">
@@ -35,7 +32,7 @@ const drawerItems = (
   </div>
 );
 const drawerWidth = 240;
-const styles = theme => ({
+const styles = (theme) => ({
   list: {
     width: 250
   },
@@ -89,25 +86,19 @@ class MagnaHeader extends Component {
     const { classes } = this.props;
     return (
       <div className={classes.root}>
-        <AppBar position="static" color="primary">
-          <Toolbar color="primary">
+        <AppBar position="fixed" color="inherit">
+          <Toolbar>
             <Button onClick={this.openDrawer}>
               <Logo />
             </Button>
 
             <Typography className={classes.flex} />
-            <Tabs className={classes.flex} onChange={this.props.onTabChanged}>
-              {tabs.map(tab => <Tab label={tab} />)}
-            </Tabs>
 
             <Typography>Version : {VERSION_NUMBER}</Typography>
 
             <ConnectionIndicator
               onConnectionChanged={this.onConnectionStatusChanged}
             />
-            <IconButton>
-              <Settings onClick={this.props.showSettings} />
-            </IconButton>
           </Toolbar>
         </AppBar>
         <SwipeableDrawer
