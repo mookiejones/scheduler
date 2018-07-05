@@ -8,8 +8,8 @@ class PaintScheduleColorsData extends DataItemBase {
       throw new Error("Need to resolve the real data for PaintScheduleData");
     }
 
-    const json = DataItemBase.api.program_colors;
-    const result = new PaintScheduleColorsData(json);
+    // const json = DataItemBase.api.program_colors;
+    const result = new PaintScheduleColorsData([]);
     return result;
   }
 

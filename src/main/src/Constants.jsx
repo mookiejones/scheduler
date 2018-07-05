@@ -1,6 +1,7 @@
 const DELETE_KEY = "DELETE";
 
-const PRODUCTION = true;
+const TEST="True";
+const PRODUCTION = false;
 const AVAILABLE = "##AVAILABLE##";
 const VERSION_NUMBER = "1.3.1";
 /**
@@ -12,4 +13,4 @@ if (!PRODUCTION) {
   API_SERVER = "http://localhost:5555";
 }
 
-export { DELETE_KEY, API_SERVER, AVAILABLE, REFRESH_RATE, VERSION_NUMBER };
+export { DELETE_KEY, API_SERVER, AVAILABLE, REFRESH_RATE, VERSION_NUMBER,TEST };

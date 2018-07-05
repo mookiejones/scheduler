@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 
 import PropTypes from "prop-types";
-import { VERSION_NUMBER } from "scheduler-constants";
+import { VERSION_NUMBER } from "../Constants";
 import ConnectionIndicator from "./ConnectionIndicator";
 import {
   AppBar,

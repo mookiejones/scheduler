@@ -1,4 +1,4 @@
-import * as data from "./data.json";
+
 import DataItemBase from "./DataItemBase";
 import RoundDataItem from "./RoundDataItem";
 import RoundSummaryItem from "./RoundSummaryItem";
@@ -17,18 +17,26 @@ const compare = (a, b) => {
 class PaintScheduleData extends DataItemBase {
   static fetch(isTesting) {
     console.info(`Fetching Paint Schedule Data testing: ${isTesting}`);
+    
+    let url = super.url;
 
-    if (!isTesting) {
-      throw new Error("Need to resolve the real data for PaintScheduleData");
-    }
-    const json = data.get_paint_schedule;
-    const result = new PaintScheduleData(json);
-    return result;
+    return DataItemBase.getData("GetPaintSchedule")
+    .then(o=>new PaintScheduleData(o))
+    .catch(o=>{
+      debugger;
+    });
+
+    // if (!isTesting) {
+    //   throw new Error("Need to resolve the real data for PaintScheduleData");
+    // }
+    // const json = data.get_paint_schedule;
+    // const result = new PaintScheduleData(json);
+    // return result;
   }
   constructor(value) {
     super();
-    const roundData = value[0] || [];
-    const roundSummaryData = value[1] || [];
+    const roundData = value.result[0] || [];
+    const roundSummaryData = value.result[1] || [];
 
     this.RoundData = roundData.map(item => RoundDataItem.Create(item));
     this.RoundSummaryData = roundSummaryData.map(RoundSummaryItem.Create);

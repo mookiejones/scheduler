@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { API_SERVER } from "scheduler-constants";
+import { API_SERVER } from "../Constants";
 import * as io from "socket.io-client";
 import * as debug from "debug";
 import { IconButton } from "@material-ui/core";
@@ -29,7 +29,7 @@ export default class ConnectionIndicator extends Component {
   constructor(props) {
     super(props);
 
-    console.log("Need to change this")
+    console.log("Need to change this");
     const url = `http://localhost:5555/paint-load`;
     this.socket = io(url);
 

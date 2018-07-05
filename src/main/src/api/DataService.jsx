@@ -3,7 +3,7 @@ import PaintScheduleStylesData from "./PaintScheduleStylesData";
 import PaintScheduleColorsData from "./PaintScheduleColorsData";
 import DriverAverages from "./DriverAverages";
 import { DELETE_KEY } from "../Constants";
-
+import fetch from 'node-fetch';
 const asPromise = (value) => new Promise((resolve) => resolve(value));
 
 const sendData = (value) => asPromise(value);

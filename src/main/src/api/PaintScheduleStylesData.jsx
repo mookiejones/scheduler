@@ -29,8 +29,8 @@ class PaintScheduleStylesData extends DataItemBase {
     if (!isTesting) {
       throw new Error("Need to resolve the real data for PaintScheduleData");
     }
-    const json = DataItemBase.api.style_codes;
-    const result = new PaintScheduleStylesData(json);
+    // const json = DataItemBase.api.style_codes;
+   const result = new PaintScheduleStylesData([]);
     return result;
   }
 
