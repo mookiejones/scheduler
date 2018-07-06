@@ -17,6 +17,7 @@ import PropTypes from "prop-types";
 import "./App.css";
 import { withStyles } from "@material-ui/core/styles";
 import SwipeableViews from "react-swipeable-views";
+import Main from "./components/PaintLoad/Main";
 import ExcelImport from "./components/ExcelImport";
 import PaintScheduleEditor from "./components/ScheduleEditor/PaintScheduleEditor";
 import DriverPerformance from "./components/DriverPerformance";
@@ -112,7 +113,9 @@ class App extends Component {
               <TabContainer dir={theme.direction}>
                 <ExcelImport />
               </TabContainer>
-              <TabContainer dir={theme.direction}>Item One</TabContainer>
+              <TabContainer dir={theme.direction}>
+                <Main />
+              </TabContainer>
               <TabContainer dir={theme.direction}>
                 <DriverPerformance />
               </TabContainer>
