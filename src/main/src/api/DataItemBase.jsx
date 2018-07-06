@@ -1,6 +1,6 @@
- import { API_SERVER,TEST}from "../Constants";
- import fetch from "node-fetch";
- 
+import { API_SERVER, TEST } from "../Constants";
+import fetch from "node-fetch";
+
 const isArray = (item) => {
   return Object.prototype.toString.call(item) === "[object Array]";
 };
@@ -28,24 +28,24 @@ const sortFn = (a, b) => {
 };
 
 export default class DataItemBase {
-    url(name){
-     let  path=TEST?`${name}Test`:name;
-    return `${API_SERVER}/${path}`}
- 
+  url(name) {
+    let path = TEST ? `${name}Test` : name;
+    return `${API_SERVER}/${path}`;
+  }
 
-    static getData(name){
-      let  path=TEST?`${name}Test`:name;
-      let url = `${API_SERVER}/reporting/paint.asmx/${path}? HTTP/1.1`
-      return fetch(url)
+  static getDataPromise = (url) =>
+    new Promise((resolve) => resolve(DataItemBase.getData(url)));
+  static getData(name) {
+    let path = TEST ? `${name}Test` : name;
+    let url = `${API_SERVER}/reporting/paint.asmx/${path}? HTTP/1.1`;
+    return fetch(url)
       .then((r) => {
         if (!r.ok) debugger;
         return r.json();
       })
-      
+
       .catch((e) => {
         debugger;
       });
   }
-    }56
-    
-
+}

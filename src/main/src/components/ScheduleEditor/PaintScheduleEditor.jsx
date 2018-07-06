@@ -3,7 +3,12 @@ import update from "react-addons-update";
 import PropTypes from "prop-types";
 import { RoundSummary } from "./RoundSummary";
 import DataService from "../../api/DataService";
-import { AlertDismissable, SettingsModal, RulesDialog } from "./Dialogs";
+import {
+  AlertDismissable,
+  SettingsModal,
+  RulesDialog,
+  AddNewRoundDialog
+} from "./Dialogs";
 import classnames from "classnames";
 import { headers } from "./TableConfig";
 import EditableRow from "./EditableRow";
@@ -53,16 +58,23 @@ export default class PaintScheduleEditor extends Component {
       programColors: [],
       selectedRound: null,
       numSelected: 0,
+      showAddRound: false,
       newRows: 0,
       height: window.innerHeight - heightOffset,
       firstLoad: true
     };
     this.showSettings.bind(this);
+    this.updateStyleCodesAndProgramColors = this.updateStyleCodesAndProgramColors.bind(
+      this
+    );
     this.onEditorClosed = this.onEditorClosed.bind(this);
     this.updateData = this.updateData.bind(this);
     this.undoSelection = this.undoSelection.bind(this);
     this.getRowColor = this.getRowColor.bind(this);
     this.setRules = this.setRules.bind(this);
+    this.addNewRound = this.addNewRound.bind(this);
+    this.updateColorCodes = this.updateColorCodes.bind(this);
+    this.addNewRoundAnswered = this.addNewRoundAnswered.bind(this);
   }
   setRules(rules) {
     this.setState({ rules: rules });
@@ -111,19 +123,22 @@ export default class PaintScheduleEditor extends Component {
       });
   }
 
+  updateStyleCodesAndProgramColors({ result }) {
+    this.setState({ styleCodes: result.slice() });
+  }
+  updateColorCodes({ result }) {
+    this.setState({ programColors: result });
+  }
+
   getStyleCodesAndProgramColors() {
-    const self = this;
-    const updateData = (data) => {
-      self.setState({ styleCodes: data.programs.slice() });
-    };
     DataService.GetStyleCodes()
-      .then(updateData)
+      .then(this.updateStyleCodesAndProgramColors)
       .catch((err) => {
         console.error(err);
       });
 
     DataService.GetColorCodes()
-      .then((d) => self.setState({ programColors: d.hash }))
+      .then(this.updateColorCodes)
       .catch((err) => {
         console.error(err);
       });
@@ -135,6 +150,7 @@ export default class PaintScheduleEditor extends Component {
   }
 
   getProgramColors(styleCode) {
+    debugger;
     return this.state.programColors[styleCode];
     /**
     const styleMetaData = this.getStyleCodePresets(styleCode);
@@ -411,26 +427,20 @@ export default class PaintScheduleEditor extends Component {
     }
     return -1;
   }
+  addNewRoundAnswered(result) {
+    debugger;
+    this.setState({ showAddRound: false });
+    if (!result) return;
+    DataService.AddRound(this.state.selectedDate)
+      .then((o) => {
+        debugger;
+      })
+      .catch((error) => {
+        debugger;
+      });
+  }
   addNewRound() {
-    let question = "Add new round?";
-
-    let url = "../paint.asmx/ScheduleNewRoundTest";
-    if (this.state.env === "development")
-      url = "../paint.asmx/ScheduleNewRoundTest";
-
-    if (this.state.newRows > 0)
-      question = "Unsaved rows will be lost! Continue?";
-
-    if (true) {
-      // }    if(confirm(string)){
-      DataService.AddRound(this.state.selectedDate)
-        .then((o) => {
-          debugger;
-        })
-        .catch((error) => {
-          debugger;
-        });
-    }
+    this.setState({ showAddRound: true });
   }
   applyRuleSet(newTable) {
     console.log("apply rule set");
@@ -544,6 +554,15 @@ export default class PaintScheduleEditor extends Component {
 
     return (
       <div style={{ height: "75vh" }}>
+        <AddNewRoundDialog
+          msg={
+            this.state.newRows === 0
+              ? "Add New Round?"
+              : "Unsaved rows will be lost! Continue?"
+          }
+          open={this.state.showAddRound}
+          answer={this.addNewRoundAnswered}
+        />
         <EditableRow
           open={this.state.editing}
           row={this.state.selectedRow}
@@ -607,7 +626,11 @@ export default class PaintScheduleEditor extends Component {
             </Table>
           </div>
         </Paper>
-        <ReactiveButton clickEvent={this.addNewRound} text="New Round" />
+        <ReactiveButton
+          clickEvent={this.addNewRound}
+          text="New Round"
+          disabled={this.state.rows.length === 0}
+        />
       </div>
     );
   }

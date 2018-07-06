@@ -30,7 +30,7 @@ export default class ConnectionIndicator extends Component {
     super(props);
 
     console.log("Need to change this");
-    const url = `http://localhost:5555/paint-load`;
+    const url = `${API_SERVER}/paint-load`;
     this.socket = io(url);
 
     this.state = {

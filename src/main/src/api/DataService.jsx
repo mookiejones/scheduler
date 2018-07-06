@@ -1,9 +1,10 @@
 import PaintScheduleData from "./PaintScheduleData";
+import DataItemBase from "./DataItemBase";
 import PaintScheduleStylesData from "./PaintScheduleStylesData";
 import PaintScheduleColorsData from "./PaintScheduleColorsData";
 import DriverAverages from "./DriverAverages";
-import { DELETE_KEY } from "../Constants";
-import fetch from 'node-fetch';
+import { API_SERVER, DELETE_KEY } from "../Constants";
+import fetch from "node-fetch";
 const asPromise = (value) => new Promise((resolve) => resolve(value));
 
 const sendData = (value) => asPromise(value);
@@ -13,8 +14,22 @@ class DataService {
   constructor(bind) {
     this.bind = bind;
   }
-  static AddRound(date) {
-    debugger;
+
+  static AddRound(date = null) {
+    let query = { selectedDate: null };
+    // let query = JSON.parse({ selectedDate: date });
+
+    // const url = `${API_SERVER}/reporting/paint.asmx/GetDriverAverages/startdate/${
+    //   query.startdate
+    // }/enddate/${query.enddate}`;
+    // return fetch(url, {
+    //   method: "POST",
+    //   body: query
+    // }).then((result) => {
+    //   debugger;
+    //   return result.json();
+    // });
+    // debugger;
     /*
     $.ajax({
       method: "POST",
@@ -48,6 +63,9 @@ class DataService {
     return new Promise((resolve, reject) => {});
   }
 
+  static ScheduleNewRound() {
+    return DataItemBase.getDataPromise("ScheduleNewRound");
+  }
   static LoadRound() {}
   static DeleteFromExcel(data) {}
   static DeleteRound(data) {}
@@ -107,22 +125,11 @@ class DataService {
     return result;
   }
 
-  static GetStyleCodes(arg) {
-    const result = sendData(PaintScheduleStylesData.fetch(DataService.isTest));
-    if (arg) {
-      return result.bind(arg);
-    }
-    return result;
-  }
+  static GetStyleCodes = (arg) =>
+    DataItemBase.getDataPromise("GetPaintScheduleStyles");
 
-  static GetColorCodes(arg) {
-    const result = sendData(PaintScheduleColorsData.fetch(DataService.isTest));
-
-    if (arg) {
-      return result.bind(arg);
-    }
-    return result;
-  }
+  static GetColorCodes = (arg) =>
+    DataItemBase.getDataPromise("GetProgramColors");
 
   static GetDriverAverages(params) {
     return DriverAverages.fetch(DataService.isTest, params);
