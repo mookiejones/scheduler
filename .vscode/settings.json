@@ -1,0 +1,15 @@
+{
+    "files.exclude": {
+        ".vscode": true,
+        "**/server/": true,
+        "**/client/": false,
+        "server.[ck]*": true,
+        "*.svg": true,
+        "**/*.sh": true,
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true
+    }
+}

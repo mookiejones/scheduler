@@ -1,26 +1,56 @@
 {
-  "name": "scheduler",
-  "version": "0.0.1",
-  "description": "Paint Scheduling Application",
-  "scripts": {
-    "build-css": "node-sass-chokidar src/client/public/css -o src/client/public/css",
-    "watch-css": "npm run build-css && node-sass-chokidar src/client/public/css -o src/client/public/css --watch --recursive",
-    "client": "cd src/client && npm start",
-    "server": "node ./src/server/bin/www",
-    "both": "npm run server && npm run client"
-  },
-  "author": "Charles Berman <Charles.Berman@Magna.com>",
+  "name": "main",
+  "version": "0.1.0",
   "private": true,
-  "license": "None",
   "dependencies": {
-    "@types/socket.io": "^1.4.36",
-    "firebase": "^5.1.0",
+    "@material-ui/core": "^1.3.1",
+    "@material-ui/icons": "^1.1.0",
+    "eslint-config-airbnb": "^17.0.0",
+    "eslint-config-react-app": "^2.1.0",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.10.0",
+    "global": "^4.3.2",
+    "hammerjs": "^2.0.8",
+    "highcharts": "^6.1.1",
+    "lodash.times": "^4.3.2",
+    "material-ui": "^0.20.1",
+    "moment": "^2.22.2",
+    "prettier": "^1.13.7",
+    "prop-types": "^15.6.2",
     "react": "^16.4.1",
-    "react-bootstrap-table": "^4.3.1",
-    "react-date-picker": "^6.10.4",
-    "react-datepicker": "^1.5.0",
+    "react-addons-update": "^15.6.2",
+    "react-bootstrap": "^0.32.1",
+    "react-dom": "^16.4.1",
+    "react-event-listener": "^0.6.1",
     "react-fontawesome": "^1.6.1",
-    "react-swipe-to-reveal-options": "^0.3.6",
-    "socket.io": "^2.1.1"
+    "react-scripts": "1.1.4",
+    "react-swipeable-views": "^0.12.14",
+    "react-tap-event-plugin": "^3.0.3",
+    "socket.io": "^2.1.1",
+    "source-map-explorer": "^1.5.0"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-dom": "*"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.5",
+    "babel-loader": "^7.1.4",
+    "gulp": "^3.9.1"
+  },
+  "babel": {
+    "presets": [
+      "react-app"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
   }
 }
