@@ -20,12 +20,15 @@
     "prop-types": "^15.6.2",
     "react": "^16.4.1",
     "react-addons-update": "^15.6.2",
+    "react-bootstrap": "^0.32.1",
     "react-dom": "^16.4.1",
     "react-event-listener": "^0.6.1",
+    "react-fontawesome": "^1.6.1",
     "react-scripts": "1.1.4",
     "react-swipeable-views": "^0.12.14",
     "react-tap-event-plugin": "^3.0.3",
     "scheduler-constants": "file:./../scheduler-constants",
+    "socket.io": "^2.1.1",
     "source-map-explorer": "^1.5.0"
   },
   "peerDependencies": {

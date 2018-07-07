@@ -1,7 +1,7 @@
 const DELETE_KEY = "DELETE";
 
 const TEST = "True";
-const PRODUCTION = true;
+const PRODUCTION = false;
 const AVAILABLE = "##AVAILABLE##";
 const VERSION_NUMBER = "1.3.1";
 /**
@@ -14,6 +14,7 @@ if (!PRODUCTION) {
 }
 
 export {
+  PRODUCTION,
   DELETE_KEY,
   API_SERVER,
   AVAILABLE,

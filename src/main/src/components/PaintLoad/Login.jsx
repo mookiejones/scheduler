@@ -19,25 +19,25 @@ export default class Login extends Component {
   constructor(props, context) {
     super(props, context);
 
-    try {
-      //this.input = React.createRef();
-      //this.selectRole = React.createRef();
-      // this.loginUser = this.loginUser.bind(this);
-      this.focusTextInput = this.focusTextInput.bind(this);
-    } catch (e) {
-      console.error(e);
-    }
-    this.input = React.createRef();
     this.state = {
       options: [
         { title: "assist", value: "Load Assist" },
         { title: "stage", value: "Stage" },
         { title: "load", value: "Load" }
       ],
+      user: null,
       userId: -1,
       disabled: false,
       role: "assist"
     };
+
+    /** Refs */
+    this.input = React.createRef();
+    this.selectRole = React.createRef();
+
+    /** Bindings  */
+    this.loginUser = this.loginUser.bind(this);
+    this.focusTextInput = this.focusTextInput.bind(this);
   }
 
   focusTextInput() {
@@ -54,62 +54,61 @@ export default class Login extends Component {
   }
   loginUser(e) {
     e.preventDefault();
-    const userId = this.input.value;
 
-    const role = this.selectRole.value;
+    const userId = this.state.user;
+
+    const role = this.state.role;
 
     this.setState({ userId: userId, role: role });
 
-    //    this.props.setUser(userId, "cberman", role);
-
     let task = DataService.LoginUser(userId);
 
-    task.then(({ d }) => this.props.setUser(userId, d, role)).catch((error) => {
+    task.then(({ d }) => this.props.setUser(userId, d, role)).catch(error => {
       debugger;
     });
   }
   render() {
-    const inputRef = (el) => (this.input = el);
-    const roleRef = (el) => (this.selectRole = el);
+    const inputRef = el => (this.input = el);
+    const roleRef = el => (this.selectRole = el);
     return (
-      <AppContext.Provider value={{ role: this.state.role }}>
-        <Paper>
-          <Grid container>
-            <form action="" className="form-signin">
-              <h2 className="form-signin-heading">Please sign in</h2>
-              <TextField
-                label="Employee ID"
-                margin="normal"
-                required
-                placeholder="Enter ID"
-                autoFocus
-                disabled={this.state.disabled}
-                inputRef={inputRef}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <AccountCircle />
-                    </InputAdornment>
-                  )
-                }}
-              />
+      <Paper>
+        <Grid container>
+          <form action="" className="form-signin">
+            <h2 className="form-signin-heading">Please sign in</h2>
+            <TextField
+              label="Employee ID"
+              margin="normal"
+              required
+              placeholder="Enter ID"
+              autoFocus
+              disabled={this.state.disabled}
+              inputRef={inputRef}
+              value={this.state.user}
+              onChange={e => this.setState({ user: e.target.value })}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <AccountCircle />
+                  </InputAdornment>
+                )
+              }}
+            />
 
-              <Select id="select-login" value={this.state.role} displayEmpty>
-                {this.state.options.map((option) => (
-                  <MenuItem value={option.title}>{option.value}</MenuItem>
-                ))}
-              </Select>
-              <Button
-                onClick={(e) => this.loginUser(e)}
-                bsStyle="primary"
-                block
-                type="submit">
-                Sign in
-              </Button>
-            </form>
-          </Grid>
-        </Paper>
-      </AppContext.Provider>
+            <Select id="select-login" value={this.state.role} displayEmpty>
+              {this.state.options.map(option => (
+                <MenuItem value={option.title}>{option.value}</MenuItem>
+              ))}
+            </Select>
+            <Button
+              onClick={e => this.loginUser(e)}
+              bsStyle="primary"
+              block
+              type="submit">
+              Sign in
+            </Button>
+          </form>
+        </Grid>
+      </Paper>
     );
   }
 }

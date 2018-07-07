@@ -3,18 +3,21 @@ import DataItemBase from "./DataItemBase";
 import PaintScheduleStylesData from "./PaintScheduleStylesData";
 import PaintScheduleColorsData from "./PaintScheduleColorsData";
 import DriverAverages from "./DriverAverages";
-import { API_SERVER, DELETE_KEY } from "../Constants";
+import { PRODUCTION, API_SERVER, DELETE_KEY } from "../Constants";
 import fetch from "node-fetch";
-const asPromise = (value) => new Promise((resolve) => resolve(value));
+const asPromise = value => new Promise(resolve => resolve(value));
 
-const sendData = (value) => asPromise(value);
+const sendData = value => asPromise(value);
 
 let testFlag = true;
 class DataService {
   constructor(bind) {
     this.bind = bind;
   }
-
+  static LoginUser(id) {
+    if (!PRODUCTION)
+      return new Promise((resolve, reject) => resolve("cberman"));
+  }
   static AddRound(date = null) {
     let query = { selectedDate: null };
     // let query = JSON.parse({ selectedDate: date });
@@ -125,11 +128,10 @@ class DataService {
     return result;
   }
 
-  static GetStyleCodes = (arg) =>
+  static GetStyleCodes = arg =>
     DataItemBase.getDataPromise("GetPaintScheduleStyles");
 
-  static GetColorCodes = (arg) =>
-    DataItemBase.getDataPromise("GetProgramColors");
+  static GetColorCodes = arg => DataItemBase.getDataPromise("GetProgramColors");
 
   static GetDriverAverages(params) {
     return DriverAverages.fetch(DataService.isTest, params);
