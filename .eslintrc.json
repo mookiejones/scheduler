@@ -14,6 +14,10 @@
     "no-console": "off",
     "comma-dangle": "off",
     "react/jsx-filename-extension": "off",
+    "jsx-a11y/href-no-hash": "off",
+    "jsx-a11y/anchor-is-valid": ["warn", {
+      "aspects": ["invalidHref"]
+    }],
     "quotes": ["error", "single"],
     "jsx-quotes": ["error", "prefer-single"],
     "indent": "off",
@@ -27,7 +31,9 @@
     "react/style-prop-object": "off",
     "react/forbid-prop-types": [
       "off",
-      { "forbid": ["any", "array", "object"] }
+      {
+        "forbid": ["any", "array", "object"]
+      }
     ],
     "no-underscore-dangle": "off"
   }

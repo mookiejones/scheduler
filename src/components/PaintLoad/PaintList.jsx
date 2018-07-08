@@ -2,11 +2,20 @@ import React, { Component } from "react";
 import * as update from "react-addons-update";
 import PropTypes from "prop-types";
 import UndoCell from "./UndoCell";
-import { Table } from "react-bootstrap";
+
 import DataService from "../../api/DataService";
 
+import {
+  Grid,
+  Table,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableSortLabel
+} from "@material-ui/core";
 import SocketScheduler from "./SocketScheduler";
-import TableRow from "./TableRow";
+// import TableRow from "./TableRow";
 import ListTop from "./ListTop";
 import Columns from "./Columns";
 import sortFn from "./sortFunction";
@@ -67,7 +76,7 @@ export default class PaintList extends Component {
       DataService.GetPaintInfo(func)
         .then(result => {
           this.setState({
-            currentRoundNumber: result.currentRoundNumber,
+            currentRoundNumber: result.currentRoundNumber.toString(),
             data: result.data
           });
         })
@@ -663,7 +672,7 @@ export default class PaintList extends Component {
     var hidden = { display: "none" };
 
     return (
-      <div>
+      <Grid>
         <ListTop
           currentRevision={this.state.currentRevision}
           currentRoundNumber={this.state.currentRoundNumber}
@@ -671,24 +680,34 @@ export default class PaintList extends Component {
           connectionState={this.state.connectionState}
           role={this.props.role}
         />
-        <Table striped bordered condensed hover>
-          <thead>
-            <tr>
-              <th className="undo" />
-              <th style={hidden}>master_id </th>
-              <th style={hidden}>round</th>
-              <th style={hidden}>round_position</th>
-              <th>Description</th>
-              <th>Color</th>
-              <th>Mold Skin Style</th>
-              <th>Rework Color Chart</th>
-              <th>Quantity</th>
-              <th className="action" style={{ width: "70px" }} />
-              <th style={hidden}>Handled By</th>
-              <th>Picked By</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHead>
+            <TableRow hover>
+              <TableCell />
+              {/*             
+            <TableCell>master_id</TableCell>
+            <TableCell>round</TableCell>
+            <TableCell>round_position</TableCell> */}
+
+              <TableCell>Description</TableCell>
+              <TableCell>Color</TableCell>
+              <TableCell>Mold Skin Style</TableCell>
+              <TableCell>Rework Color Chart</TableCell>
+              <TableCell>Quantity</TableCell>
+              {/* <TableCell>Handled By</TableCell> */}
+              <TableCell>Picked By</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody />
+          {this.state.data.map((rowData, rowIdx) => {
+            if (rowIdx < 26) {
+              <TableRow>
+                <TableCell />
+              </TableRow>;
+            }
+          })}
+          {/* 
+
             {this.state.data.map((rowData, rowIdx) => {
               if (rowIdx < 26) {
                 return (
@@ -742,9 +761,9 @@ export default class PaintList extends Component {
                 );
               }
             })}
-          </tbody>
+          </tbody> */}
         </Table>
-      </div>
+      </Grid>
     );
   }
 }

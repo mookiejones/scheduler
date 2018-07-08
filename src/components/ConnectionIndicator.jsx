@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { API_SERVER } from "../Constants";
 import * as io from "socket.io-client";
 import * as debug from "debug";
-import { IconButton, SvgIcon } from "@material-ui/core";
+import { SvgIcon } from "@material-ui/core";
 import { Wifi } from "@material-ui/icons";
 
 import PropTypes from "prop-types";

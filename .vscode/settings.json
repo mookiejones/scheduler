@@ -11,5 +11,10 @@
         "**/.hg": true,
         "**/CVS": true,
         "**/.DS_Store": true
-    }
+    },
+    "cSpell.words": [
+        "Reconnection",
+        "linebreak",
+        "norweb"
+    ]
 }

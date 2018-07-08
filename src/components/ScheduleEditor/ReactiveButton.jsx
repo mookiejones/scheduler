@@ -2,11 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Button, Tooltip } from "@material-ui/core";
 import { Add } from "@material-ui/icons";
-import styles from "../../styles";
 
-const { tooltip } = styles;
-
-const ReactiveButton = ({ numChanged, clickEvent, text, disabled }) => {
+const ReactiveButton = ({ clickEvent, text, disabled }) => {
   if (disabled) return <div />;
   return (
     <Tooltip
