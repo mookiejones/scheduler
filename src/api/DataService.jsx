@@ -104,6 +104,14 @@ class DataService {
     testFlag = value;
   }
 
+  static GetPaintInfo(func) {
+    return new Promise((resolve, reject) =>
+      resolve({
+        currentRoundNumber: -1,
+        data: []
+      })
+    );
+  }
   static UpdatePaintSchedule(value) {
     switch (value.action) {
       case DELETE_KEY:

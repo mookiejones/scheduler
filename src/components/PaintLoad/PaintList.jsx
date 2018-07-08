@@ -12,7 +12,7 @@ import Columns from "./Columns";
 import sortFn from "./sortFunction";
 import { REFRESH_RATE } from "../../Constants";
 
-const getTagType = (classname) => {
+const getTagType = classname => {
   let result = /((?:undo|description|color|mold_skin_style|rework_color_chart|quantity|picked_by|staged_by))/i.exec(
     classname
   );
@@ -26,6 +26,7 @@ export default class PaintList extends Component {
     this.UndoActionHandler = this.UndoActionHandler.bind(this);
     this.TapActionHandler = this.TapActionHandler.bind(this);
     this.autoRefresh = this.autoRefresh.bind(this);
+
     this.state = {
       data: [],
       connectionState: "disconnected",
@@ -59,18 +60,20 @@ export default class PaintList extends Component {
       case "watch":
         break;
       default:
+        debugger;
         break;
     }
-    DataService.GetPaintInfo(func)
-      .then((result) => {
-        this.setState({
-          currentRoundNumber: result.currentRoundNumber,
-          data: result.data
+    if (func !== "undefined")
+      DataService.GetPaintInfo(func)
+        .then(result => {
+          this.setState({
+            currentRoundNumber: result.currentRoundNumber,
+            data: result.data
+          });
+        })
+        .catch(error => {
+          debugger;
         });
-      })
-      .catch((error) => {
-        debugger;
-      });
 
     const connected = SocketScheduler.isConnected;
     console.log(`Connection state is ${connected}`);
@@ -83,10 +86,10 @@ export default class PaintList extends Component {
     SocketScheduler.subscribe("rowupdate", this.updateRow);
     SocketScheduler.subscribe("rowdelete", this.updateRow);
     SocketScheduler.subscribe("newrow", this.updateRow);
-    SocketScheduler.subscribe("update", (msg) => {
+    SocketScheduler.subscribe("update", msg => {
       debugger;
     });
-    SocketScheduler.subscribe("update-notify", (msg) => {
+    SocketScheduler.subscribe("update-notify", msg => {
       setTimeout(this.performHardUpdate, 0);
     });
 
@@ -124,13 +127,13 @@ export default class PaintList extends Component {
       // cmd += "Test";
     }
     DataService.GetPaintInfo(cmd)
-      .then((result) => {
+      .then(result => {
         this.setState({
           data: result.data,
           currentRoundNumber: result.currentRoundNumber
         });
       })
-      .catch((err) => {
+      .catch(err => {
         debugger;
       });
 
