@@ -30,6 +30,7 @@
     "react-scripts": "1.1.4",
     "react-swipeable-views": "^0.12.14",
     "react-tap-event-plugin": "^3.0.3",
+    "redux": "^4.0.0",
     "socket.io": "^2.1.1",
     "source-map-explorer": "^1.5.0"
   },

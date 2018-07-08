@@ -125,7 +125,10 @@ export default class Main extends Component {
   render() {
     return (
       <Grid>
-        <LoginDialog open={this.state.showDialog} loggedIn={this.loggedIn} />
+        <LoginDialog
+          open={this.state.showDialog && this.state.index == 2}
+          loggedIn={this.loggedIn}
+        />
 
         {this.state.role && (
           <PaintList
@@ -144,6 +147,7 @@ export default class Main extends Component {
 }
 
 Main.propTypes = {
+  index: PropTypes.any,
   connectionState: PropTypes.any,
   environment: PropTypes.string.isRequired,
   OSName: PropTypes.string.isRequired

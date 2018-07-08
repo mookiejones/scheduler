@@ -25,7 +25,7 @@ const defaultFormat = "YYYY-MM-DDThh:mm";
 function breakIntoSeries(arr, format) {
   const series = [];
   const s = {};
-  arr.forEach((el) => {
+  arr.forEach(el => {
     if (!s.name) {
       s.name = el.full_name;
       s.data = [];
@@ -104,7 +104,7 @@ const defaultOptions = {
   series: []
 };
 
-const styles = (theme) => ({
+const styles = theme => ({
   container: {
     display: "flex",
     flexWrap: "wrap"
@@ -185,7 +185,7 @@ class DriverPerformance extends Component {
     this.getDriverAverages();
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.getDriverAverages();
   }
 
@@ -220,7 +220,7 @@ class DriverPerformance extends Component {
     };
 
     DataService.GetDriverAverages(JSON.stringify(params))
-      .then((arr) => {
+      .then(arr => {
         if (arr.length > 0) {
           const options = update(this.state.defaultOptions, { $merge: {} });
           options.series = breakIntoSeries(arr[0], format);
@@ -240,7 +240,7 @@ class DriverPerformance extends Component {
           });
         }
       })
-      .catch((error) => {
+      .catch(error => {
         console.error(error);
       });
   }
@@ -294,7 +294,7 @@ class DriverPerformance extends Component {
                     {this.state.worsePerformers.map((row, idx) => (
                       <TableRow
                         hover
-                        onClick={(event) =>
+                        onClick={event =>
                           this.props.onDriverSelected(event, row)
                         }
                         key={idx}>
@@ -329,7 +329,7 @@ class DriverPerformance extends Component {
                     {this.state.underTen.map((row, idx) => (
                       <TableRow
                         hover
-                        onClick={(event) =>
+                        onClick={event =>
                           this.props.onDriverSelected(event, row)
                         }
                         key={idx}>
@@ -352,7 +352,7 @@ class DriverPerformance extends Component {
     return !this.state.options.series ? (
       Options
     ) : (
-      <Grid container>
+      <Grid container style={{ height: "80vh" }}>
         <Grid item xs={11}>
           {Options}
         </Grid>
