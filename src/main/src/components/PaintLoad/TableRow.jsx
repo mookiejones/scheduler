@@ -29,7 +29,6 @@ export default class TableRow extends Component {
     debugger;
   }
   componentWillUnmount() {
-    return;
     this.hammer.off("tap");
     this.hammer.off("swipe");
     this.hammer.destroy();

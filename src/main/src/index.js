@@ -1,10 +1,13 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import "./index.css";
-import Main from "./components/PaintLoad/Main"
-import App from "./App.jsx";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+// import App from './App.jsx';
+import registerServiceWorker from './registerServiceWorker';
+import
+ScheduleEditorContainer
+from './containers/ScheduleEditorContainer';
 
-// import SettingsComponent from "./components/ScheduleEditor/Settings/SettingsComponent"
-import registerServiceWorker from "./registerServiceWorker";
 
-ReactDOM.render( < Main / > , document.getElementById("root"));
+ReactDOM.render(<ScheduleEditorContainer />, document.getElementById('root'));
+
+registerServiceWorker();

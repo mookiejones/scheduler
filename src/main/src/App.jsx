@@ -1,12 +1,8 @@
 import React, { Component } from "react";
-import logo from "./logo.svg";
 import MagnaHeader from "./components/MagnaHeader";
 import {
   Grid,
-  GridList,
   Typography,
-  List,
-  ListItem,
   BottomNavigation,
   BottomNavigationAction,
   SvgIcon
@@ -93,7 +89,6 @@ class App extends Component {
   }
   render() {
     const { theme } = this.props;
-    const { value } = this.state;
     return (
       <Grid>
         <MagnaHeader
@@ -114,7 +109,7 @@ class App extends Component {
                 <ExcelImport />
               </TabContainer>
               <TabContainer dir={theme.direction}>
-                <Main />
+                <Main pageIdx={this.state.value} />
               </TabContainer>
               <TabContainer dir={theme.direction}>
                 <DriverPerformance />

@@ -1,5 +1,7 @@
 export {
     getColor,
-    getColors
+    getColors,
+    ColorRule,
+    ColorRules
 }
 from "./ColorRules";

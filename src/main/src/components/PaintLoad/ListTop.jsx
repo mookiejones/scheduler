@@ -1,16 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import {
-  Grid,
-  Col,
-  Row,
-  Label,
-  Badge,
-  Panel,
-  PageHeader,
-  ListGroup,
-  ListGroupItem
-} from "react-bootstrap";
+import { Label, Panel, ListGroup, ListGroupItem } from "react-bootstrap";
 
 export default class ListTop extends Component {
   constructor(props, context) {
@@ -39,7 +29,6 @@ export default class ListTop extends Component {
   }
   render() {
     const paintLabel = this.getPaintLabel();
-    const environmentLabel = this.getEnvironmentLabel();
     return (
       <Panel>
         <Panel.Heading>

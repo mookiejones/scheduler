@@ -10,7 +10,15 @@ import TableRow from "./TableRow";
 import ListTop from "./ListTop";
 import Columns from "./Columns";
 import sortFn from "./sortFunction";
-import { REFRESH_RATE } from "../../Constants";
+import {
+  REFRESH_RATE,
+  OS,
+  AVAILABLE,
+  ConnectionStates,
+  ASSIST,
+  STAGE,
+  LOAD
+} from "../../Constants";
 
 const getTagType = (classname) => {
   let result = /((?:undo|description|color|mold_skin_style|rework_color_chart|quantity|picked_by|staged_by))/i.exec(
@@ -18,6 +26,7 @@ const getTagType = (classname) => {
   );
   return result[0];
 };
+
 export default class PaintList extends Component {
   constructor(props, context) {
     super(props, context);
@@ -26,9 +35,11 @@ export default class PaintList extends Component {
     this.UndoActionHandler = this.UndoActionHandler.bind(this);
     this.TapActionHandler = this.TapActionHandler.bind(this);
     this.autoRefresh = this.autoRefresh.bind(this);
+    this._os = OS.getOsVersion();
+
     this.state = {
       data: [],
-      connectionState: "disconnected",
+      connectionState: ConnectionStates.Disconnected,
       currentUser: props.currentUser,
       env: props.environment,
       currentRevision: "",
@@ -47,13 +58,13 @@ export default class PaintList extends Component {
   componentDidMount() {
     let func;
     switch (this.props.role) {
-      case "assist":
+      case ASSIST:
         func = "GetPaintPickList";
         break;
-      case "stage":
+      case STAGE:
         func = "GetPaintStageList";
         break;
-      case "load":
+      case LOAD:
         func = "GetPaintLoad";
         break;
       case "watch":
@@ -77,28 +88,30 @@ export default class PaintList extends Component {
 
     this.props.connectionStateChanged(connected);
     this.setState({
-      connectionState: connected ? "connected" : "disconnected"
+      connectionState: connected
+        ? ConnectionStates.Connected
+        : ConnectionStates.Disconnected
     });
     this.refresh = setTimeout(this.autoRefresh, REFRESH_RATE * 1000);
-    SocketScheduler.subscribe("rowupdate", this.updateRow);
-    SocketScheduler.subscribe("rowdelete", this.updateRow);
-    SocketScheduler.subscribe("newrow", this.updateRow);
-    SocketScheduler.subscribe("update", (msg) => {
+    SocketScheduler.subscribe(ConnectionStates.RowUpdate, this.updateRow);
+    SocketScheduler.subscribe(ConnectionStates.RowDelete, this.updateRow);
+    SocketScheduler.subscribe(ConnectionStates.NewRow, this.updateRow);
+    SocketScheduler.subscribe(ConnectionStates.Update, (msg) => {
       debugger;
     });
-    SocketScheduler.subscribe("update-notify", (msg) => {
+    SocketScheduler.subscribe(ConnectionStates.UpdateNotify, (msg) => {
       setTimeout(this.performHardUpdate, 0);
     });
 
-    SocketScheduler.subscribe("disconnect", () => {
-      console.log("disconnected");
-      this.setState({ connectionState: "disconnected" });
-      this.props.connectionStateChanged("disconnected");
+    SocketScheduler.subscribe(ConnectionStates.Disconnect, () => {
+      console.log(ConnectionStates.Disconnected);
+      this.setState({ connectionState: ConnectionStates.Disconnected });
+      this.props.connectionStateChanged(ConnectionStates.Disconnected);
     });
-    SocketScheduler.subscribe("reconnect", () => {
-      console.log("reconnect");
-      this.setState({ connectionState: "reconnected" });
-      this.props.connectionStateChanged("connected");
+    SocketScheduler.subscribe(ConnectionStates.Reconnect, () => {
+      console.log(ConnectionStates.Reconnect);
+      this.setState({ connectionState: ConnectionStates.Reconnected });
+      this.props.connectionStateChanged(ConnectionStates.Connected);
     });
   }
 
@@ -112,10 +125,10 @@ export default class PaintList extends Component {
   performHardUpdate() {
     let cmd = "GetPaintPickList";
     switch (this.props.role) {
-      case "stage":
+      case STAGE:
         cmd = "GetPaintStageList";
         break;
-      case "load":
+      case LOAD:
       case "watch":
         cmd = "GetPaintLoadList";
         break;
@@ -194,7 +207,7 @@ export default class PaintList extends Component {
     this.setState({
       data: data
     });
-    this.socket.emit("rowupdate", newData);
+    this.socket.emit(ConnectionStates.RowUpdate, newData);
   }
   checkIn(data, rowIdx) {
     let url;
@@ -245,16 +258,16 @@ export default class PaintList extends Component {
     } else {
       this.setState({ data: dd });
     }
-    this.socket.emit("rowupdate", newData);
+    this.socket.emit(ConnectionStates.RowUpdate, newData);
   }
   release(data, rowIdx) {
     let url;
     const newdata = data;
     const request = new XMLHttpRequest();
 
-    newdata[newdata.length - 3] = "##AVAILABLE##";
-    newdata[newdata.length - 2] = "##AVAILABLE##";
-    newdata[newdata.length - 1] = "##AVAILABLE##";
+    newdata[newdata.length - 3] = AVAILABLE;
+    newdata[newdata.length - 2] = AVAILABLE;
+    newdata[newdata.length - 1] = AVAILABLE;
     //let query = { id: data[0], pickedBy: this.state.currentUser.id }
     const query =
       "id=" + parseInt(data[0], 10) + "&pickedBy=" + this.state.currentUser.id;
@@ -291,7 +304,7 @@ export default class PaintList extends Component {
     this.setState({
       data: data
     });
-    this.socket.emit("rowupdate", newData);
+    this.socket.emit(ConnectionStates.RowUpdate, newData);
   }
   stage(data, rowIdx) {
     let url;
@@ -336,7 +349,7 @@ export default class PaintList extends Component {
     this.setState({
       data: data
     });
-    this.socket.emit("rowupdate", newData);
+    this.socket.emit(ConnectionStates.RowUpdate, newData);
   }
   finalize(data) {
     //let query = { id: data[0], pickedBy: this.state.currentUser.id }
@@ -400,7 +413,7 @@ export default class PaintList extends Component {
 
     updatedRowData[9] = updateAmt.toString();
     newRowData[9] = newQty.toString();
-    newRowData[newRowData.length - 1] = "##AVAILABLE##";
+    newRowData[newRowData.length - 1] = AVAILABLE;
 
     const query = {
       id: currentRowData[0],
@@ -438,7 +451,7 @@ export default class PaintList extends Component {
   }
   updatePartialQtySuccess(updatedRowData, newRowData, res) {
     this.updateRow(updatedRowData);
-    this.socket.emit("rowupdate", updatedRowData);
+    this.socket.emit(ConnectionStates.RowUpdate, updatedRowData);
     if (parseInt(res.newId, 10) > 1 && parseInt(newRowData[9], 10) > 0) {
       newRowData[0] = res.newId.toString();
       this.newRow(newRowData);
@@ -447,7 +460,7 @@ export default class PaintList extends Component {
   }
   updateRow(newData, rowIdx) {
     let rowUpdated = false;
-    if (this.props.role === "load") {
+    if (this.props.role === LOAD) {
       let data = update(this.state.data, { $push: [] });
       const temp = data.map(function(rowData, idx) {
         if (rowData[0] === newData[0]) {
@@ -462,11 +475,11 @@ export default class PaintList extends Component {
         this.setState({ data: data });
       }
     } else {
-      if (this.props.role === "stage") {
+      if (this.props.role === STAGE) {
         if (
-          newData[newData.length - 1] !== "##AVAILABLE##" &&
-          newData[newData.length - 2] !== "##AVAILABLE##" &&
-          newData[newData.length - 3] !== "##AVAILABLE##"
+          newData[newData.length - 1] !== AVAILABLE &&
+          newData[newData.length - 2] !== AVAILABLE &&
+          newData[newData.length - 3] !== AVAILABLE
         ) {
           this.removeRow(newData);
         } else {
@@ -488,8 +501,8 @@ export default class PaintList extends Component {
         }
       } else {
         if (
-          newData[newData.length - 1] !== "##AVAILABLE##" &&
-          newData[newData.length - 2] !== "##AVAILABLE##"
+          newData[newData.length - 1] !== AVAILABLE &&
+          newData[newData.length - 2] !== AVAILABLE
         ) {
           this.removeRow(newData);
         } else {
@@ -545,27 +558,21 @@ export default class PaintList extends Component {
     // const row = update(this.state.data[rowIdx], { $push: [] });
 
     switch (this.props.role) {
-      case "assist":
+      case ASSIST:
         if (
           row.picked_by === this.state.currentUser.name &&
-          this.props.role === "assist"
+          this.props.role === ASSIST
         ) {
           this.release(row, rowIdx);
         }
         break;
-      case "stage":
-        if (
-          row.picked_by !== "##AVAILABLE##" &&
-          row.handled_by !== "##AVAILABLE##"
-        ) {
+      case STAGE:
+        if (row.picked_by !== AVAILABLE && row.handled_by !== AVAILABLE) {
           this.release(row, rowIdx);
         }
         break;
-      case "load":
-        if (
-          row.picked_by !== "##AVAILABLE##" &&
-          row.handled_by !== "##AVAILABLE##"
-        ) {
+      case LOAD:
+        if (row.picked_by !== AVAILABLE && row.handled_by !== AVAILABLE) {
           this.release(row, rowIdx);
         }
         break;
@@ -579,36 +586,36 @@ export default class PaintList extends Component {
     // const row = update(this.state.data[rowIdx], { $push: {} });
     const row = this.state.data[rowIdx];
     switch (this.props.role) {
-      case "assist":
-        if (row.picked_by === "##AVAILABLE##") {
+      case ASSIST:
+        if (row.picked_by === AVAILABLE) {
           this.checkOut(row, rowIdx);
         } else {
           if (
             row.picked_by === this.state.currentUser.name &&
-            this.props.role === "assist" &&
-            this.props.OSName === "Windows" &&
+            this.props.role === ASSIST &&
+            this._os === OS.WINDOWS &&
             tapTarget.classList.contains("label")
           ) {
             this.checkIn(row, rowIdx);
           }
         }
         break;
-      case "stage":
+      case STAGE:
         if (
-          row.picked_by !== "##AVAILABLE##" &&
-          row.handled_by !== "##AVAILABLE##" &&
-          row.staged_by !== "##AVAILABLE##" &&
-          this.props.OSName === "Windows" &&
+          row.picked_by !== AVAILABLE &&
+          row.handled_by !== AVAILABLE &&
+          row.staged_by !== AVAILABLE &&
+          this._os === OS.WINDOWS &&
           tapTarget.classList.contains("label")
         ) {
           this.stage(row);
         }
         break;
-      case "load":
+      case LOAD:
         if (
-          row.picked_by !== "##AVAILABLE##" &&
-          row.handled_by !== "##AVAILABLE##" &&
-          this.props.OSName === "Windows" &&
+          row.picked_by !== AVAILABLE &&
+          row.handled_by !== AVAILABLE &&
+          this._os === OS.WINDOWS &&
           tapTarget.classList.contains("label")
         ) {
           this.finalize(row);
@@ -621,27 +628,21 @@ export default class PaintList extends Component {
     const row = update(this.state.data[rowIdx], { $push: [] });
 
     switch (this.props.role) {
-      case "assist":
+      case ASSIST:
         if (
           row.picked_by === this.state.currentUser.name &&
-          this.props.role === "assist"
+          this.props.role === ASSIST
         ) {
           this.checkIn(row, rowIdx);
         }
         break;
-      case "stage":
-        if (
-          row.picked_by !== "##AVAILABLE##" &&
-          row.handled_by !== "##AVAILABLE##"
-        ) {
+      case STAGE:
+        if (row.picked_by !== AVAILABLE && row.handled_by !== AVAILABLE) {
           this.stage(row, rowIdx);
         }
         break;
-      case "load":
-        if (
-          row.picked_by !== "##AVAILABLE##" &&
-          row.handled_by !== "##AVAILABLE##"
-        ) {
+      case LOAD:
+        if (row.picked_by !== AVAILABLE && row.handled_by !== AVAILABLE) {
           this.finalize(row);
         }
         break;

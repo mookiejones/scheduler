@@ -1,10 +1,11 @@
-import PaintScheduleData from "./PaintScheduleData";
-import DataItemBase from "./DataItemBase";
-import PaintScheduleStylesData from "./PaintScheduleStylesData";
-import PaintScheduleColorsData from "./PaintScheduleColorsData";
-import DriverAverages from "./DriverAverages";
-import { PRODUCTION, API_SERVER, DELETE_KEY } from "../Constants";
-import fetch from "node-fetch";
+import PaintScheduleData from './PaintScheduleData';
+import { ColorRule } from '../components/ScheduleEditor/Rules';
+import DataItemBase from './DataItemBase';
+import PaintScheduleStylesData from './PaintScheduleStylesData';
+import PaintScheduleColorsData from './PaintScheduleColorsData';
+import DriverAverages from './DriverAverages';
+import { PRODUCTION, API_SERVER, DELETE_KEY } from '../Constants';
+import fetch from 'node-fetch';
 const asPromise = value => new Promise(resolve => resolve(value));
 
 const sendData = value => asPromise(value);
@@ -15,11 +16,37 @@ class DataService {
     this.bind = bind;
   }
   static LoginUser(id) {
-    if (!PRODUCTION)
-      return new Promise((resolve, reject) => resolve("cberman"));
+    if (!PRODUCTION) return new Promise((resolve, reject) => resolve('cberman'));
+  }
+
+  static AddColorRule(rule) {
+    debugger;
+    // SqlHelper.AddColorRule(rule);
+  }
+  static DeleteColorRule(item) {
+    return DataItemBase.getDataPromise(`DeleteColorRule/id/${item.Id}`).then(items => {
+      debugger;
+      return items.result.map(
+        item => new ColorRule(item[0], item[1], item[2], item[5], item[3], item[4] == 1)
+      );
+    });
+  }
+
+  static SaveColorRule(item) {
+    debugger;
+    return DataItemBase.getDataPromise(`SaveColorRule/id/${item}`).then(DataService.GetColorRules);
+  }
+  static GetColorRules() {
+    return DataItemBase.getDataPromise('GetColorRules').then(items =>
+      items.result.map(
+        item => new ColorRule(item[0], item[1], item[2], item[5], item[3], item[4] == 1)
+      )
+    );
   }
   static AddRound(date = null) {
+    debugger;
     let query = { selectedDate: null };
+    const url = `${API_SERVER}/reporting/paint.asmx/ScheduleNewRound`;
     // let query = JSON.parse({ selectedDate: date });
 
     // const url = `${API_SERVER}/reporting/paint.asmx/GetDriverAverages/startdate/${
@@ -67,7 +94,7 @@ class DataService {
   }
 
   static ScheduleNewRound() {
-    return DataItemBase.getDataPromise("ScheduleNewRound");
+    return DataItemBase.getDataPromise('ScheduleNewRound');
   }
   static LoadRound() {}
   static DeleteFromExcel(data) {}
@@ -108,9 +135,7 @@ class DataService {
     switch (value.action) {
       case DELETE_KEY:
         const schedules = DataService.GetPaintScheduleSync();
-        const index = schedules.RoundData.findIndex(
-          (v, i, n) => v.id === value.id
-        );
+        const index = schedules.RoundData.findIndex((v, i, n) => v.id === value.id);
         const result = schedules.RoundData.splice(index, 1);
         return result;
 
@@ -120,18 +145,11 @@ class DataService {
     }
   }
 
-  static getPaintSchedule(arg) {
-    const result = sendData(PaintScheduleData.fetch(DataService.isTest));
-    if (arg) {
-      return result.bind(arg);
-    }
-    return result;
-  }
+  static getPaintSchedule = rules => sendData(PaintScheduleData.fetch(rules));
 
-  static GetStyleCodes = arg =>
-    DataItemBase.getDataPromise("GetPaintScheduleStyles");
+  static GetStyleCodes = arg => DataItemBase.getDataPromise('GetPaintScheduleStyles');
 
-  static GetColorCodes = arg => DataItemBase.getDataPromise("GetProgramColors");
+  static GetColorCodes = arg => DataItemBase.getDataPromise('GetProgramColors');
 
   static GetDriverAverages(params) {
     return DriverAverages.fetch(DataService.isTest, params);

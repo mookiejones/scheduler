@@ -1,8 +1,8 @@
-import { API_SERVER, TEST } from "../Constants";
-import fetch from "node-fetch";
+import { API_SERVER, TEST } from '../Constants';
+import fetch from 'node-fetch';
 
-const isArray = (item) => {
-  return Object.prototype.toString.call(item) === "[object Array]";
+const isArray = item => {
+  return Object.prototype.toString.call(item) === '[object Array]';
 };
 const sortFn = (a, b) => {
   const roundA = parseInt(a[2], 10);
@@ -33,18 +33,17 @@ export default class DataItemBase {
     return `${API_SERVER}/${path}`;
   }
 
-  static getDataPromise = (url) =>
-    new Promise((resolve) => resolve(DataItemBase.getData(url)));
+  static getDataPromise = url => new Promise(resolve => resolve(DataItemBase.getData(url)));
   static getData(name) {
     let path = TEST ? `${name}Test` : name;
     let url = `${API_SERVER}/reporting/paint.asmx/${path}? HTTP/1.1`;
     return fetch(url)
-      .then((r) => {
+      .then(r => {
         if (!r.ok) debugger;
         return r.json();
       })
 
-      .catch((e) => {
+      .catch(e => {
         debugger;
       });
   }

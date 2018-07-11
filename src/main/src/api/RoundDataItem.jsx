@@ -1,16 +1,17 @@
 class RoundDataItem {
-  static Create(value) {
-    const result = new RoundDataItem(value);
+  static Create(value, rules) {
+    const result = new RoundDataItem(value, rules);
     return result;
   }
   /**
    * @param {*} value Returned JSON value for Round Data Item
    */
-  constructor(value) {
+  constructor(value, rules) {
     if (!value) {
       console.log("Round Data Item");
       return;
     }
+
     this.id = value.id || undefined;
     this.round = value.round || undefined;
     this.round_position = value.round_position || undefined;
@@ -31,6 +32,24 @@ class RoundDataItem {
     this.notes = value.notes || undefined;
     this.active = value.active || undefined;
     this.date_created = value.date_created || undefined;
+
+    this.style = this.getStyling(rules);
+  }
+  getStyling(rules) {
+    let style = {
+      bgSuccess: { backgroundColor: "#dff0d8" },
+      bgNormal: { backgroundColor: "#fff" }
+    };
+    for (let rule of rules) {
+      if (rule.Contains) {
+        let result = new RegExp(rule.Value, "i");
+        if (result.test(this[rule.Element])) {
+          style[rule.name] = { backgroundColor: rule.color };
+        }
+      }
+    }
+
+    return style;
   }
 }
 

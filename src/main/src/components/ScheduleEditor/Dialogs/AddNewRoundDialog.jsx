@@ -6,7 +6,6 @@ import {
   DialogTitle,
   DialogActions,
   DialogContent,
-  Typography,
   Button
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
@@ -21,21 +20,26 @@ class AddNewRoundDialog extends Component {
     this.props.answer(result);
   }
   render() {
-    const { classes } = this.props;
+    const { open, onClose, msg, answer } = this.props;
+
     return (
-      <Dialog
-        open={this.props.open}
-        onClose={this.props.onClose}
-        aria-labelledby="add-round-title">
+      <Dialog open={open} onClose={onClose} aria-labelledby="add-round-title">
         <DialogTitle id="add-round-title">Add New Round</DialogTitle>
-        <DialogContent>{this.props.msg}</DialogContent>
+        <DialogContent>{msg}</DialogContent>
         <DialogActions>
-          <Button onClick={() => this.handleClose(true)}>Yes</Button>
-          <Button onClick={() => this.handleClose(false)}>No</Button>
+          <Button onClick={() => answer(true)}>Yes</Button>
+          <Button onClick={() => answer(false)}>No</Button>
         </DialogActions>
       </Dialog>
     );
   }
 }
+
+AddNewRoundDialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  msg: PropTypes.any,
+  answer: PropTypes.func
+};
 
 export default withStyles(styles)(AddNewRoundDialog);

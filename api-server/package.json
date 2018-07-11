@@ -1,0 +1,17 @@
+{
+  "name": "api-server",
+  "version": "0.0.2",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Charles Berman <Charles.Berman@Magna.com>",
+  "dependencies": {
+    "express": "^4.16.3",
+    "mssql": "^4.1.0",
+    "socket.io": "^2.1.1",
+    "xmlhttprequest": "^1.8.0"
+  }
+}

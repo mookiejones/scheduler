@@ -1,0 +1,2 @@
+docker build -t charles:api-server
+docker run -p 5555:5555 -it -d --rm --name api-server charles:api-server 

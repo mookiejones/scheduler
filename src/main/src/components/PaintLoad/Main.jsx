@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import PaintList from "./PaintList";
-import Login from "./Login";
 import PropTypes from "prop-types";
 
 import {
@@ -36,13 +35,13 @@ class LoginDialog extends Component {
               label="Employee ID"
               autoFocus
               value={this.state.user}
-              onChange={e => this.setState({ user: e.target.value })}
+              onChange={(e) => this.setState({ user: e.target.value })}
             />
             <TextField
               label="Login Type"
               select
               value={this.state.type}
-              onChange={e => this.setState({ type: e.target.value })}>
+              onChange={(e) => this.setState({ type: e.target.value })}>
               <MenuItem value="assist">Load Assist</MenuItem>
               <MenuItem value="stage">Stage</MenuItem>
               <MenuItem value="load">Load</MenuItem>
@@ -86,7 +85,7 @@ export default class Main extends Component {
       if (this.state.currentUser.id !== -1) {
         return (
           <PaintList
-            connectionStateChanged={connectionState =>
+            connectionStateChanged={(connectionState) =>
               this.setState({ connectionState: connectionState })
             }
             role={this.state.role}
@@ -98,13 +97,9 @@ export default class Main extends Component {
       }
       return (
         <div>
-          <LoginDialog open={this.state.showDialog} loggedIn={this.loggedIn} />
-
-          <Login
-            os={this.props.OSName}
-            setUser={(user, name, role) =>
-              this.setState({ currentUser: { id: user, name }, role })
-            }
+          <LoginDialog
+            open={this.state.showDialog && this.props.pageIdx == 2}
+            loggedIn={this.loggedIn}
           />
         </div>
       );
@@ -114,6 +109,7 @@ export default class Main extends Component {
 }
 
 Main.propTypes = {
+  pageIdx: PropTypes.number,
   connectionState: PropTypes.any,
   environment: PropTypes.string.isRequired,
   OSName: PropTypes.string.isRequired

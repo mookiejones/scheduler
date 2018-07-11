@@ -1,12 +1,9 @@
 import React, { Component } from "react";
 import * as classnames from "classnames";
-import ChildComponent from "./ChildComponent";
+
 import { AVAILABLE } from "../../Constants";
 import PropTypes from "prop-types";
-export default class RackOwner extends ChildComponent {
-  constructor(props, context) {
-    super(props, context);
-  }
+export default class RackOwner extends Component {
   render() {
     const display =
       this.props.children !== AVAILABLE
