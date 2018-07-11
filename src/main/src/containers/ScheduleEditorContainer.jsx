@@ -11,6 +11,7 @@ export default class ScheduleEditorContainer extends PureComponent {
     super(props);
     this.state = { rules: [] };
     this.updateRules = this.updateRules.bind(this);
+    this.handleDeleteRow = this.handleDeleteRow.bind(this);
     // this.handleDeleteRow = this.handleDeleteRow.bind(this);
     // this.handleSaveRow = this.handleSaveRow.bind(this);
     // this.handleAddRow = this.handleAddRow.bind(this);
@@ -52,11 +53,8 @@ export default class ScheduleEditorContainer extends PureComponent {
   }
 
   handleDeleteRow(row) {
-    debugger;
-    DeleteColorRule(row)
-      .then((o) => {
-        debugger;
-      })
+    DataService.DeleteColorRule(row)
+      .then(this.updateRules)
       .catch((error) => {
         debugger;
       });

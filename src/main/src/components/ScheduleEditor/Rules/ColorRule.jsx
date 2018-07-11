@@ -3,8 +3,8 @@
  */
 export default class ColorRule {
   constructor(id, element = 'id', name, value, color, contains) {
-    this._id = id;
-    this._element = element;
+    this.id = id;
+    this.Element = element;
 
     this.Name = name;
     this.Value = value;
@@ -46,42 +46,42 @@ export default class ColorRule {
    * Element to evaluate against
    */
   get Element() {
-    return this._element;
+    return this.element;
   }
 
   set Element(value) {
-    this._element = value;
+    this.element = value;
   }
 
   /**
    * Name for class
    */
   get Name() {
-    return this._name;
+    return this.name;
   }
 
   /** Value to Evaluate agains */
   get Value() {
-    return this._value;
+    return this.value;
   }
 
   set Value(value) {
-    this._value = value;
+    this.value = value;
   }
 
   set Name(value) {
     if (/-/.test(value)) throw new Error('Value must not contain any hyphens');
 
-    this._name = value;
+    this.name = value;
   }
 
   /** Color */
   get Color() {
-    return this._color;
+    return this.color;
   }
 
   set Color(value) {
-    this._color = value;
+    this.color = value;
   }
 
   asClass() {
@@ -103,14 +103,14 @@ export default class ColorRule {
    * @description true if value is expected to contain value, if false, then value is expected to be equal
    */
   get Contains() {
-    return this._contains;
+    return this.contains;
   }
 
   set Contains(value) {
-    this._contains = value;
+    this.contains = value;
   }
 
   get Id() {
-    return this._id;
+    return this.id;
   }
 }

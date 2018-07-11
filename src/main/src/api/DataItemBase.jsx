@@ -1,6 +1,7 @@
 import { API_SERVER, TEST } from '../Constants';
 import fetch from 'node-fetch';
 
+const search = new RegExp('^([^/]+)(.*)', 'ig');
 const isArray = item => {
   return Object.prototype.toString.call(item) === '[object Array]';
 };
@@ -35,7 +36,14 @@ export default class DataItemBase {
 
   static getDataPromise = url => new Promise(resolve => resolve(DataItemBase.getData(url)));
   static getData(name) {
-    let path = TEST ? `${name}Test` : name;
+    let path = name;
+
+    // fix path so test goes before query
+    if (/\//.test(name) && TEST) {
+      let mach = /^([^\/]+)(\/.*)/gi.exec(name);
+      path = `${mach[1]}Test${mach[2]}`;
+    }
+
     let url = `${API_SERVER}/reporting/paint.asmx/${path}? HTTP/1.1`;
     return fetch(url)
       .then(r => {

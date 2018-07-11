@@ -1,29 +1,29 @@
-const DELETE_KEY = "DELETE";
+const DELETE_KEY = 'DELETE';
 
-const TEST = "True";
-const PRODUCTION = true;
-const AVAILABLE = "##AVAILABLE##";
-const VERSION_NUMBER = "1.3.1";
-const RECONNECT = "reconnect";
-const RECONNECTED = "reconnected";
-const CONNECTED = "connected";
-const DISCONNECTED = "disconnected";
-const UPDATE_NOTIFY = "update-notify";
-const ROWUPDATE = "rowupdate";
-const NEW_ROW = "newrow";
-const ROW_DELETE = "rowdelete";
+const TEST = 'True';
+const PRODUCTION = false;
+const AVAILABLE = '##AVAILABLE##';
+const VERSION_NUMBER = '1.3.1';
+const RECONNECT = 'reconnect';
+const RECONNECTED = 'reconnected';
+const CONNECTED = 'connected';
+const DISCONNECTED = 'disconnected';
+const UPDATE_NOTIFY = 'update-notify';
+const ROWUPDATE = 'rowupdate';
+const NEW_ROW = 'newrow';
+const ROW_DELETE = 'rowdelete';
 
-const TEMP = "Temp";
-const ASSIST = "assist";
-const STAGE = "stage";
-const LOAD = "load";
+const TEMP = 'Temp';
+const ASSIST = 'assist';
+const STAGE = 'stage';
+const LOAD = 'load';
 /**
  * Number of seconds for data to refresh
  */
 const REFRESH_RATE = 10;
-let API_SERVER = "http://nord:5555";
+let API_SERVER = 'http://nord:5555';
 if (!PRODUCTION) {
-  API_SERVER = "http://localhost:5555";
+  API_SERVER = 'http://localhost:5555';
 }
 
 // Constant keys for all string values
@@ -68,19 +68,19 @@ class OS {
   };
 
   static get UNKNOWN() {
-    return "Unkown OS";
+    return 'Unkown OS';
   }
   static get WINDOWS() {
-    return "Windows";
+    return 'Windows';
   }
   static get MAC_OS() {
-    return "MacOS";
+    return 'MacOS';
   }
   static get X11() {
-    return "X11";
+    return 'X11';
   }
   static get LINUX() {
-    return "Linux";
+    return 'Linux';
   }
 }
 

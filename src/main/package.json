@@ -23,6 +23,7 @@
     "moment": "^2.22.2",
     "prettier": "^1.13.7",
     "prop-types": "^15.6.2",
+    "querystring": "^0.2.0",
     "react": "^16.4.1",
     "react-addons-update": "^15.6.2",
     "react-bootstrap": "^0.32.1",
