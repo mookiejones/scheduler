@@ -33,7 +33,9 @@ export default class DataItemBase {
     return `${API_SERVER}/${path}`;
   }
 
-  static getDataPromise = url => new Promise(resolve => resolve(DataItemBase.getData(url)));
+  static getDataPromise(url) {
+    return new Promise(resolve => resolve(DataItemBase.getData(url)));
+  }
   static getData(name) {
     let path = TEST ? `${name}Test` : name;
     let url = `${API_SERVER}/reporting/paint.asmx/${path}? HTTP/1.1`;

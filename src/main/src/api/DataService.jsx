@@ -1,11 +1,11 @@
 import PaintScheduleData from './PaintScheduleData';
 import { ColorRule } from '../components/ScheduleEditor/Rules';
 import DataItemBase from './DataItemBase';
-import PaintScheduleStylesData from './PaintScheduleStylesData';
-import PaintScheduleColorsData from './PaintScheduleColorsData';
+
 import DriverAverages from './DriverAverages';
 import { PRODUCTION, API_SERVER, DELETE_KEY } from '../Constants';
-import fetch from 'node-fetch';
+
+import DriverPerformanceData from './DriverPerformance';
 const asPromise = value => new Promise(resolve => resolve(value));
 
 const sendData = value => asPromise(value);
@@ -16,7 +16,9 @@ class DataService {
     this.bind = bind;
   }
   static LoginUser(id) {
-    if (!PRODUCTION) return new Promise((resolve, reject) => resolve('cberman'));
+    if (!PRODUCTION) {
+      return new Promise((resolve, reject) => resolve('cberman'));
+    }
   }
 
   static AddColorRule(rule) {
@@ -24,22 +26,42 @@ class DataService {
     // SqlHelper.AddColorRule(rule);
   }
   static DeleteColorRule(item) {
-    return DataItemBase.getDataPromise(`DeleteColorRule/id/${item.Id}`).then(items => {
-      debugger;
-      return items.result.map(
-        item => new ColorRule(item[0], item[1], item[2], item[5], item[3], item[4] == 1)
-      );
-    });
+    return DataItemBase.getDataPromise(`DeleteColorRule/id/${item.Id}`).then(
+      items => {
+        debugger;
+        return items.result.map(
+          item =>
+            new ColorRule(
+              item[0],
+              item[1],
+              item[2],
+              item[5],
+              item[3],
+              item[4] == 1
+            )
+        );
+      }
+    );
   }
 
   static SaveColorRule(item) {
     debugger;
-    return DataItemBase.getDataPromise(`SaveColorRule/id/${item}`).then(DataService.GetColorRules);
+    return DataItemBase.getDataPromise(`SaveColorRule/id/${item}`).then(
+      DataService.GetColorRules
+    );
   }
   static GetColorRules() {
     return DataItemBase.getDataPromise('GetColorRules').then(items =>
       items.result.map(
-        item => new ColorRule(item[0], item[1], item[2], item[5], item[3], item[4] == 1)
+        item =>
+          new ColorRule(
+            item[0],
+            item[1],
+            item[2],
+            item[5],
+            item[3],
+            item[4] == 1
+          )
       )
     );
   }
@@ -135,7 +157,9 @@ class DataService {
     switch (value.action) {
       case DELETE_KEY:
         const schedules = DataService.GetPaintScheduleSync();
-        const index = schedules.RoundData.findIndex((v, i, n) => v.id === value.id);
+        const index = schedules.RoundData.findIndex(
+          (v, i, n) => v.id === value.id
+        );
         const result = schedules.RoundData.splice(index, 1);
         return result;
 
@@ -145,13 +169,20 @@ class DataService {
     }
   }
 
-  static getPaintSchedule = rules => sendData(PaintScheduleData.fetch(rules));
+  static getPaintSchedule(rules) {
+    return sendData(PaintScheduleData.fetch(rules));
+  }
 
-  static GetStyleCodes = arg => DataItemBase.getDataPromise('GetPaintScheduleStyles');
+  static GetStyleCodes(arg) {
+    return DataItemBase.getDataPromise('GetPaintScheduleStyles');
+  }
 
-  static GetColorCodes = arg => DataItemBase.getDataPromise('GetProgramColors');
+  static GetColorCodes(arg) {
+    return DataItemBase.getDataPromise('GetProgramColors');
+  }
 
   static GetDriverAverages(params) {
+    return new Promise(resolve => resolve(DriverPerformanceData));
     return DriverAverages.fetch(DataService.isTest, params);
   }
 }
