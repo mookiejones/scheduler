@@ -11,6 +11,7 @@ module.exports = {
     path: path.join(__dirname, outputDirectory),
     filename: 'bundle.js'
   },
+
   module: {
     rules: [{
         exclude: /api\\\w*\.json$/,

@@ -1,71 +1,57 @@
-import React, { Component } from "react";
-import * as PropTypes from "prop-types";
-import DataService from "../../api/DataService";
-import * as classnames from "classnames";
+import React, { Component } from 'react';
+import * as PropTypes from 'prop-types';
+import * as classnames from 'classnames';
 import {
   Card,
   CardHeader,
   CardContent,
   ExpansionPanel,
-  FormControl,
   ExpansionPanelSummary,
   ExpansionPanelDetails,
   Typography,
   Paper,
-  Input,
-  InputLabel,
   Grid,
-  Dialog,
-  DialogTitle,
-  DialogContent,
   Button,
-  Table,
-  TableRow,
-  TableCell,
-  TableBody,
-  TableHead,
   TextField
-} from "@material-ui/core";
+} from '@material-ui/core';
 
-import { ExpandMore } from "@material-ui/icons";
-import DeleteRoundDialog from "./Dialogs/DeleteRoundDialog";
+import { ExpandMore } from '@material-ui/icons';
+import DataService from '../../api/DataService';
+import DeleteRoundDialog from './Dialogs/DeleteRoundDialog';
 
-import { toInt } from "../../Helpers";
+import { toInt } from '../../Helpers';
 
 export default class ExcelImport extends Component {
-  constructor(props, context) {
-    super(props, context);
-
-    let env = "development";
-    if (props.route !== null && props.route.env) {
-      env = props.route.env;
-    }
+  constructor(props) {
+    super(props);
 
     this.state = {
-      env,
+      route: props.route,
       allRnds: [],
       tchdRnds: [],
       selectedIdx: 0,
       mainViewActive: true,
       btnAddDisabled: true,
-      btnDeleteDisabled: true,
       importRnds: [],
-      problemRows: [],
-      infoTxt: "",
-      text: "",
+
+      text: '',
       alertTxt: {
         hidden: true,
-        bold: "",
-        normal: ""
+        bold: '',
+        normal: ''
       }
     };
     this.excelTextChanged = this.excelTextChanged.bind(this);
   }
-  excelTextChanged(event, value) {
-    this.setState({ text: event.target.value });
+
+  componentDidMount() {
+    const { route } = this.props;
+    if (route === 2) this.loadRound();
+    else debugger;
   }
-  componentWillMount() {
-    this.loadRound();
+
+  shouldComponentUpdate(nextProps) {
+    debugger;
   }
 
   onSelChange(event) {
@@ -73,15 +59,18 @@ export default class ExcelImport extends Component {
     this.setState({ selectedIdx: id });
   }
 
+  excelTextChanged(event, value) {
+    this.setState({ text: event.target.value });
+  }
+
   deleteAll() {
-    const url =
-      this.state.env === "production"
-        ? "api/paint/delWholeRound"
-        : "api/paint/delWholeRoundTest";
+    debugger;
+    const url = 'api/paint/delWholeRound';
+    const { allRnds, tchdRnds } = this.state;
 
     const shiz = [];
-    this.state.allRnds.map((r) => {
-      const idx = this.state.tchdRnds.indexOf(r);
+    allRnds.map(r => {
+      const idx = tchdRnds.indexOf(r);
       if (idx === -1) shiz.push(r);
     });
     if (shiz.length > 0) {
@@ -120,19 +109,19 @@ export default class ExcelImport extends Component {
       this.setState({
         alertTxt: {
           hidden: false,
-          bold: "Ready for import",
-          normal: "No rounds to delete"
+          bold: 'Ready for import',
+          normal: 'No rounds to delete'
         }
       });
     }
     // BEGIN Ajax call
   }
+
   deleteRound() {
-    const rnd = toInt(this.sel.options[this.state.selectedIdx].value);
-    const url =
-      this.state.env === "production"
-        ? "api/paint/delWholeRound"
-        : "api/paint/delWholeRoundTest";
+    const { selectedIdx } = this.state;
+    const rnd = toInt(this.sel.options[selectedIdx].value);
+
+    const url = 'api/paint/delWholeRound';
 
     if (rnd > 0) {
       DataService.DeleteRound();
@@ -161,17 +150,19 @@ export default class ExcelImport extends Component {
     }
     // alert(this.state.selectedRnd);
   }
+
   toDB() {
-    const { length } = this.state.importRnds;
-    const data = JSON.stringify({ tblData: this.state.importRnds });
+    const { importRnds } = this.state;
+    const { length } = importRnds;
+    const data = JSON.stringify({ tblData: importRnds });
     // var data = "tblData=" + this.state.importRnds;
     const revise = this.revisionInput.value;
-    let url = "api/paint/savePntRevise";
-    let url2 = "api/paint/pntSchlImport2";
+    let url = 'api/paint/savePntRevise';
+    let url2 = 'api/paint/pntSchlImport2';
 
-    if (this.state.env === "development") {
-      url = "api/paint/savePntReviseTest";
-      url2 = "api/paint/pntSchlImport2Test";
+    if (this.state.env === 'development') {
+      url = 'api/paint/savePntReviseTest';
+      url2 = 'api/paint/pntSchlImport2Test';
     }
 
     if (revise.length > 0) {
@@ -218,11 +209,12 @@ export default class ExcelImport extends Component {
       //   });
     }
   }
+
   tblCheck(OneRC, RC) {
     if (OneRC === 22) {
       // var DB = 'paint_schedule_master'
       if (
-        this.revisionInput.value !== "" &&
+        this.revisionInput.value !== '' &&
         this.revisionInput.value !== null &&
         this.revisionInput.value !== undefined
       ) {
@@ -233,7 +225,7 @@ export default class ExcelImport extends Component {
       } else {
         this.setState({
           btnAddDisabled: true,
-          infoTxt: "Please enter a new schedule revision number"
+          infoTxt: 'Please enter a new schedule revision number'
         });
       }
     } else {
@@ -243,15 +235,16 @@ export default class ExcelImport extends Component {
       });
     }
   }
+
   generateTable() {
     let err = false;
     let OneRC = 0;
 
     const data = this.textArea.value;
-    const rows = data.split("\n");
+    const rows = data.split('\n');
 
-    const tbl = rows.map((r) =>
-      r.split("\t").map((c, cIdx) => {
+    const tbl = rows.map(r =>
+      r.split('\t').map((c, cIdx) => {
         // 14 = round column  eaafaf
         if (cIdx === 14) {
           if (this.state.allRnds.indexOf(c) > -1) {
@@ -271,19 +264,19 @@ export default class ExcelImport extends Component {
         !isNaN(r[0]) &&
         !isNaN(r[1]) &&
         !isNaN(r[20]) &&
-        r[0] !== "" &&
-        r[1] !== "" &&
-        r[20] !== ""
+        r[0] !== '' &&
+        r[1] !== '' &&
+        r[20] !== ''
       ) {
-        r[3] = isNaN(r[3]) || r[3] === "" ? 0 : Math.round(r[3]); // add_take_off
-        r[4] = isNaN(r[4]) || r[4] === "" ? 0 : Math.round(r[4]); // total_crs
-        r[10] = isNaN(r[10]) || r[10] === "" ? 0 : Math.round(r[10]); // blank
-        r[11] = isNaN(r[11]) || r[11] === "" ? 0 : Math.round(r[11]); // total_crs_2
-        r[12] = isNaN(r[12]) || r[12] === "" ? 0 : Math.round(r[12]); // total_pcs
-        r[14] = isNaN(r[14]) || r[14] === "" ? 0 : Math.round(r[14]); // round
-        r[15] = isNaN(r[15]) || r[15] === "" ? 0 : Math.round(r[15]); // crs_real_time
-        r[16] = isNaN(r[16]) || r[16] === "" ? 0 : Math.round(r[16]); // abo_1
-        r[18] = isNaN(r[18]) || r[17] === "" ? 0 : Math.round(r[18]); // abo_3
+        r[3] = isNaN(r[3]) || r[3] === '' ? 0 : Math.round(r[3]); // add_take_off
+        r[4] = isNaN(r[4]) || r[4] === '' ? 0 : Math.round(r[4]); // total_crs
+        r[10] = isNaN(r[10]) || r[10] === '' ? 0 : Math.round(r[10]); // blank
+        r[11] = isNaN(r[11]) || r[11] === '' ? 0 : Math.round(r[11]); // total_crs_2
+        r[12] = isNaN(r[12]) || r[12] === '' ? 0 : Math.round(r[12]); // total_pcs
+        r[14] = isNaN(r[14]) || r[14] === '' ? 0 : Math.round(r[14]); // round
+        r[15] = isNaN(r[15]) || r[15] === '' ? 0 : Math.round(r[15]); // crs_real_time
+        r[16] = isNaN(r[16]) || r[16] === '' ? 0 : Math.round(r[16]); // abo_1
+        r[18] = isNaN(r[18]) || r[17] === '' ? 0 : Math.round(r[18]); // abo_3
 
         scrubbedTbl.push(r);
       } else {
@@ -297,14 +290,15 @@ export default class ExcelImport extends Component {
       this.setState({ importRnds: scrubbedTbl, problemRows: baddies });
       this.tblCheck(OneRC, tbl.length);
     } else {
-      alert("Duplicate round!");
+      alert('Duplicate round!');
     }
   }
+
   showHide() {
     const currentViewState = this.state.mainViewActive;
     console.log(currentViewState);
     const shiz = [];
-    this.state.allRnds.map((r) => {
+    this.state.allRnds.map(r => {
       const idx = this.state.tchdRnds.indexOf(r);
       if (idx === -1) shiz.push(r);
     });
@@ -313,8 +307,8 @@ export default class ExcelImport extends Component {
         this.setState({
           alertTxt: {
             hidden: false,
-            bold: "Ready for import",
-            normal: "No rounds to delete"
+            bold: 'Ready for import',
+            normal: 'No rounds to delete'
           }
         });
       } else {
@@ -324,13 +318,14 @@ export default class ExcelImport extends Component {
       this.setState({ mainViewActive: !currentViewState });
     }
   }
+
   loadRound() {
     console.log(this.state.env);
 
     const url =
-      this.state.env === "production"
-        ? "api/paint/getRounds"
-        : "api/paint/getRoundsTest";
+      this.state.env === 'production'
+        ? 'api/paint/getRounds'
+        : 'api/paint/getRoundsTest';
 
     // $.ajax({
     //   type: "POST",
@@ -362,6 +357,7 @@ export default class ExcelImport extends Component {
     //   }
     // });
   }
+
   render() {
     const viewStateClass = classnames({
       hidden: this.state.mainViewActive
@@ -418,12 +414,12 @@ export default class ExcelImport extends Component {
             <Grid
               item
               xs={12}
-              style={{ display: "flex", overflow: "auto", height: "50vh" }}>
+              style={{ display: 'flex', overflow: 'auto', height: '50vh' }}>
               <textarea
                 style={{
-                  display: "flex",
-                  overflow: "auto",
-                  width: "100%"
+                  display: 'flex',
+                  overflow: 'auto',
+                  width: '100%'
                 }}
                 value={this.state.text}
                 onChange={this.excelTextChanged}
@@ -441,5 +437,5 @@ export default class ExcelImport extends Component {
   }
 }
 ExcelImport.defaultProps = {
-  route: PropTypes.any
+  route: PropTypes.number
 };
