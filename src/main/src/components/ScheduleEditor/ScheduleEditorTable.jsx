@@ -94,7 +94,7 @@ class ScheduleEditorTable extends Component {
       const rowToUpdate = rows[i];
       let updatedRow = update(rowToUpdate, { $merge: updated });
       debugger;
-      Object.keys(updated).forEach(key => {
+      Object.keys(updated).forEach((key) => {
         if (rowToUpdate[key] !== updatedRow[key]) changed = true;
       });
 
@@ -127,15 +127,15 @@ class ScheduleEditorTable extends Component {
         */
         if (updatedRow.id.includes('TEMP')) {
           if (
-            !updatedRow.style_code ||
-            !(parseInt(updatedRow.pieces, 10) >= 0) ||
-            !updatedRow.program ||
-            !updatedRow.round ||
-            !(parseInt(updatedRow.total_crs, 10) >= 0) ||
-            !(parseInt(updatedRow.total_pcs, 10) >= 0) ||
-            updatedRow.customer === undefined ||
-            !(parseInt(updatedRow.mold_wip_density, 10) >= 0) ||
-            !updatedRow.round_position
+            !updatedRow.style_code
+            || !(parseInt(updatedRow.pieces, 10) >= 0)
+            || !updatedRow.program
+            || !updatedRow.round
+            || !(parseInt(updatedRow.total_crs, 10) >= 0)
+            || !(parseInt(updatedRow.total_pcs, 10) >= 0)
+            || updatedRow.customer === undefined
+            || !(parseInt(updatedRow.mold_wip_density, 10) >= 0)
+            || !updatedRow.round_position
           ) {
             rows[i] = updatedRow;
             this.setState({ rows });
@@ -181,10 +181,10 @@ class ScheduleEditorTable extends Component {
     this.setState({ queuedUpdates: updateq });
 
     DataService.UpdateRow(row)
-      .then(o => {
+      .then((o) => {
         debugger;
       })
-      .catch(error => {});
+      .catch((error) => {});
   }
 
   rowPreviouslyChanged(key) {
@@ -201,10 +201,10 @@ class ScheduleEditorTable extends Component {
     if (!result) return;
     DataService.ScheduleNewRound()
 
-      .then(o => {
+      .then((o) => {
         debugger;
       })
-      .catch(error => {
+      .catch((error) => {
         debugger;
       });
   }
@@ -253,7 +253,7 @@ class ScheduleEditorTable extends Component {
   }
 
   onRowSelected(e, id, row) {
-      this.setState({selectedRow:row});
+    this.setState({ selectedRow: row });
     if (this.lastSelected === row) {
       this.setState({ editing: true, selectedRow: row });
     } else {
@@ -264,7 +264,7 @@ class ScheduleEditorTable extends Component {
 
     const { selected } = this.state;
 
-    const selectedIndex = selected?selected.indexOf(id):-1;
+    const selectedIndex = selected ? selected.indexOf(id) : -1;
     let newSelected = [];
 
     if (selectedIndex === -1) {
@@ -309,34 +309,38 @@ class ScheduleEditorTable extends Component {
       selectedRow,
       searchText,
       msg,
-    
+
       selectedRound,
       roundSummary
     } = this.state;
-    const { showSettings, rules, headers, rows } = this.props;
+    const {
+ showSettings, rules, headers, rows, handleRowChanged
+} = this.props;
     const c = {};
     for (const rule of rules) {
       c[rule.Name] = { backgroundColor: rule.Color };
     }
-    const showRow = r => {
+    const showRow = (r) => {
       const search = searchText;
       if (search.length === 0) return true;
       const reg = new RegExp(search, 'ig');
       return Object.values(r).filter(v => reg.test(v)).length !== 0;
     };
     return (
-      <Table aria-labelledby="tableTitle">
+      <Table aria-labelledby='tableTitle'>
         <ScheduleEditorTableHead rules={rules} headers={headers} />
 
         <TableBody>
           <Filter items={rows} predicate={showRow}>
             {(row, rowIdx) => (
               <ScheduleRow
-                isSelected={selectedRow  === row}
+                index={rowIdx}
+                isSelected={selectedRow === row}
                 row={row}
                 key={`row-${rowIdx}`}
                 selected={() => this.isSelected(rowIdx)}
                 headers={headers}
+                handleRowChanged={handleRowChanged}
                 onSelected={event => this.onRowSelected(event, rowIdx, row)}
               />
             )}
@@ -350,6 +354,7 @@ ScheduleEditorTable.propTypes = {
   rules: PropTypes.array,
   classes: PropTypes.object.isRequired,
   rows: PropTypes.array,
-  headers: PropTypes.array.isRequired
+  headers: PropTypes.array.isRequired,
+  handleRowChanged: PropTypes.func.isRequired
 };
 export default withStyles(styles)(ScheduleEditorTable);

@@ -30,6 +30,9 @@ class ScheduleRow extends Component {
 
   onChange({ target: { name, value } }) {
     debugger;
+    const row = this.props.row;
+    row[name] = value;
+    this.props.handleRowChanged(row, this.props.index);
   }
 
   render() {
@@ -53,7 +56,7 @@ class ScheduleRow extends Component {
         return (
           <input
             name={header.value}
-            type='text'
+            type={header.format}
             value={row[header.value]}
             onChange={this.onChange}
           />
@@ -86,9 +89,11 @@ ScheduleRow.rules = rules;
 ScheduleRow.propTypes = {
   isSelected: PropTypes.bool.isRequired,
   headers: PropTypes.array,
+  index: PropTypes.number.isRequired,
   row: PropTypes.any,
   onSelected: PropTypes.func.isRequired,
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  handleRowChanged: PropTypes.func.isRequired
 };
 
 export default withStyles(styles)(ScheduleRow);

@@ -79,6 +79,7 @@ export default class PaintScheduleEditor extends Component {
     this.isSelected=this.isSelected.bind(this);
     this.handleGridRowsUpdated=this.handleGridRowsUpdated.bind(this);
     this.rowGetter=this.rowGetter.bind(this);
+    this.handleRowChanged=this.handleRowChanged.bind(this);
   }
 
   componentDidCatch(error, errorInfo) {
@@ -400,6 +401,9 @@ export default class PaintScheduleEditor extends Component {
   handleCellSelect(selected) {
     this.setState({ selectedRound: this.state.rows[selected.rowIdx].round });
   }
+  handleRowChanged(row,idx){
+    debugger;
+  }
   persistNewRow(e, data) {
     console.log('very persistent ;)');
   }
@@ -582,7 +586,7 @@ export default class PaintScheduleEditor extends Component {
             />
           </Grid>
           <div style={{ height: '60vh', overflow: 'auto' }}>
-          <ScheduleEditorTable rules={rules} rows={rows} headers={headers}/>
+          <ScheduleEditorTable rules={rules} rows={rows} headers={headers} handleRowChanged={this.handleRowChanged}/>
             {/* <Table aria-labelledby="tableTitle">
               <TableHead>
                 <TableRow className={classNames(c)}>
