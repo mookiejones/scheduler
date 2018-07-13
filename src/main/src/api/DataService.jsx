@@ -1,12 +1,11 @@
+import { stringify } from 'querystring';
+import fetch from 'node-fetch';
 import PaintScheduleData from './PaintScheduleData';
 import { ColorRule } from '../components/ScheduleEditor/Rules';
 import DataItemBase from './DataItemBase';
-import PaintScheduleStylesData from './PaintScheduleStylesData';
-import PaintScheduleColorsData from './PaintScheduleColorsData';
 import DriverAverages from './DriverAverages';
-import { stringify } from 'querystring';
 import { PRODUCTION, API_SERVER, DELETE_KEY } from '../Constants';
-import fetch from 'node-fetch';
+
 const asPromise = value => new Promise(resolve => resolve(value));
 
 const sendData = value => asPromise(value);
@@ -18,7 +17,7 @@ class DataService {
   }
 
   static initialize() {
-    DataService.GetColorRules().then(rules => {
+    DataService.GetColorRules().then((rules) => {
       if (rules.length < 2) {
         [
           new ColorRule('color', 'service', 'service', '#ECEFF1', 1),
@@ -28,14 +27,16 @@ class DataService {
           new ColorRule('id', 'bgSuccess', 'TEMP', '#dff0d8', 0),
           new ColorRule('id', 'bgNormal', 'TEMP', '#FFFFFF', 0),
           new ColorRule('notes', 'redhot', 'red hot', '#FF1744', 0)
-        ].forEach(rule => {
+        ].forEach((rule) => {
           DataService.AddColorRule(rule);
         });
       }
     });
   }
+
   static LoginUser(id) {
     if (!PRODUCTION) return new Promise((resolve, reject) => resolve('cberman'));
+    throw new Error('Need to fix Login User');
   }
 
   static AddColorRule(rule) {
@@ -43,32 +44,33 @@ class DataService {
     const body = stringify(rule);
     const options = {
       method: 'POST',
-      body: body,
+      body,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Content-Length': Buffer.byteLength(body)
       }
     };
     return fetch(url, options)
-      .then(o => {
+      .then((o) => {
         debugger;
         return o.json();
       })
-      .then(o => {
+      .then((o) => {
         debugger;
       })
-      .catch(error => {
+      .catch((error) => {
         debugger;
       });
 
     // SqlHelper.AddColorRule(rule);
   }
+
   static DeleteColorRule(rule) {
     const url = `${API_SERVER}/reporting/paint.asmx/DeleteColorRule`;
     const body = stringify(rule);
     const options = {
       method: 'POST',
-      body: body,
+      body,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Content-Length': Buffer.byteLength(body)
@@ -77,7 +79,7 @@ class DataService {
     return fetch(url, options)
       .then(DataService.GetColorRules)
 
-      .catch(error => {
+      .catch((error) => {
         debugger;
       });
 
@@ -88,17 +90,17 @@ class DataService {
     debugger;
     return DataItemBase.getDataPromise(`SaveColorRule/id/${item}`).then(DataService.GetColorRules);
   }
+
   static GetColorRules() {
-    return DataItemBase.getDataPromise('GetColorRules').then(items =>
-      items.result.map(
-        item => new ColorRule(item[0], item[1], item[2], item[5], item[3], item[4] == 1)
-      )
-    );
+    return DataItemBase.getDataPromise('GetColorRules').then(items => items.result.map(
+        item => new ColorRule(item[0], item[1], item[2], item[5], item[3], item[4] === 1)
+      ));
   }
+
   static AddRound(date = null) {
     debugger;
-    let query = { selectedDate: null };
-    const url = `${API_SERVER}/reporting/paint.asmx/ScheduleNewRound`;
+    // const query = { selectedDate: null };
+    // const url = `${API_SERVER}/reporting/paint.asmx/ScheduleNewRound`;
     // let query = JSON.parse({ selectedDate: date });
 
     // const url = `${API_SERVER}/reporting/paint.asmx/GetDriverAverages/startdate/${
@@ -141,17 +143,22 @@ class DataService {
       error(request, status, error) {
         console.log(error);
       }
-    });*/
+    }); */
     return new Promise((resolve, reject) => {});
   }
 
   static ScheduleNewRound() {
     return DataItemBase.getDataPromise('ScheduleNewRound');
   }
+
   static LoadRound() {}
+
   static DeleteFromExcel(data) {}
+
   static DeleteRound(data) {}
+
   static ToExcelDB(data) {}
+
   static UpdateRow(row) {
     debugger;
     return new Promise((resolve, reject) => {});
@@ -173,8 +180,9 @@ class DataService {
       error(request, status, error) {
         console.log(error);
       },
-    });*/
+    }); */
   }
+
   static get isTest() {
     return testFlag;
   }
@@ -184,24 +192,27 @@ class DataService {
   }
 
   static UpdatePaintSchedule(value) {
-    switch (value.action) {
-      case DELETE_KEY:
-        const schedules = DataService.GetPaintScheduleSync();
-        const index = schedules.RoundData.findIndex((v, i, n) => v.id === value.id);
-        const result = schedules.RoundData.splice(index, 1);
-        return result;
-
-      default:
-        console.warning(`Need to add case for ${value.action}`);
-        break;
+    if (value.action === DELETE_KEY) {
+      const schedules = DataService.GetPaintScheduleSync();
+      const index = schedules.RoundData.findIndex((v, i, n) => v.id === value.id);
+      const result = schedules.RoundData.splice(index, 1);
+      return result;
     }
+    debugger;
+    throw new Error(`Need to add in action for ${value.action}`);
   }
 
-  static getPaintSchedule = rules => sendData(PaintScheduleData.fetch(rules));
+  static getPaintSchedule(rules) {
+    return sendData(PaintScheduleData.fetch(rules));
+  }
 
-  static GetStyleCodes = arg => DataItemBase.getDataPromise('GetPaintScheduleStyles');
+  static GetStyleCodes() {
+    return DataItemBase.getDataPromise('GetPaintScheduleStyles');
+  }
 
-  static GetColorCodes = arg => DataItemBase.getDataPromise('GetProgramColors');
+  static GetColorCodes() {
+    return DataItemBase.getDataPromise('GetProgramColors');
+  }
 
   static GetDriverAverages(params) {
     return DriverAverages.fetch(DataService.isTest, params);

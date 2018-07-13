@@ -1,60 +1,70 @@
-const headers = [
+/**
+ * Values for the InputElements
+ * value:key that we are pulling the data from'
+ */
+
+class InputHeaderConfig {
+  constructor(item) {
+    const keys = Object.keys(item);
+
+    keys.forEach((key) => {
+      this[key] = item[key];
+    });
+  }
+}
+
+const items = [
   {
     value: 'round',
-    format: 'number',
-
+    type: 'number',
     title: 'Round',
-    type: 'ReadOnly',
+    readonly: true,
     width: 65,
     numeric: true,
     padding: 'dense'
   },
   {
     value: 'style_code',
-    format: 'number',
-
+    type: 'number',
+    readonly: false,
     title: 'Style Code',
-    type: 'TextField',
     width: 90,
     numeric: true,
     padding: 'none'
   },
   {
     value: 'pieces',
-    format: 'number',
-
+    type: 'number',
+    readonly: false,
     title: 'PPC',
-    type: 'TextField',
+
     width: 50,
     numeric: true,
     padding: 'none'
   },
   {
     value: 'assembly_flow',
-    format: 'text',
-
+    type: 'text',
+    readonly: false,
     title: 'Assembly Flow',
-    type: 'TextField',
     width: 125,
     numeric: false,
     padding: 'none'
   },
   {
     value: 'program',
-    format: 'text',
-
+    type: 'text',
+    readonly: false,
     title: 'Program',
-    type: 'TextField',
     width: 125,
     numeric: false,
     padding: 'none'
   },
   {
     value: 'mold_skin_style',
-    format: 'text',
-
+    type: 'text',
+    readonly: false,
     title: 'MoldSkin/Style',
-    type: 'TextField',
     width: 225,
     numeric: false,
     padding: 'default'
@@ -62,19 +72,18 @@ const headers = [
   {
     value: 'notes',
     title: 'Notes',
-    format: 'text',
+    type: 'text',
+    readonly: false,
 
-    type: 'TextField',
     width: 250,
     numeric: false,
     padding: 'default'
   },
   {
+    readonly: false,
     value: 'rework_color_chart',
-    format: 'text',
-
+    type: 'text',
     title: 'Rework Color Chart',
-    type: 'TextField',
     width: 200,
     numeric: false,
     padding: 'none'
@@ -82,9 +91,9 @@ const headers = [
   {
     value: 'color',
     title: 'Color',
-    format: 'text',
+    type: 'text',
+    readonly: false,
 
-    type: 'TextField',
     width: 125,
     numeric: false,
     padding: 'default'
@@ -92,9 +101,8 @@ const headers = [
   {
     value: 'add_take_off',
     title: 'ATO',
-    format: 'text',
+    type: 'text',
 
-    type: 'TextField',
     width: 50,
     numeric: true,
     padding: 'none'
@@ -102,9 +110,8 @@ const headers = [
   {
     value: 'total_crs',
     title: 'Total Crs',
-    format: 'text',
+    type: 'text',
 
-    type: 'TextField',
     width: 75,
     numeric: true,
     padding: 'none'
@@ -112,9 +119,8 @@ const headers = [
   {
     value: 'total_pcs',
     title: 'Total PCS',
-    format: 'text',
+    type: 'text',
 
-    type: 'TextField',
     width: 90,
     numeric: true,
     padding: 'none'
@@ -122,8 +128,8 @@ const headers = [
   {
     value: 'customer',
     title: 'Customer',
-    type: 'TextField',
-    format: 'text',
+
+    type: 'text',
 
     width: 100,
     numeric: false,
@@ -132,9 +138,8 @@ const headers = [
   {
     value: 'crs_real_time',
     title: 'CRS',
-    format: 'text',
+    type: 'text',
 
-    type: 'TextField',
     width: 150,
     numeric: true,
     padding: 'none'
@@ -142,8 +147,8 @@ const headers = [
   {
     value: 'wip_density',
     title: 'WIP Density',
-    type: 'TextField',
-    format: 'text',
+
+    type: 'text',
 
     width: 110,
     numeric: true,
@@ -152,8 +157,8 @@ const headers = [
   {
     value: 'loc',
     title: 'WIP Location',
-    type: 'TextField',
-    format: 'text',
+
+    type: 'text',
 
     width: 200,
     numeric: false,
@@ -162,13 +167,13 @@ const headers = [
   {
     value: 'assy_build_option',
     title: 'Build Option',
-    format: 'text',
+    type: 'text',
 
-    type: 'TextField',
     width: 150,
     numeric: false,
     padding: 'none'
   }
 ];
 
+const headers = items.map(item => new InputHeaderConfig(item));
 export { headers };

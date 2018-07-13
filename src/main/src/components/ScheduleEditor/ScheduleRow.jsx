@@ -1,16 +1,29 @@
 import React, { Component } from 'react';
-import { TableRow, TableCell } from '@material-ui/core';
+import { TableRow, TableCell, Input } from '@material-ui/core';
 
 import classNames from 'classnames';
 import * as PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import KeyBinding from 'react-keybinding-component';
 import { ColorRules } from './Rules/ColorRules';
 
 const rules = new ColorRules();
+
+const styles = theme => ({
+  root: {
+    color: 'red',
+    fontSize: '0.3rem',
+    backgroundColor: '#FFF'
+  },
+  selected: {
+    fontSize: ' 0.8125rem!important'
+  }
+});
+
 const { styling } = rules;
 styling.root = { backgroundColor: '#FFF' };
 
-const styles = rules.styling;
+// const styles = rules.styling;
 
 class ScheduleRow extends Component {
   constructor(props) {
@@ -18,6 +31,7 @@ class ScheduleRow extends Component {
     this.addItem = this.addItem.bind(this);
     this.removeItem = this.removeItem.bind(this);
     this.onChange = this.onChange.bind(this);
+    this.onKeyPressed = this.onKeyPressed.bind(this);
   }
 
   addItem(event) {
@@ -29,15 +43,23 @@ class ScheduleRow extends Component {
   }
 
   onChange({ target: { name, value } }) {
-    debugger;
     const row = this.props.row;
     row[name] = value;
     this.props.handleRowChanged(row, this.props.index);
   }
 
+  onKeyPressed(e) {
+    const { key } = e;
+    const { isSelected, handleKeyPress } = this.props;
+    if (!isSelected) return;
+    if (key === 'Escape') {
+      handleKeyPress(e);
+    }
+  }
+
   render() {
     const {
- classes, row, isSelected, onSelected, headers, children
+ classes, row, isSelected, onSelected, headers
 } = this.props;
 
     const r = ScheduleRow.rules.parse(row);
@@ -51,33 +73,44 @@ class ScheduleRow extends Component {
       more: 'some_more'
     };
 
-    const CheckReadOnly = (header, isSelected, row) => {
-      if (header.type !== 'ReadOnly' && isSelected) {
-        return (
-          <input
-            name={header.value}
-            type={header.format}
-            value={row[header.value]}
-            onChange={this.onChange}
-          />
-        );
+    const getElement = (header, isSelected, row) => {
+      const { value, type } = header;
+      if (header.readonly | !isSelected) {
+        return row[header.value];
       }
-      return row[header.value];
+      return (
+        <Input
+          autoComplete='ok hi-there wtf'
+          name={value}
+          type={type}
+          fullWidth={false}
+          value={row[value]}
+          onChange={this.onChange}
+          disableUnderline
+        />
+      );
     };
 
+    // const color = classes.row.selectedRow;
     return (
       <TableRow
-        className={classNames(classes.root, cn)}
+        className={classNames(classes.row, { [classes.selected]: isSelected })}
         selected={isSelected}
         hover
         onClick={onSelected}
       >
+        {isSelected && (
+          <KeyBinding onKey={this.onKeyPressed} type='keyup' preventInputConflict elem={TableRow} />
+        )}
+
         {headers.map((header, idx) => (
           <TableCell padding={header.padding} key={`cell-${idx}`} width={header.width}>
-            {CheckReadOnly(header, isSelected, row)}
+            {getElement(header, isSelected, row)}
+
+            {/* {CheckReadOnly(header, isSelected, row)} */}
           </TableCell>
         ))}
-        {children}
+        {this.props.children}
         {/* <ContextMenuTrigger style={{ display: 'flex' }} id={rowId}>
           {children}
         </ContextMenuTrigger> */}
@@ -87,13 +120,31 @@ class ScheduleRow extends Component {
 }
 ScheduleRow.rules = rules;
 ScheduleRow.propTypes = {
+  /**
+   * handles Key Press for unselecting rows
+   */
+  handleKeyPress: PropTypes.func,
+
+  /**
+   * isSelected
+   */
   isSelected: PropTypes.bool.isRequired,
+
+  /**
+   * headers
+   */
   headers: PropTypes.array,
   index: PropTypes.number.isRequired,
   row: PropTypes.any,
   onSelected: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
+
   handleRowChanged: PropTypes.func.isRequired
+};
+
+ScheduleRow.defaultProps = {
+  isSelected: false,
+  index: -1
 };
 
 export default withStyles(styles)(ScheduleRow);

@@ -251,7 +251,7 @@ export default class PaintScheduleEditor extends Component {
       }
     }
   }
-  handleRowUpdateFailed() {}
+  handleRowUpdateFailed() { }
   handleGridRowsUpdated = ({ fromRow, toRow, updated }) => {
     if (fromRow !== toRow) return;
 
@@ -369,7 +369,7 @@ export default class PaintScheduleEditor extends Component {
     });
   }
   rowPreviouslyChanged(key) {
-    const result = this.state.changedRows.findIndex((value, index, obj) => {});
+    const result = this.state.changedRows.findIndex((value, index, obj) => { });
     for (let i = 0; i < this.state.changedRows.length; i++) {
       if (this.state.changedRows[i].id === key) return i;
     }
@@ -497,5 +497,7 @@ PaintScheduleEditor.defaultProps = {
 };
 PaintScheduleEditor.propTypes = {
   rowKey: PropTypes.string,
+  height: PropTypes.object.isRequired,
+  width: PropTypes.object.isRequired,
   ruleSet: PropTypes.object
 };

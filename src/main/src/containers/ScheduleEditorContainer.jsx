@@ -4,12 +4,17 @@ import { PaintScheduleEditor } from '../components/ScheduleEditor';
 import DataService from '../api/DataService';
 
 const { DeleteColorRule, GetColorRules } = DataService;
-
+const heightOffset = 250;
 export default class ScheduleEditorContainer extends Component {
   constructor(props) {
     super(props);
-    this.state = { rules: [] };
+    this.state = {
+      rules: [],
+      height: window.innerHeight - heightOffset,
+      width: window.innerWidth
+    };
     this.updateRules = this.updateRules.bind(this);
+    this.handleResize = this.handleResize.bind(this);
     // this.handleDeleteRow = this.handleDeleteRow.bind(this);
     // this.handleSaveRow = this.handleSaveRow.bind(this);
     // this.handleAddRow = this.handleAddRow.bind(this);
@@ -22,6 +27,10 @@ export default class ScheduleEditorContainer extends Component {
     return false;
   }
 
+  handleResize() {
+    this.setState({ height: window.innerHeight - heightOffset });
+  }
+
   fetchRules() {
     GetColorRules()
       .then(this.updateRules)
@@ -32,10 +41,15 @@ export default class ScheduleEditorContainer extends Component {
   }
 
   componentDidMount() {
+    window.addEventListener('resize', this.handleResize);
     const { route } = this.props;
     if (route !== 0) return;
     this.fetchRules();
     // Get Data here
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize);
   }
 
   check(key, value, expected) {
@@ -84,7 +98,7 @@ export default class ScheduleEditorContainer extends Component {
   }
 
   render() {
-    const { rules } = this.state;
+    const { rules, height, width } = this.state;
     const { classes, ...props } = this.props; // <RuleSettings
     //   {...this.props}
     //   rules={rules}

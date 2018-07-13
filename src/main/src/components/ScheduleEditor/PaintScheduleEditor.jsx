@@ -5,29 +5,21 @@ import RoundSummary from './RoundSummary';
 
 import DataService from '../../api/DataService';
 import { AlertDismissable, SettingsModal, RulesDialog, AddNewRoundDialog } from './Dialogs';
-import classNames from 'classnames';
 import { headers } from './TableConfig';
-import EditableRow from './EditableRow';
-import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
+
 import ScheduleEditorTable from './ScheduleEditorTable';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableSortLabel,
+
   Grid,
-  TableHead,
-  TableRow,
+
   Paper
 } from '@material-ui/core';
 
 import ReactiveButton from './ReactiveButton';
 import { ColorRules } from './Rules';
-import ScheduleRow from './ScheduleRow';
+
 const heightOffset = 250;
-
-const Filter = ({ items, predicate, children }) => items.filter(predicate).map(children);
-
+ 
 export default class PaintScheduleEditor extends Component {
   constructor(props, context) {
     super(props, context);
@@ -81,10 +73,7 @@ export default class PaintScheduleEditor extends Component {
     this.rowGetter=this.rowGetter.bind(this);
     this.handleRowChanged=this.handleRowChanged.bind(this);
   }
-
-  componentDidCatch(error, errorInfo) {
-    debugger;
-  }
+ 
 
   setRules(rules) {
     this.setState({ rules: rules });
@@ -108,7 +97,8 @@ export default class PaintScheduleEditor extends Component {
     this.getColorRules();
     this.getPaintSchedule();
     this.getStyleCodesAndProgramColors();
-    window.addEventListener('resize', () => this.setState({ height: window.innerHeight - heightOffset }));
+    window.addEventListener('resize', () => this.setState({ height: window.innerHeight - heightOffset, width:window.innerWidth }));
+
   }
 
   componentDidUpdate() {
@@ -402,13 +392,15 @@ export default class PaintScheduleEditor extends Component {
     this.setState({ selectedRound: this.state.rows[selected.rowIdx].round });
   }
   handleRowChanged(row,idx){
-    debugger;
+
+    // Object.assign({},this.state.rows[idx],row);
+
   }
   persistNewRow(e, data) {
     console.log('very persistent ;)');
   }
   persistRow(hash, row) {
-    let url = '../paint.asmx/UpdatePaintSchedule';
+    let url = 'UpdatePaintSchedule';
 
     const updateq = Object.assign({}, this.state.queuedUpdates);
 
@@ -537,7 +529,7 @@ export default class PaintScheduleEditor extends Component {
   //   return result;
   // }
   render() {
-    const { rules, numSelected,newRows,showAddRound,editing,selectedRow , searchText, msg, selectedRound, roundSummary,rows} = this.state;
+    const { rules, newRows,showAddRound,searchText, msg, selectedRound, roundSummary, rows, width } = this.state;
     const { showSettings} = this.props;
     let c = {};
     for (let rule of this.rules.rules) {
@@ -564,17 +556,13 @@ export default class PaintScheduleEditor extends Component {
           open={showAddRound}
           answer={this.addNewRoundAnswered}
         />
-        <EditableRow
-          open={editing}
-          row={selectedRow}
-          onClosed={this.onEditorClosed}
-        />
+
         <RulesDialog show={showSettings} />
         <SettingsModal show={showSettings} />
         <AlertDismissable
           title={msg.title}
           text={msg.Text}
-          show={this.state.msg.show}
+          show={msg.show}
         />
         <Paper>
           <Grid>
@@ -585,57 +573,10 @@ export default class PaintScheduleEditor extends Component {
               onClick={() => this.showSettings(this)}
             />
           </Grid>
-          <div style={{ height: '60vh', overflow: 'auto' }}>
-          <ScheduleEditorTable rules={rules} rows={rows} headers={headers} handleRowChanged={this.handleRowChanged}/>
-            {/* <Table aria-labelledby="tableTitle">
-              <TableHead>
-                <TableRow className={classNames(c)}>
-                  {headers.map((header, idx) => (
-                    <TableCell
-                      padding={header.padding}
-                      key={'header-' + idx}
-                      style={{ width: header.width }}
-                      sortDirection={'id' === header.id ? 'asc' : false}
-                    >
-                      <TableSortLabel>{header.title}</TableSortLabel>
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead> 
-              <TableBody>
-                <Filter items={rows} predicate={showRow}>
-                  {(row, rowIdx) => (
-                    <ScheduleRow
-                      row={row}
-                      key={`row-${rowIdx}`}
-                      selected={() => this.isSelected(rowIdx)}
-                      onSelected={event => this.onRowSelected(event, rowIdx, row)}
-                    >
-                      {headers.map((header, idx) =>
-                          (
-                          <TableCell
-                            padding={header.padding}
-                            key={`cell-${idx}`}
-                            width={header.width}
-                          >
-                            {row[header.value]}
-                          </TableCell>
-                        )
-                      )}
-                    </ScheduleRow>
-                  )}
-                </Filter>
-              </TableBody>
-            </Table>*/}
-        {/* <ContextMenu id={1}>
-          <MenuItem onClick={this.addItem}>
-            Add Item
-          </MenuItem>
-          <MenuItem  onClick={this.removeItem}>
-            RemoveItem
-          </MenuItem>
-        </ContextMenu> */}
-          </div>
+      
+          <ScheduleEditorTable  rules={rules} rows={rows} headers={headers} handleRowChanged={this.handleRowChanged} {...this.props}/>
+       
+        
         </Paper>
         <ReactiveButton
           clickEvent={this.addNewRound}
@@ -655,5 +596,7 @@ PaintScheduleEditor.propTypes = {
   rowKey: PropTypes.string,
   ruleSet: PropTypes.object,
   isConnected: PropTypes.bool,
-  showSettings: PropTypes.bool
+  showSettings: PropTypes.bool,
+  height: PropTypes.any,
+  width: PropTypes.any
 };

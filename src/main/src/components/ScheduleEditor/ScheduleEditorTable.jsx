@@ -1,64 +1,42 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {
-  Table,
-  TableHead,
-  TableRow,
-  TableSortLabel,
-  TableBody,
-  TableCell
-} from '@material-ui/core';
-import classNames from 'classnames';
+import { Table, TableBody } from '@material-ui/core';
 
+import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import update from 'react-addons-update';
 import ScheduleEditorTableHead from './ScheduleEditorTableHead';
+import ScheduleRow from './ScheduleRow';
 import DataService from '../../api/DataService';
 
-import ScheduleRow from './ScheduleRow';
-
-import { headers } from './TableConfig';
-
-const heightOffset = 250;
 const Filter = ({ items, predicate, children }) => items.filter(predicate).map(children);
 
-const styles = {};
+const styles = theme => ({
+  root: {
+    display: 'table',
+    fontFamily: theme.typography.fontFamily,
+    // width: '100%',
+    borderCollapse: 'collapse',
+    borderSpacing: 0
+  }
+});
+
 class ScheduleEditorTable extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       selectedRow: null,
-      msg: {
-        show: false,
-        text: '',
-        title: ''
-      },
-      editing: false,
-      rules: [],
-      initialRows: [],
       rows: [],
-      roundSummary: [],
-      queuedUpdates: {},
       changedRows: [],
-      styleCodes: [],
-      programColors: [],
-      selectedRound: null,
-      numSelected: 0,
-      showAddRound: false,
-      newRows: 0,
-      height: window.innerHeight - heightOffset,
-      firstLoad: true,
       searchText: ''
     };
-
     this.showSettings.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
     // this.updateStyleCodesAndProgramColors = this.updateStyleCodesAndProgramColors.bind(this);
-    this.onEditorClosed = this.onEditorClosed.bind(this);
     // this.updateData = this.updateData.bind(this);
     // this.undoSelection = this.undoSelection.bind(this);
 
-    // this.handleResize = this.handleResize.bind(this);
     // this.setRules = this.setRules.bind(this);
     // this.addNewRound = this.addNewRound.bind(this);
     // this.updateColorCodes = this.updateColorCodes.bind(this);
@@ -79,87 +57,11 @@ class ScheduleEditorTable extends Component {
     // this.getColorRules();
     // this.getPaintSchedule();
     // this.getStyleCodesAndProgramColors();
-    // window.addEventListener('resize', () => this.setState({ height: window.innerHeight - heightOffset }));
+    // eslint-disable-next-line
   }
 
-  handleRowUpdateFailed() {}
-
-  handleGridRowsUpdated({ fromRow, toRow, updated }) {
-    if (fromRow !== toRow) return;
-
-    const rows = this.state.rows.slice();
-
-    for (let i = fromRow; i <= toRow; i++) {
-      var changed = false;
-      const rowToUpdate = rows[i];
-      let updatedRow = update(rowToUpdate, { $merge: updated });
-      debugger;
-      Object.keys(updated).forEach((key) => {
-        if (rowToUpdate[key] !== updatedRow[key]) changed = true;
-      });
-
-      if (changed) {
-        if (updated.style_code) {
-          const style_metadata = this.getStyleCodePresets(updated.style_code);
-          const new_rowdata = {
-            assembly_flow: style_metadata.assembly_flow,
-            customer: style_metadata.customer,
-            program: style_metadata.description,
-            pieces: style_metadata.PartsPerCarrier ? style_metadata.PartsPerCarrier : 0,
-            mold_wip_density: style_metadata.mold_wip_rack_density,
-            total_crs: 1,
-            total_pcs: 1 * style_metadata.PartsPerCarrier
-          };
-          updatedRow = update(updatedRow, { $merge: new_rowdata });
-        }
-
-        /*
-        var previous_changedRowIdx = this.rowPreviouslyChanged(updatedRow.id);
-        if(previous_changedRowIdx == -1){
-          if(updatedRow.id.includes("TEMP")){
-            changedRows.push(update(updatedRow, {$merge: {action:"INSERT"}}));
-          }else{
-            changedRows.push(update(updatedRow, {$merge: {action:"UPDATE"}}));
-          }
-        }else{
-          changedRows[previous_changedRowIdx] = update(changedRows[previous_changedRowIdx], {$merge: updated});
-        }
-        */
-        if (updatedRow.id.includes('TEMP')) {
-          if (
-            !updatedRow.style_code
-            || !(parseInt(updatedRow.pieces, 10) >= 0)
-            || !updatedRow.program
-            || !updatedRow.round
-            || !(parseInt(updatedRow.total_crs, 10) >= 0)
-            || !(parseInt(updatedRow.total_pcs, 10) >= 0)
-            || updatedRow.customer === undefined
-            || !(parseInt(updatedRow.mold_wip_density, 10) >= 0)
-            || !updatedRow.round_position
-          ) {
-            rows[i] = updatedRow;
-            this.setState({ rows });
-          } else {
-            var temp = update(updatedRow, { $merge: { action: 'INSERT' } });
-            var hash = '{0}:{1}:{2}'
-              .formatUnicorn(updatedRow.id, JSON.stringify(updated), JSON.stringify(temp))
-              .hashCode()
-              .toString();
-            this.persistRow(hash, temp);
-          }
-        } else {
-          var temp = update(updatedRow, { $merge: { action: 'UPDATE' } });
-          var hash = '{0}:{1}:{2}'
-            .formatUnicorn(updatedRow.id, JSON.stringify(updated), JSON.stringify(temp))
-            .hashCode()
-            .toString();
-          this.persistRow(hash, temp);
-        }
-        // rows[i] = updatedRow;
-      }
-    }
-
-    // this.setState({ rows: rows, changedRows: changedRows });
+  onSearchChanged(e) {
+    this.setState({ searchText: e.target.value });
   }
 
   handleCellSelect(selected) {
@@ -287,34 +189,105 @@ class ScheduleEditorTable extends Component {
     return this.state.selected.indexOf(id) !== -1;
   }
 
-  /**
-   *
-   * @param {*} cancelled
-   * @param {*} row
-   */
-  onEditorClosed(cancelled, row) {
-    this.setState({ editing: false });
+  handleGridRowsUpdated({ fromRow, toRow, updated }) {
+    if (fromRow !== toRow) return;
+
+    const rows = this.state.rows.slice();
+
+    for (let i = fromRow; i <= toRow; i++) {
+      var changed = false;
+      const rowToUpdate = rows[i];
+      let updatedRow = update(rowToUpdate, { $merge: updated });
+      debugger;
+      Object.keys(updated).forEach((key) => {
+        if (rowToUpdate[key] !== updatedRow[key]) changed = true;
+      });
+
+      if (changed) {
+        if (updated.style_code) {
+          const style_metadata = this.getStyleCodePresets(updated.style_code);
+          const new_rowdata = {
+            assembly_flow: style_metadata.assembly_flow,
+            customer: style_metadata.customer,
+            program: style_metadata.description,
+            pieces: style_metadata.PartsPerCarrier ? style_metadata.PartsPerCarrier : 0,
+            mold_wip_density: style_metadata.mold_wip_rack_density,
+            total_crs: 1,
+            total_pcs: 1 * style_metadata.PartsPerCarrier
+          };
+          updatedRow = update(updatedRow, { $merge: new_rowdata });
+        }
+
+        /*
+        var previous_changedRowIdx = this.rowPreviouslyChanged(updatedRow.id);
+        if(previous_changedRowIdx == -1){
+          if(updatedRow.id.includes("TEMP")){
+            changedRows.push(update(updatedRow, {$merge: {action:"INSERT"}}));
+          }else{
+            changedRows.push(update(updatedRow, {$merge: {action:"UPDATE"}}));
+          }
+        }else{
+          changedRows[previous_changedRowIdx] = update(changedRows[previous_changedRowIdx], {$merge: updated});
+        }
+        */
+        if (updatedRow.id.includes('TEMP')) {
+          if (
+            !updatedRow.style_code
+            || !(parseInt(updatedRow.pieces, 10) >= 0)
+            || !updatedRow.program
+            || !updatedRow.round
+            || !(parseInt(updatedRow.total_crs, 10) >= 0)
+            || !(parseInt(updatedRow.total_pcs, 10) >= 0)
+            || updatedRow.customer === undefined
+            || !(parseInt(updatedRow.mold_wip_density, 10) >= 0)
+            || !updatedRow.round_position
+          ) {
+            rows[i] = updatedRow;
+            this.setState({ rows });
+          } else {
+            var temp = update(updatedRow, { $merge: { action: 'INSERT' } });
+            var hash = '{0}:{1}:{2}'
+              .formatUnicorn(updatedRow.id, JSON.stringify(updated), JSON.stringify(temp))
+              .hashCode()
+              .toString();
+            this.persistRow(hash, temp);
+          }
+        } else {
+          var temp = update(updatedRow, { $merge: { action: 'UPDATE' } });
+          var hash = '{0}:{1}:{2}'
+            .formatUnicorn(updatedRow.id, JSON.stringify(updated), JSON.stringify(temp))
+            .hashCode()
+            .toString();
+          this.persistRow(hash, temp);
+        }
+        // rows[i] = updatedRow;
+      }
+    }
+
+    // this.setState({ rows: rows, changedRows: changedRows });
   }
 
-  onSearchChanged(e) {
-    this.setState({ searchText: e.target.value });
+  handleRowUpdateFailed() {}
+
+  onKeyPressed(e) {
+    const { key } = e;
+    switch (key) {
+      case 'Escape':
+        break;
+      default:
+        debugger;
+    }
+    debugger;
+  }
+
+  handleKeyPress(e) {
+    this.setState({ selectedRow: null });
   }
 
   render() {
+    const { selectedRow, searchText } = this.state;
     const {
-      numSelected,
-      newRows,
-      showAddRound,
-      editing,
-      selectedRow,
-      searchText,
-      msg,
-
-      selectedRound,
-      roundSummary
-    } = this.state;
-    const {
- showSettings, rules, headers, rows, handleRowChanged
+ rules, headers, rows, handleRowChanged, classes, width
 } = this.props;
     const c = {};
     for (const rule of rules) {
@@ -326,17 +299,22 @@ class ScheduleEditorTable extends Component {
       const reg = new RegExp(search, 'ig');
       return Object.values(r).filter(v => reg.test(v)).length !== 0;
     };
+
     return (
-      <Table aria-labelledby='tableTitle'>
+      <Table>
         <ScheduleEditorTableHead rules={rules} headers={headers} />
 
-        <TableBody>
+        <TableBody style={{ height: '60vh', overflow: 'auto', display: 'block' }}>
           <Filter items={rows} predicate={showRow}>
             {(row, rowIdx) => (
               <ScheduleRow
                 index={rowIdx}
                 isSelected={selectedRow === row}
+                handleKeyPress={this.handleKeyPress}
                 row={row}
+                style={{ display: 'block' }}
+                rules={rules}
+                className={classNames(c)}
                 key={`row-${rowIdx}`}
                 selected={() => this.isSelected(rowIdx)}
                 headers={headers}
@@ -351,6 +329,7 @@ class ScheduleEditorTable extends Component {
   }
 }
 ScheduleEditorTable.propTypes = {
+  width: PropTypes.any,
   rules: PropTypes.array,
   classes: PropTypes.object.isRequired,
   rows: PropTypes.array,
