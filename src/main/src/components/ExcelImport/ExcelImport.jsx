@@ -47,11 +47,11 @@ export default class ExcelImport extends Component {
   componentDidMount() {
     const { route } = this.props;
     if (route === 2) this.loadRound();
-    else debugger;
   }
 
   shouldComponentUpdate(nextProps) {
-    debugger;
+    const { route } = nextProps;
+    return route === 1;
   }
 
   onSelChange(event) {
@@ -69,7 +69,7 @@ export default class ExcelImport extends Component {
     const { allRnds, tchdRnds } = this.state;
 
     const shiz = [];
-    allRnds.map(r => {
+    allRnds.map((r) => {
       const idx = tchdRnds.indexOf(r);
       if (idx === -1) shiz.push(r);
     });
@@ -214,9 +214,9 @@ export default class ExcelImport extends Component {
     if (OneRC === 22) {
       // var DB = 'paint_schedule_master'
       if (
-        this.revisionInput.value !== '' &&
-        this.revisionInput.value !== null &&
-        this.revisionInput.value !== undefined
+        this.revisionInput.value !== ''
+        && this.revisionInput.value !== null
+        && this.revisionInput.value !== undefined
       ) {
         this.setState({
           btnAddDisabled: false,
@@ -243,8 +243,7 @@ export default class ExcelImport extends Component {
     const data = this.textArea.value;
     const rows = data.split('\n');
 
-    const tbl = rows.map(r =>
-      r.split('\t').map((c, cIdx) => {
+    const tbl = rows.map(r => r.split('\t').map((c, cIdx) => {
         // 14 = round column  eaafaf
         if (cIdx === 14) {
           if (this.state.allRnds.indexOf(c) > -1) {
@@ -253,20 +252,19 @@ export default class ExcelImport extends Component {
         }
 
         return c;
-      })
-    );
+      }));
 
     // return if columns 0, 1 and 20 are integers. styleCode, pieces, mold wip
     const baddies = [];
     const scrubbedTbl = [];
     tbl.map((r, rIdx) => {
       if (
-        !isNaN(r[0]) &&
-        !isNaN(r[1]) &&
-        !isNaN(r[20]) &&
-        r[0] !== '' &&
-        r[1] !== '' &&
-        r[20] !== ''
+        !isNaN(r[0])
+        && !isNaN(r[1])
+        && !isNaN(r[20])
+        && r[0] !== ''
+        && r[1] !== ''
+        && r[20] !== ''
       ) {
         r[3] = isNaN(r[3]) || r[3] === '' ? 0 : Math.round(r[3]); // add_take_off
         r[4] = isNaN(r[4]) || r[4] === '' ? 0 : Math.round(r[4]); // total_crs
@@ -298,7 +296,7 @@ export default class ExcelImport extends Component {
     const currentViewState = this.state.mainViewActive;
     console.log(currentViewState);
     const shiz = [];
-    this.state.allRnds.map(r => {
+    this.state.allRnds.map((r) => {
       const idx = this.state.tchdRnds.indexOf(r);
       if (idx === -1) shiz.push(r);
     });
@@ -322,10 +320,7 @@ export default class ExcelImport extends Component {
   loadRound() {
     console.log(this.state.env);
 
-    const url =
-      this.state.env === 'production'
-        ? 'api/paint/getRounds'
-        : 'api/paint/getRoundsTest';
+    const url = this.state.env === 'production' ? 'api/paint/getRounds' : 'api/paint/getRoundsTest';
 
     // $.ajax({
     //   type: "POST",
@@ -378,26 +373,22 @@ export default class ExcelImport extends Component {
         <Grid>
           <Paper>
             <Card>
-              <CardHeader title="Paint Schedule Import Data" />
+              <CardHeader title='Paint Schedule Import Data' />
 
               <CardContent>
-                Copy and paste the round you would like to import from excel
-                into the textarea below. Next hit the 'Backspace' ONCE to remove
-                the extra line return from the end of your data. Then hit
-                'Generate Table', and if you have the correct number of columns
+                Copy and paste the round you would like to import from excel into the textarea
+                below. Next hit the 'Backspace' ONCE to remove the extra line return from the end of
+                your data. Then hit 'Generate Table', and if you have the correct number of columns
                 you will now be able to hit 'Import Data'.
               </CardContent>
             </Card>
             <ExpansionPanel>
-              <ExpansionPanelSummary expandIcon={<ExpandMore />}>
-                Notes
-              </ExpansionPanelSummary>
+              <ExpansionPanelSummary expandIcon={<ExpandMore />}>Notes</ExpansionPanelSummary>
               <ExpansionPanelDetails>
                 <Typography>
-                  You must copy and paste the data from Excel. - If your data
-                  does not have the correct number of columns you can NOT import
-                  it. (17 columns) - Check to make sure there is not an extra
-                  line return at the end of you data(don't hit 'Enter' after
+                  You must copy and paste the data from Excel. - If your data does not have the
+                  correct number of columns you can NOT import it. (17 columns) - Check to make sure
+                  there is not an extra line return at the end of you data(don't hit 'Enter' after
                   last line) this will mess up your column count. Example
                 </Typography>
               </ExpansionPanelDetails>
@@ -406,15 +397,12 @@ export default class ExcelImport extends Component {
           <Grid container spacing={16}>
             <Grid item xs={12}>
               <TextField
-                label="Name"
+                label='Name'
                 style={{ flex: 1 }}
-                helperText="Enter Paint Schedule Revision Name"
+                helperText='Enter Paint Schedule Revision Name'
               />
             </Grid>
-            <Grid
-              item
-              xs={12}
-              style={{ display: 'flex', overflow: 'auto', height: '50vh' }}>
+            <Grid item xs={12} style={{ display: 'flex', overflow: 'auto', height: '50vh' }}>
               <textarea
                 style={{
                   display: 'flex',
@@ -423,7 +411,7 @@ export default class ExcelImport extends Component {
                 }}
                 value={this.state.text}
                 onChange={this.excelTextChanged}
-                margin="normal"
+                margin='normal'
               />
             </Grid>
             <Grid item xs={12}>

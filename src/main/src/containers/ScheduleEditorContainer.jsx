@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { RuleSettings } from '../components/ScheduleEditor';
+import { PaintScheduleEditor } from '../components/ScheduleEditor';
 import DataService from '../api/DataService';
 
 const { DeleteColorRule, GetColorRules } = DataService;
-const styles = {};
 
 export default class ScheduleEditorContainer extends Component {
   constructor(props) {
@@ -16,9 +15,9 @@ export default class ScheduleEditorContainer extends Component {
     // this.handleAddRow = this.handleAddRow.bind(this);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps) {
     const { route } = nextProps;
-    if (route == 0) return true;
+    if (route === 0) return true;
     debugger;
     return false;
   }
@@ -34,14 +33,13 @@ export default class ScheduleEditorContainer extends Component {
 
   componentDidMount() {
     const { route } = this.props;
-    if (route != 0) return;
+    if (route !== 0) return;
     this.fetchRules();
     // Get Data here
   }
 
   check(key, value, expected) {
     const result = typeof value[key] === expected;
-    console.log(`Rule.${key} should be a ${expected}: ${result}`);
     if (!result) {
       debugger;
     }
@@ -87,19 +85,16 @@ export default class ScheduleEditorContainer extends Component {
 
   render() {
     const { rules } = this.state;
-    const { classes, ...props } = this.props;
-    return (
-      <RuleSettings
-        {...this.props}
-        rules={rules}
-        handleAddRow={this.handleAddRow}
-        handleDeleteRow={this.handleDeleteRow}
-        handleSaveRow={this.handleSaveRow}
-      />
-    );
+    const { classes, ...props } = this.props; // <RuleSettings
+    //   {...this.props}
+    //   rules={rules}
+    //   handleAddRow={this.handleAddRow}
+    //   handleDeleteRow={this.handleDeleteRow}
+    //   handleSaveRow={this.handleSaveRow}
+    // />
+    return <PaintScheduleEditor {...props} />;
   }
 }
 ScheduleEditorContainer.propTypes = {
-  route: PropTypes.number
-  //   classes: PropTypes.object.isRequired
+  route: PropTypes.number.isRequired
 };

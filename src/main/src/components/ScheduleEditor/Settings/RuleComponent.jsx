@@ -132,7 +132,7 @@ class RuleComponent extends Component {
  margin, textField, card, actions, action, menu
 },
       rule: {
- Color, Name, Contains, Value, Element
+ Color, Name, Value, Element
 }
     } = this.props;
 

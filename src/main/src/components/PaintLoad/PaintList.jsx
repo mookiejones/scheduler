@@ -132,7 +132,10 @@ export default class PaintList extends Component {
       case "watch":
         cmd = "GetPaintLoadList";
         break;
-    }
+        default:
+        throw new Error("Need to get value for "+this.props.role);
+
+    } 
     if (this.props.environment !== "production") {
       // cmd += "Test";
     }

@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import {
   Card,
   CardHeader,
@@ -9,16 +9,16 @@ import {
   List,
   ListItem,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogContentText,
   Typography,
   DialogTitle
-} from "@material-ui/core";
-import { getColors } from "../Rules";
+} from '@material-ui/core';
+import { getColors } from '../Rules';
+
 function TabContainer(props) {
   return (
-    <Typography component="div" style={{ padding: 8 * 3 }}>
+    <Typography component='div' style={{ padding: 8 * 3 }}>
       {props.children}
     </Typography>
   );
@@ -36,9 +36,11 @@ class ColoringPage extends Component {
     };
     this.rulesRetrieved = this.rulesRetrieved.bind(this);
   }
+
   rulesRetrieved(rules) {
     this.setState({ items: rules });
   }
+
   componentDidMount() {
     getColors()
       .then(this.rulesRetrieved)
@@ -46,12 +48,12 @@ class ColoringPage extends Component {
         debugger;
       });
   }
+
   render() {
     return (
       <TabContainer>
         <List>
-          {this.state.items.map((rule, idx) => {
-            return (
+          {this.state.items.map((rule, idx) => (
               <ListItem key={idx}>
                 <Card>
                   <CardHeader>
@@ -60,8 +62,7 @@ class ColoringPage extends Component {
                   <CardContent>{rule.color}</CardContent>
                 </Card>;
               </ListItem>
-            );
-          })}
+            ))}
         </List>
       </TabContainer>
     );
@@ -75,9 +76,11 @@ export default class RulesDialog extends Component {
     };
     this.handleChange = this.handleChange.bind(this);
   }
+
   handleChange(event, value) {
-    this.setState({ value: value });
+    this.setState({ value });
   }
+
   render() {
     const { value } = this.state;
 
@@ -87,9 +90,9 @@ export default class RulesDialog extends Component {
           <DialogContentText>Edit Rules</DialogContentText>
           <DialogContent>
             <Tabs value={value} onChange={this.handleChange}>
-              <Tab label="Rules" />
-              <Tab label="Rules" />
-              <Tab label="Rules" />
+              <Tab label='Rules' />
+              <Tab label='Rules' />
+              <Tab label='Rules' />
             </Tabs>
             {value === 0 && <ColoringPage />}
             {value === 1 && <TabContainer>Item1</TabContainer>}

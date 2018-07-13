@@ -2,15 +2,16 @@ import ColorRule from './ColorRule';
 
 class ColorRules {
   getDefaultRules() {
-    return [
-      new ColorRule(null, 'color', 'service', 'service', '#ECEFF1!important', true),
-      new ColorRule(null, 'notes', 'dontship', 'do not ship', '#FF1744!important', true),
-      new ColorRule(null, 'notes', 'shipifgood', 'ship if good', '#81C784', true),
-      new ColorRule(null, 'notes', 'build', 'build', '#FFF176', true),
-      new ColorRule(null, 'id', 'bgSuccess', 'TEMP', '#dff0d8', null),
-      new ColorRule(null, 'id', 'bgNormal', 'TEMP', '#FFFFFF', null),
-      new ColorRule(null, 'notes', 'redhot', 'red hot', '#FF1744', true)
-    ];
+    return [];
+    // return [
+    //   new ColorRule(null, 'color', 'service', 'service', '#ECEFF1!important', true),
+    //   new ColorRule(null, 'notes', 'dontship', 'do not ship', '#FF1744!important', true),
+    //   new ColorRule(null, 'notes', 'shipifgood', 'ship if good', '#81C784', true),
+    //   new ColorRule(null, 'notes', 'build', 'build', '#FFF176', true),
+    //   new ColorRule(null, 'id', 'bgSuccess', 'TEMP', '#dff0d8', null),
+    //   new ColorRule(null, 'id', 'bgNormal', 'TEMP', '#FFFFFF', null),
+    //   new ColorRule(null, 'notes', 'redhot', 'red hot', '#FF1744', true)
+    // ];
   }
 
   parse(row) {

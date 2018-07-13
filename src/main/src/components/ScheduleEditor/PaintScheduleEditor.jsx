@@ -8,7 +8,8 @@ import { AlertDismissable, SettingsModal, RulesDialog, AddNewRoundDialog } from 
 import classNames from 'classnames';
 import { headers } from './TableConfig';
 import EditableRow from './EditableRow';
-
+import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
+import ScheduleEditorTable from './ScheduleEditorTable';
 import {
   Table,
   TableBody,
@@ -327,9 +328,11 @@ export default class PaintScheduleEditor extends Component {
       const rowToUpdate = rows[i];
       let updatedRow = update(rowToUpdate, { $merge: updated });
       debugger;
-      Object.keys(updated).map((key, idx) => {
-        if (rowToUpdate[key] !== updatedRow[key]) changed = true;
-      });
+      Object.keys(updated).forEach(key=>{
+        if(rowToUpdate[key]!==updatedRow[key])
+          changed=true;
+      })
+
 
       if (changed) {
         if (updated.style_code) {
@@ -401,10 +404,7 @@ export default class PaintScheduleEditor extends Component {
     console.log('very persistent ;)');
   }
   persistRow(hash, row) {
-    let url =
-      this.state.env === 'development'
-        ? '../paint.asmx/UpdatePaintScheduleTest'
-        : '../paint.asmx/UpdatePaintSchedule';
+    let url = '../paint.asmx/UpdatePaintSchedule';
 
     const updateq = Object.assign({}, this.state.queuedUpdates);
 
@@ -478,7 +478,7 @@ export default class PaintScheduleEditor extends Component {
     this.lastSelected = null;
   }
   onRowSelected(e, id, row) {
-    if (this.lastSelected == row) {
+    if (this.lastSelected === row) {
       this.setState({ editing: true, selectedRow: row });
     } else {
       this.lastSelected = row;
@@ -533,7 +533,8 @@ export default class PaintScheduleEditor extends Component {
   //   return result;
   // }
   render() {
-    const { numSelected } = this.state;
+    const { rules, numSelected,newRows,showAddRound,editing,selectedRow , searchText, msg, selectedRound, roundSummary,rows} = this.state;
+    const { showSettings} = this.props;
     let c = {};
     for (let rule of this.rules.rules) {
       c[rule.Name] = { backgroundColor: rule.Color };
@@ -544,10 +545,10 @@ export default class PaintScheduleEditor extends Component {
     /* eslint-enable */
 
     const showRow = r => {
-      let search = this.state.searchText;
-      if (search.length == 0) return true;
+      let search =searchText;
+      if (search.length === 0) return true;
       let reg = new RegExp(search, 'ig');
-      return Object.values(r).filter(v => reg.test(v)).length != 0;
+      return Object.values(r).filter(v => reg.test(v)).length !== 0;
     };
     return (
       <div style={{ height: '75vh' }}>
@@ -555,33 +556,34 @@ export default class PaintScheduleEditor extends Component {
           onClose={() => {
             debugger;
           }}
-          msg={this.state.newRows === 0 ? 'Add New Round?' : 'Unsaved rows will be lost! Continue?'}
-          open={this.state.showAddRound}
+          msg={newRows === 0 ? 'Add New Round?' : 'Unsaved rows will be lost! Continue?'}
+          open={showAddRound}
           answer={this.addNewRoundAnswered}
         />
         <EditableRow
-          open={this.state.editing}
-          row={this.state.selectedRow}
+          open={editing}
+          row={selectedRow}
           onClosed={this.onEditorClosed}
         />
-        <RulesDialog show={this.props.showSettings} />
-        <SettingsModal show={this.props.showSettings} />
+        <RulesDialog show={showSettings} />
+        <SettingsModal show={showSettings} />
         <AlertDismissable
-          title={this.state.msg.title}
-          text={this.state.msg.Text}
+          title={msg.title}
+          text={msg.Text}
           show={this.state.msg.show}
         />
         <Paper>
           <Grid>
             <RoundSummary
               handleChange={this.onSearchChanged}
-              round={this.state.selectedRound}
-              roundSummary={this.state.roundSummary}
+              round={selectedRound}
+              roundSummary={roundSummary}
               onClick={() => this.showSettings(this)}
             />
           </Grid>
           <div style={{ height: '60vh', overflow: 'auto' }}>
-            <Table aria-labelledby="tableTitle">
+          <ScheduleEditorTable rules={rules} rows={rows} headers={headers}/>
+            {/* <Table aria-labelledby="tableTitle">
               <TableHead>
                 <TableRow className={classNames(c)}>
                   {headers.map((header, idx) => (
@@ -595,32 +597,40 @@ export default class PaintScheduleEditor extends Component {
                     </TableCell>
                   ))}
                 </TableRow>
-              </TableHead>
+              </TableHead> 
               <TableBody>
-                <Filter items={this.state.rows} predicate={showRow}>
-                  {(row, row_idx) => (
+                <Filter items={rows} predicate={showRow}>
+                  {(row, rowIdx) => (
                     <ScheduleRow
                       row={row}
-                      key={'row-' + row_idx}
-                      selected={() => this.isSelected(row_idx)}
-                      onSelected={event => this.onRowSelected(event, row_idx, row)}
+                      key={`row-${rowIdx}`}
+                      selected={() => this.isSelected(rowIdx)}
+                      onSelected={event => this.onRowSelected(event, rowIdx, row)}
                     >
-                      {headers.map((header, idx) => {
-                        return (
+                      {headers.map((header, idx) =>
+                          (
                           <TableCell
                             padding={header.padding}
-                            key={'cell-' + idx}
+                            key={`cell-${idx}`}
                             width={header.width}
                           >
                             {row[header.value]}
                           </TableCell>
-                        );
-                      })}
+                        )
+                      )}
                     </ScheduleRow>
                   )}
                 </Filter>
               </TableBody>
-            </Table>
+            </Table>*/}
+        {/* <ContextMenu id={1}>
+          <MenuItem onClick={this.addItem}>
+            Add Item
+          </MenuItem>
+          <MenuItem  onClick={this.removeItem}>
+            RemoveItem
+          </MenuItem>
+        </ContextMenu> */}
           </div>
         </Paper>
         <ReactiveButton

@@ -10,7 +10,7 @@
   },
   "rules": {
     "no-debugger": "off",
-    "linebreak-style": ["error", "windows"],
+    "linebreak-style": "off",
     "react/jsx-one-expression-per-line": "off",
     "no-console": "off",
     "comma-dangle": "off",

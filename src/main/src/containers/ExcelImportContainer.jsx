@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import ExcelImport from "../components/ExcelImport/ExcelImport";
+import React from 'react';
+import PropTypes from 'prop-types';
+import ExcelImport from '../components/ExcelImport/ExcelImport';
 
 const ExcelImportContainer = ({ ...props }) => <ExcelImport {...props} />;
 

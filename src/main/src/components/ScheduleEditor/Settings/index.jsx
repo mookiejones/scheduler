@@ -1,4 +1,8 @@
-export style from '../../style';
-export RuleSettings from './RuleSettings';
-export RuleComponent from './RuleComponent';
-export SettingsComponent from './SettingsComponent';
+import style from '../../style';
+import RuleSettings from './RuleSettings';
+import RuleComponent from './RuleComponent';
+import SettingsComponent from './SettingsComponent';
+
+export {
+ style, RuleSettings, RuleComponent, SettingsComponent
+};
