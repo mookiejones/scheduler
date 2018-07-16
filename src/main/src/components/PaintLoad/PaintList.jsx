@@ -75,8 +75,7 @@ export default class PaintList extends Component {
       default:
         break;
     }
-    DataService[func]();
-    DataService.GetPaintInfo(func)
+    DataService[func]()   
       .then((result) => {
         this.setState({
           currentRoundNumber: result.currentRoundNumber,
