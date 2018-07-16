@@ -22,9 +22,7 @@ export default class ScheduleEditorContainer extends Component {
 
   shouldComponentUpdate(nextProps) {
     const { route } = nextProps;
-    if (route === 0) return true;
-    debugger;
-    return false;
+    return route === 0;
   }
 
   handleResize() {
@@ -98,15 +96,15 @@ export default class ScheduleEditorContainer extends Component {
   }
 
   render() {
-    const { rules, height, width } = this.state;
-    const { classes, ...props } = this.props; // <RuleSettings
+    const { rules } = this.state;
+    const { ...props } = this.props; // <RuleSettings
     //   {...this.props}
     //   rules={rules}
     //   handleAddRow={this.handleAddRow}
     //   handleDeleteRow={this.handleDeleteRow}
     //   handleSaveRow={this.handleSaveRow}
     // />
-    return <PaintScheduleEditor {...props} />;
+    return <PaintScheduleEditor {...props} rules={rules} />;
   }
 }
 ScheduleEditorContainer.propTypes = {

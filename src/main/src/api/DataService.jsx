@@ -4,7 +4,9 @@ import PaintScheduleData from './PaintScheduleData';
 import { ColorRule } from '../components/ScheduleEditor/Rules';
 import DataItemBase from './DataItemBase';
 import DriverAverages from './DriverAverages';
-import { PRODUCTION, API_SERVER, DELETE_KEY } from '../Constants';
+import {
+ PRODUCTION, API_SERVER, DELETE_KEY, Constants
+} from '../Constants';
 
 const asPromise = value => new Promise(resolve => resolve(value));
 
@@ -34,10 +36,14 @@ class DataService {
     });
   }
 
-  static LoginUser(id) {
-    if (!PRODUCTION) return new Promise((resolve, reject) => resolve('cberman'));
-    throw new Error('Need to fix Login User');
+  static LoginUser(emp) {
+    const url = Constants.VerifyEmployee;
+    const body = stringify({ EmployeeID: emp.user });
+    return DataItemBase.postData(url, body);
   }
+
+  // if (!PRODUCTION) return new Promise((resolve, reject) => resolve('cberman'));
+  // throw new Error('Need to fix Login User');
 
   static AddColorRule(rule) {
     const url = `${API_SERVER}/reporting/paint.asmx/AddColorRule`;
@@ -55,9 +61,6 @@ class DataService {
         debugger;
         return o.json();
       })
-      .then((o) => {
-        debugger;
-      })
       .catch((error) => {
         debugger;
       });
@@ -68,17 +71,9 @@ class DataService {
   static DeleteColorRule(rule) {
     const url = `${API_SERVER}/reporting/paint.asmx/DeleteColorRule`;
     const body = stringify(rule);
-    const options = {
-      method: 'POST',
-      body,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': Buffer.byteLength(body)
-      }
-    };
-    return fetch(url, options)
-      .then(DataService.GetColorRules)
 
+    return DataItemBase.postData(url, body)
+      .then(DataService.GetColorRules)
       .catch((error) => {
         debugger;
       });
@@ -148,7 +143,29 @@ class DataService {
   }
 
   static ScheduleNewRound() {
-    return DataItemBase.getDataPromise('ScheduleNewRound');
+    const p = DataItemBase.getDataPromise(Constants.ScheduleNewRound);
+
+    return p.then(o => new PaintScheduleData(o, []));
+  }
+
+  static GetPaintInfo(data) {
+    debugger;
+    alert(data);
+    switch (data) {
+    }
+  }
+
+  static GetPaintPickList(){
+    debugger;
+alert("GetPaintPickList");
+  }
+  static GetPaintLoad(){
+    debugger
+    alert("GetPaintLoad")
+  }
+  static GetPaintPickList(){
+    alert("GetPaintPickList")
+    
   }
 
   static LoadRound() {}
@@ -207,11 +224,11 @@ class DataService {
   }
 
   static GetStyleCodes() {
-    return DataItemBase.getDataPromise('GetPaintScheduleStyles');
+    return DataItemBase.getDataPromise(Constants.PaintScheduleStyles);
   }
 
   static GetColorCodes() {
-    return DataItemBase.getDataPromise('GetProgramColors');
+    return DataItemBase.getDataPromise(Constants.GetProgramColors);
   }
 
   static GetDriverAverages(params) {

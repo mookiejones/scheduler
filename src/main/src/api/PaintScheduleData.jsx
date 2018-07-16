@@ -1,6 +1,7 @@
 import DataItemBase from './DataItemBase';
 import RoundDataItem from './RoundDataItem';
 import RoundSummaryItem from './RoundSummaryItem';
+import { Constants } from '../Constants';
 
 const compare = (a, b) => {
   const first = parseInt(a.round, 10);
@@ -17,14 +18,12 @@ class PaintScheduleData extends DataItemBase {
   static fetch(rules) {
     // console.info(`Fetching Paint Schedule Data testing: ${isTesting}`);
 
-    return DataItemBase.getData('GetPaintSchedule')
+    return DataItemBase.getData(Constants.GetPaintSchedule)
       .then(o => new PaintScheduleData(o, rules))
-      .then((o) => {
-        o.RoundData = o.RoundData.splice(0, 500);
-        return o;
-      })
-      .catch((o) => {
+      .then(o => o)
+      .catch((error) => {
         debugger;
+        console.error(error);
       });
   }
 
@@ -33,8 +32,7 @@ class PaintScheduleData extends DataItemBase {
     const roundData = value.result[0] || [];
     const roundSummaryData = value.result[1] || [];
 
-    console.error('Need to remove the slice');
-    this.RoundData = roundData.map(item => RoundDataItem.Create(item, rules)).slice(0, 200);
+    this.RoundData = roundData.map(item => RoundDataItem.Create(item, rules));
     this.RoundSummaryData = roundSummaryData.map(RoundSummaryItem.Create);
 
     this.selectedRound = null;

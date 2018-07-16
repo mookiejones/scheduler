@@ -1,5 +1,8 @@
 import fetch from 'node-fetch';
-import { API_SERVER, TEST } from '../Constants';
+import {
+ API_SERVER, TEST, IS_TEST, PRODUCTION
+} from '../Constants';
+import { stringify } from '../../node_modules/postcss';
 
 const isArray = item => Object.prototype.toString.call(item) === '[object Array]';
 const sortFn = (a, b) => {
@@ -28,7 +31,7 @@ const sortFn = (a, b) => {
 
 export default class DataItemBase {
   url(name) {
-    const path = TEST ? `${name}Test` : name;
+    const path = IS_TEST ? `${name}Test` : name;
     return `${API_SERVER}/${path}`;
   }
 
@@ -40,7 +43,7 @@ export default class DataItemBase {
     let path = name;
 
     // fix path so test goes before query
-    if (/\//.test(name) && TEST) {
+    if (/\//.test(name) && !PRODUCTION) {
       const mach = /^([^/]+)(\/.*)/gi.exec(name);
       path = `${mach[1]}Test${mach[2]}`;
     }
@@ -56,5 +59,20 @@ export default class DataItemBase {
         console.error(e);
         debugger;
       });
+  }
+
+  static postData(name, body) {
+    const url = `${API_SERVER}/reporting/paint.asmx/${name}`;
+
+    const options = {
+      method: 'POST',
+      body,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(body)
+      }
+    };
+
+    return fetch(url, options);
   }
 }

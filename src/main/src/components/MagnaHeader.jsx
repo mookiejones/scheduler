@@ -65,12 +65,12 @@ class MagnaHeader extends Component {
 
   getWifi() {
     if (this.props.showConnectionState) {
-return (
+      return (
         <IconButton color={this.props.isConnected ? 'primary' : 'secondary'}>
           <Wifi />
         </IconButton>
       );
-}
+    }
   }
 
   openDrawer() {
@@ -86,7 +86,7 @@ return (
   }
 
   render() {
-    const { classes } = this.props;
+    const { classes, environment } = this.props;
     return (
       <div className={classes.root}>
         <AppBar position='fixed' color='inherit'>
@@ -96,6 +96,7 @@ return (
             </Button>
 
             <Typography className={classes.flex} />
+            <Typography>{environment}</Typography>
 
             <Typography>Version : {VERSION_NUMBER}</Typography>
 
@@ -120,6 +121,7 @@ return (
 }
 
 MagnaHeader.propTypes = {
+  environment: PropTypes.string.isRequired,
   showConnectionState: PropTypes.bool,
   onConnectionChanged: PropTypes.func,
   isConnected: PropTypes.bool,

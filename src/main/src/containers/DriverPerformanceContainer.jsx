@@ -17,4 +17,9 @@ class DriverPerformanceContainer extends Component {
 DriverPerformanceContainer.propTypes = {
   route: PropTypes.number
 };
+
+DriverPerformanceContainer.defaultProps = {
+  route: -1
+};
+
 export default DriverPerformanceContainer;

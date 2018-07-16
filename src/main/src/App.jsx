@@ -40,10 +40,7 @@ const styles = theme => ({
 });
 
 const items = [
-  {
-    title: 'Schedule Editor',
-    icon: <Edit />
-  },
+  { title: 'Schedule Editor', icon: <Edit /> },
   { title: 'Excel Import', icon: <ExcelIcon /> },
   { title: 'Paint Load', icon: <FormatPaint /> },
   { title: 'Driver Performance', icon: <ForkTruck /> }
@@ -96,7 +93,7 @@ class App extends Component {
   }
 
   render() {
-    const { theme } = this.props;
+    const { theme, environment } = this.props;
     const { value } = this.state;
 
     const views = [
@@ -107,7 +104,11 @@ class App extends Component {
     ];
     return (
       <Grid>
-        <MagnaHeader onTabChanged={this.onTabChanged} showSettings={this.onShowSettings} />
+        <MagnaHeader
+          onTabChanged={this.onTabChanged}
+          showSettings={this.onShowSettings}
+          environment={environment}
+        />
         <Grid style={{ height: '80%' }}>
           <div style={{ paddingTop: '55px' }}>
             <SwipeableViews
@@ -135,7 +136,9 @@ class App extends Component {
     );
   }
 }
-
+App.propTypes = {
+  environment: PropTypes.string.isRequired
+};
 export default withStyles(styles, {
   withTheme: true
 })(App);

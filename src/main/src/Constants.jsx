@@ -1,6 +1,7 @@
 const DELETE_KEY = 'DELETE';
 
-const TEST = 'True';
+const TEST = true;
+const IS_TEST = true;
 const PRODUCTION = false;
 const AVAILABLE = '##AVAILABLE##';
 const VERSION_NUMBER = '1.3.1';
@@ -17,6 +18,7 @@ const TEMP = 'Temp';
 const ASSIST = 'assist';
 const STAGE = 'stage';
 const LOAD = 'load';
+
 /**
  * Number of seconds for data to refresh
  */
@@ -24,6 +26,8 @@ const REFRESH_RATE = 10;
 const API_SERVER = PRODUCTION ? 'http://nord:5555' : 'http://localhost:5555';
 
 // Constant keys for all string values
+
+const DELETE_COLOR_RULE = 'DeleteColorRule';
 
 class ConnectionStates {
   static get NewRow() {
@@ -92,7 +96,18 @@ class OS {
   }
 }
 
+const GET_PAINT_SCHEDULE = 'GetPaintSchedule';
+const GET_PROGRAM_COLORS = 'GetProgramColors';
+const PAINT_SCHEDULE_STYLES = 'GetPaintScheduleStyles';
+const SCHEDULE_NEW_ROUND = 'ScheduleNewRound';
+
+const VERIFY_EMPLOYEE_ID = 'VerifyEmpID';
+
 class Constants {
+  static get VerifyEmployee() {
+    return VERIFY_EMPLOYEE_ID;
+  }
+
   static get Temp() {
     return TEMP;
   }
@@ -112,6 +127,26 @@ class Constants {
   static get Version() {
     return VERSION_NUMBER;
   }
+
+  static get DeleteColorRule() {
+    return DELETE_COLOR_RULE;
+  }
+
+  static get GetPaintSchedule() {
+    return GET_PAINT_SCHEDULE;
+  }
+
+  static get GetProgramColors() {
+    return GET_PROGRAM_COLORS;
+  }
+
+  static get PaintScheduleStyles() {
+    return PAINT_SCHEDULE_STYLES;
+  }
+
+  static get ScheduleNewRound() {
+    return SCHEDULE_NEW_ROUND;
+  }
 }
 
 export {
@@ -127,5 +162,6 @@ export {
   REFRESH_RATE,
   VERSION_NUMBER,
   TEST,
+  IS_TEST,
   OS
 };

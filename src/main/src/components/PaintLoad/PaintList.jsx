@@ -1,15 +1,15 @@
-import React, { Component } from "react";
-import * as update from "react-addons-update";
-import PropTypes from "prop-types";
-import UndoCell from "./UndoCell";
+import React, { Component } from 'react';
+import * as update from 'react-addons-update';
+import PropTypes from 'prop-types';
 import { Table } from "react-bootstrap";
-import DataService from "../../api/DataService";
+import UndoCell from "./UndoCell";
+import DataService from '../../api/DataService';
 
-import SocketScheduler from "./SocketScheduler";
-import TableRow from "./TableRow";
-import ListTop from "./ListTop";
-import Columns from "./Columns";
-import sortFn from "./sortFunction";
+import SocketScheduler from './SocketScheduler';
+import TableRow from './TableRow';
+import ListTop from './ListTop';
+import Columns from './Columns';
+import sortFn from './sortFunction';
 import {
   REFRESH_RATE,
   OS,
@@ -18,10 +18,10 @@ import {
   ASSIST,
   STAGE,
   LOAD
-} from "../../Constants";
+} from '../../Constants';
 
 const getTagType = (classname) => {
-  let result = /((?:undo|description|color|mold_skin_style|rework_color_chart|quantity|picked_by|staged_by))/i.exec(
+  const result = /((?:undo|description|color|mold_skin_style|rework_color_chart|quantity|picked_by|staged_by))/i.exec(
     classname
   );
   return result[0];
@@ -35,43 +35,47 @@ export default class PaintList extends Component {
     this.UndoActionHandler = this.UndoActionHandler.bind(this);
     this.TapActionHandler = this.TapActionHandler.bind(this);
     this.autoRefresh = this.autoRefresh.bind(this);
-    this._os = OS.getOsVersion();
+    this._os = OS.getOSVersion();
 
     this.state = {
       data: [],
       connectionState: ConnectionStates.Disconnected,
       currentUser: props.currentUser,
-      env: props.environment,
-      currentRevision: "",
-      currentRoundNumber: ""
+      currentRevision: '',
+      currentRoundNumber: ''
     };
   }
+
   getUndoCell(cell, row) {
+    const { role, currentUser } = this.props;
     return (
       <UndoCell
-        role={this.props.role}
+        role={role}
         rowData={row}
-        currentUser={this.props.currentUser}
+        currentUser={currentUser}
       />
     );
   }
+
   componentDidMount() {
+    const { role, connectionStateChanged } = this.props;
     let func;
-    switch (this.props.role) {
+    switch (role) {
       case ASSIST:
-        func = "GetPaintPickList";
+        func = 'GetPaintPickList';
         break;
       case STAGE:
-        func = "GetPaintStageList";
+        func = 'GetPaintStageList';
         break;
       case LOAD:
-        func = "GetPaintLoad";
+        func = 'GetPaintLoad';
         break;
-      case "watch":
+      case 'watch':
         break;
       default:
         break;
     }
+    DataService[func]();
     DataService.GetPaintInfo(func)
       .then((result) => {
         this.setState({
@@ -86,7 +90,7 @@ export default class PaintList extends Component {
     const connected = SocketScheduler.isConnected;
     console.log(`Connection state is ${connected}`);
 
-    this.props.connectionStateChanged(connected);
+  connectionStateChanged(connected);
     this.setState({
       connectionState: connected
         ? ConnectionStates.Connected
@@ -106,7 +110,7 @@ export default class PaintList extends Component {
     SocketScheduler.subscribe(ConnectionStates.Disconnect, () => {
       console.log(ConnectionStates.Disconnected);
       this.setState({ connectionState: ConnectionStates.Disconnected });
-      this.props.connectionStateChanged(ConnectionStates.Disconnected);
+      connectionStateChanged(ConnectionStates.Disconnected);
     });
     SocketScheduler.subscribe(ConnectionStates.Reconnect, () => {
       console.log(ConnectionStates.Reconnect);
@@ -123,20 +127,19 @@ export default class PaintList extends Component {
    * @description Performs hard update of data
    */
   performHardUpdate() {
-    let cmd = "GetPaintPickList";
+    let cmd = 'GetPaintPickList';
     switch (this.props.role) {
       case STAGE:
-        cmd = "GetPaintStageList";
+        cmd = 'GetPaintStageList';
         break;
       case LOAD:
-      case "watch":
-        cmd = "GetPaintLoadList";
+      case 'watch':
+        cmd = 'GetPaintLoadList';
         break;
         default:
-        throw new Error("Need to get value for "+this.props.role);
-
-    } 
-    if (this.props.environment !== "production") {
+        throw new Error('Need to get value for ' + this.props.role);
+    }
+    if (this.props.environment !== 'production') {
       // cmd += "Test";
     }
     DataService.GetPaintInfo(cmd)
@@ -162,37 +165,38 @@ export default class PaintList extends Component {
     //     debugger;
     //   });
   }
+
   autoRefresh() {
     this.performHardUpdate();
     this.refresh = setTimeout(this.autoRefresh, REFRESH_RATE * 1000);
   }
+
   checkOut(data, rowIdx) {
     debugger;
     let url;
     const newdata = data;
     newdata[newdata.length - 1] = this.state.currentUser.name;
-    //let query = { id: parseInt(data[0],10), pickedBy: this.state.currentUser.id }
-    const query =
-      "id=" + parseInt(data[0], 10) + "&pickedBy=" + this.state.currentUser.id;
+    // let query = { id: parseInt(data[0],10), pickedBy: this.state.currentUser.id }
+    const query =      'id=' + parseInt(data[0], 10) + '&pickedBy=' + this.state.currentUser.id;
 
-    if (this.props.environment === "production") {
-      url = "api/paint/CheckOutRow";
+    if (this.props.environment === 'production') {
+      url = 'api/paint/CheckOutRow';
     } else {
-      url = "api/paint/CheckOutRowTest";
+      url = 'api/paint/CheckOutRowTest';
     }
 
     const request = new XMLHttpRequest();
 
-    request.open("POST", url, true);
-    //request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+    request.open('POST', url, true);
+    // request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     request.setRequestHeader(
-      "Content-Type",
-      "application/x-www-form-urlencoded; charset=UTF-8"
+      'Content-Type',
+      'application/x-www-form-urlencoded; charset=UTF-8'
     );
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
         const msg = JSON.parse(request.response);
-        //let res = JSON.parse(msg.d);
+        // let res = JSON.parse(msg.d);
         if (msg.value > 0) {
           this.checkOutSuccess(newdata, rowIdx);
         } else {
@@ -201,41 +205,43 @@ export default class PaintList extends Component {
       } else {
       }
     };
-    //request.send(JSON.stringify(query));
+    // request.send(JSON.stringify(query));
     request.send(query);
   }
+
   checkOutSuccess(newData, rowIdx) {
     const data = update(this.state.data, { $push: [] });
     data[rowIdx] = newData;
     this.setState({
-      data: data
+      data
     });
     this.socket.emit(ConnectionStates.RowUpdate, newData);
   }
+
   checkIn(data, rowIdx) {
     let url;
     const newdata = data;
     const request = new XMLHttpRequest();
     newdata[newdata.length - 2] = this.state.currentUser.name;
-    //let query = { id: data[0], pickedBy: this.state.currentUser.id }
+    // let query = { id: data[0], pickedBy: this.state.currentUser.id }
     // const query ="id=" + parseInt(data[0], 10) + "&pickedBy=" + this.state.currentUser.id;
 
-    if (this.props.environment === "production") {
-      url = "api/paint/CheckInRow";
+    if (this.props.environment === 'production') {
+      url = 'api/paint/CheckInRow';
     } else {
-      url = "api/paint/CheckInRowTest";
+      url = 'api/paint/CheckInRowTest';
     }
 
-    request.open("POST", url, true);
-    //request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+    request.open('POST', url, true);
+    // request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     request.setRequestHeader(
-      "Content-Type",
-      "application/x-www-form-urlencoded; charset=UTF-8"
+      'Content-Type',
+      'application/x-www-form-urlencoded; charset=UTF-8'
     );
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
         const res = JSON.parse(request.response);
-        //let responseData = JSON.parse(res.d);
+        // let responseData = JSON.parse(res.d);
         if (res.value > 0) {
           this.checkInSuccess(newdata, rowIdx);
         } else {
@@ -243,16 +249,17 @@ export default class PaintList extends Component {
         }
       }
     };
-    //request.send(JSON.stringify(query));
+    // request.send(JSON.stringify(query));
     request.send();
   }
+
   checkInSuccess(newData, rowIdx) {
     const dd = update(this.state.data, { $splice: [[rowIdx, 1]] });
 
     if (
-      Object.prototype.toString.call(dd) === "[object Array]" &&
-      Object.prototype.toString.call(dd[0]) === "[object Array]" &&
-      dd[0].length > 2
+      Object.prototype.toString.call(dd) === '[object Array]'
+      && Object.prototype.toString.call(dd[0]) === '[object Array]'
+      && dd[0].length > 2
     ) {
       this.setState({
         data: dd,
@@ -263,6 +270,7 @@ export default class PaintList extends Component {
     }
     this.socket.emit(ConnectionStates.RowUpdate, newData);
   }
+
   release(data, rowIdx) {
     let url;
     const newdata = data;
@@ -271,26 +279,25 @@ export default class PaintList extends Component {
     newdata[newdata.length - 3] = AVAILABLE;
     newdata[newdata.length - 2] = AVAILABLE;
     newdata[newdata.length - 1] = AVAILABLE;
-    //let query = { id: data[0], pickedBy: this.state.currentUser.id }
-    const query =
-      "id=" + parseInt(data[0], 10) + "&pickedBy=" + this.state.currentUser.id;
+    // let query = { id: data[0], pickedBy: this.state.currentUser.id }
+    const query =      'id=' + parseInt(data[0], 10) + '&pickedBy=' + this.state.currentUser.id;
 
-    if (this.props.environment === "production") {
-      url = "api/paint/ReleaseRow";
+    if (this.props.environment === 'production') {
+      url = 'api/paint/ReleaseRow';
     } else {
-      url = "api/paint/ReleaseRowTest";
+      url = 'api/paint/ReleaseRowTest';
     }
 
-    request.open("POST", url, true);
-    //request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+    request.open('POST', url, true);
+    // request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     request.setRequestHeader(
-      "Content-Type",
-      "application/x-www-form-urlencoded; charset=UTF-8"
+      'Content-Type',
+      'application/x-www-form-urlencoded; charset=UTF-8'
     );
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
         const res = JSON.parse(request.response);
-        //let responseData = JSON.parse(res.d);
+        // let responseData = JSON.parse(res.d);
         if (res.value > 0) {
           this.releaseSuccess(newdata, rowIdx);
         } else {
@@ -298,45 +305,46 @@ export default class PaintList extends Component {
         }
       }
     };
-    //request.send(JSON.stringify(query));
+    // request.send(JSON.stringify(query));
     request.send(query);
   }
+
   releaseSuccess(newData, rowIdx) {
     const data = update(this.state.data, { $push: [] });
     data[rowIdx] = newData;
     this.setState({
-      data: data
+      data
     });
     this.socket.emit(ConnectionStates.RowUpdate, newData);
   }
+
   stage(data, rowIdx) {
     let url;
     const newdata = data;
     const request = new XMLHttpRequest();
 
-    //set Staged-By to current User
+    // set Staged-By to current User
     newdata[newdata.length - 3] = this.state.currentUser.name;
 
-    //let query = { id: data[0], pickedBy: this.state.currentUser.id }
-    const query =
-      "id=" + parseInt(data[0], 10) + "&pickedBy=" + this.state.currentUser.id;
+    // let query = { id: data[0], pickedBy: this.state.currentUser.id }
+    const query =      'id=' + parseInt(data[0], 10) + '&pickedBy=' + this.state.currentUser.id;
 
-    if (this.props.environment === "production") {
-      url = "api/paint/StageRow";
+    if (this.props.environment === 'production') {
+      url = 'api/paint/StageRow';
     } else {
-      url = "api/paint/StageRowTest";
+      url = 'api/paint/StageRowTest';
     }
 
-    request.open("POST", url, true);
-    //request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+    request.open('POST', url, true);
+    // request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     request.setRequestHeader(
-      "Content-Type",
-      "application/x-www-form-urlencoded; charset=UTF-8"
+      'Content-Type',
+      'application/x-www-form-urlencoded; charset=UTF-8'
     );
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
         const res = JSON.parse(request.response);
-        //let responseData = JSON.parse(res.d);
+        // let responseData = JSON.parse(res.d);
         if (res.value > 0) {
           this.stageSuccess(newdata, rowIdx);
         } else {
@@ -344,34 +352,35 @@ export default class PaintList extends Component {
         }
       }
     };
-    //request.send(JSON.stringify(query));
+    // request.send(JSON.stringify(query));
     request.send(query);
   }
+
   stageSuccess(newData, rowIdx) {
     const data = update(this.state.data, { $splice: [[rowIdx, 1]] });
     this.setState({
-      data: data
+      data
     });
     this.socket.emit(ConnectionStates.RowUpdate, newData);
   }
+
   finalize(data) {
-    //let query = { id: data[0], pickedBy: this.state.currentUser.id }
-    const query =
-      "id=" + parseInt(data[0], 10) + "&pickedBy=" + this.state.currentUser.id;
+    // let query = { id: data[0], pickedBy: this.state.currentUser.id }
+    const query =      'id=' + parseInt(data[0], 10) + '&pickedBy=' + this.state.currentUser.id;
     let url;
     const request = new XMLHttpRequest();
 
-    if (this.props.environment === "production") {
-      url = "api/paint/FinalizeRow";
+    if (this.props.environment === 'production') {
+      url = 'api/paint/FinalizeRow';
     } else {
-      url = "api/paint/FinalizeRowTest";
+      url = 'api/paint/FinalizeRowTest';
     }
 
-    request.open("POST", url, true);
-    //request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+    request.open('POST', url, true);
+    // request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     request.setRequestHeader(
-      "Content-Type",
-      "application/x-www-form-urlencoded; charset=UTF-8"
+      'Content-Type',
+      'application/x-www-form-urlencoded; charset=UTF-8'
     );
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
@@ -386,27 +395,29 @@ export default class PaintList extends Component {
       } else {
       }
     };
-    //request.send(JSON.stringify(query));
+    // request.send(JSON.stringify(query));
     request.send(query);
   }
+
   finalizeSuccess(data) {
     this.removeRow(data);
-    this.socket.emit("rowdelete", data);
+    this.socket.emit('rowdelete', data);
     const dd = this.state.data.slice();
     if (
-      Object.prototype.toString.call(dd) === "[object Array]" &&
-      Object.prototype.toString.call(dd[0]) === "[object Array]" &&
-      dd[0].length > 2
+      Object.prototype.toString.call(dd) === '[object Array]'
+      && Object.prototype.toString.call(dd[0]) === '[object Array]'
+      && dd[0].length > 2
     ) {
       this.setState({ currentRoundNumber: dd[0][2] });
     }
   }
+
   updatePartialQty(amnt, data) {
     let url;
     const currentRowData = data.slice();
     const updatedRowData = data.slice();
     const newRowData = data.slice();
-    newRowData[0] = "0";
+    newRowData[0] = '0';
 
     let newQty = 0;
     const updateAmt = parseInt(amnt, 10);
@@ -426,14 +437,13 @@ export default class PaintList extends Component {
       newAmnt: newQty
     };
 
-    if (this.props.environment === "production")
-      url = "api/paint/updatePartialQty";
-    else url = "api/paint/updatePartialQtyTest";
+    if (this.props.environment === 'production') {url = "api/paint/updatePartialQty";}
+    else url = 'api/paint/updatePartialQtyTest';
 
     const request = new XMLHttpRequest();
 
-    request.open("POST", url, true);
-    request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+    request.open('POST', url, true);
+    request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
         const res = JSON.parse(request.response);
@@ -452,15 +462,17 @@ export default class PaintList extends Component {
     };
     request.send(JSON.stringify(query));
   }
+
   updatePartialQtySuccess(updatedRowData, newRowData, res) {
     this.updateRow(updatedRowData);
     this.socket.emit(ConnectionStates.RowUpdate, updatedRowData);
     if (parseInt(res.newId, 10) > 1 && parseInt(newRowData[9], 10) > 0) {
       newRowData[0] = res.newId.toString();
       this.newRow(newRowData);
-      this.socket.emit("newrow", newRowData);
+      this.socket.emit('newrow', newRowData);
     }
   }
+
   updateRow(newData, rowIdx) {
     let rowUpdated = false;
     if (this.props.role === LOAD) {
@@ -469,16 +481,15 @@ export default class PaintList extends Component {
         if (rowData[0] === newData[0]) {
           rowUpdated = true;
           return newData;
-        } else {
+        } 
           return rowData;
-        }
+        
       });
       data = temp;
       if (rowUpdated) {
-        this.setState({ data: data });
+        this.setState({ data });
       }
-    } else {
-      if (this.props.role === STAGE) {
+    } else if (this.props.role === STAGE) {
         if (
           newData[newData.length - 1] !== AVAILABLE &&
           newData[newData.length - 2] !== AVAILABLE &&
@@ -526,21 +537,22 @@ export default class PaintList extends Component {
           }
         }
       }
-    }
   }
+
   removeRow(row) {
     let idx = -1;
     let data = update(this.state.data, { $push: [] });
-    data.map(function(rowData, rowIdx) {
+    data.map((rowData, rowIdx) => {
       debugger;
       if (rowData[0] === row[0]) idx = rowIdx;
     });
 
     if (idx > -1) {
       data = update(this.state.data, { $splice: [[idx, 1]] });
-      this.setState({ data: data });
+      this.setState({ data });
     }
   }
+
   newRow(newData) {
     let exists = false;
     let data = update(this.state.data, { $push: [] });
@@ -553,9 +565,10 @@ export default class PaintList extends Component {
     if (!exists) {
       data = update(this.state.data, { $push: [newData] });
       data.sort(sortFn);
-      this.setState({ data: data });
+      this.setState({ data });
     }
   }
+
   UndoActionHandler(rowIdx) {
     const row = this.state.data[rowIdx];
     // const row = update(this.state.data[rowIdx], { $push: [] });
@@ -563,8 +576,8 @@ export default class PaintList extends Component {
     switch (this.props.role) {
       case ASSIST:
         if (
-          row.picked_by === this.state.currentUser.name &&
-          this.props.role === ASSIST
+          row.picked_by === this.state.currentUser.name
+          && this.props.role === ASSIST
         ) {
           this.release(row, rowIdx);
         }
@@ -583,17 +596,17 @@ export default class PaintList extends Component {
       default:
     }
   }
+
   TapActionHandler(rowIdx, tapTarget) {
     debugger;
-    let tag = getTagType(tapTarget.className);
+    const tag = getTagType(tapTarget.className);
     // const row = update(this.state.data[rowIdx], { $push: {} });
     const row = this.state.data[rowIdx];
     switch (this.props.role) {
       case ASSIST:
         if (row.picked_by === AVAILABLE) {
           this.checkOut(row, rowIdx);
-        } else {
-          if (
+        } else if (
             row.picked_by === this.state.currentUser.name &&
             this.props.role === ASSIST &&
             this._os === OS.WINDOWS &&
@@ -601,25 +614,24 @@ export default class PaintList extends Component {
           ) {
             this.checkIn(row, rowIdx);
           }
-        }
         break;
       case STAGE:
         if (
-          row.picked_by !== AVAILABLE &&
-          row.handled_by !== AVAILABLE &&
-          row.staged_by !== AVAILABLE &&
-          this._os === OS.WINDOWS &&
-          tapTarget.classList.contains("label")
+          row.picked_by !== AVAILABLE
+          && row.handled_by !== AVAILABLE
+          && row.staged_by !== AVAILABLE
+          && this._os === OS.WINDOWS
+          && tapTarget.classList.contains('label')
         ) {
           this.stage(row);
         }
         break;
       case LOAD:
         if (
-          row.picked_by !== AVAILABLE &&
-          row.handled_by !== AVAILABLE &&
-          this._os === OS.WINDOWS &&
-          tapTarget.classList.contains("label")
+          row.picked_by !== AVAILABLE
+          && row.handled_by !== AVAILABLE
+          && this._os === OS.WINDOWS
+          && tapTarget.classList.contains('label')
         ) {
           this.finalize(row);
         }
@@ -627,14 +639,15 @@ export default class PaintList extends Component {
       default:
     }
   }
+
   SwipeActionHandler(rowIdx) {
     const row = update(this.state.data[rowIdx], { $push: [] });
 
     switch (this.props.role) {
       case ASSIST:
         if (
-          row.picked_by === this.state.currentUser.name &&
-          this.props.role === ASSIST
+          row.picked_by === this.state.currentUser.name
+          && this.props.role === ASSIST
         ) {
           this.checkIn(row, rowIdx);
         }
@@ -652,6 +665,7 @@ export default class PaintList extends Component {
       default:
     }
   }
+
   onRowClick(row) {
     debugger;
   }
@@ -661,7 +675,7 @@ export default class PaintList extends Component {
   }
 
   render() {
-    var hidden = { display: "none" };
+    let hidden = { display: 'none' };
 
     return (
       <div>
@@ -675,7 +689,7 @@ export default class PaintList extends Component {
         <Table striped bordered condensed hover>
           <thead>
             <tr>
-              <th className="undo" />
+              <th className='undo' />
               <th style={hidden}>master_id </th>
               <th style={hidden}>round</th>
               <th style={hidden}>round_position</th>
@@ -684,7 +698,7 @@ export default class PaintList extends Component {
               <th>Mold Skin Style</th>
               <th>Rework Color Chart</th>
               <th>Quantity</th>
-              <th className="action" style={{ width: "70px" }} />
+              <th className='action' style={{ width: '70px' }} />
               <th style={hidden}>Handled By</th>
               <th>Picked By</th>
             </tr>
@@ -701,15 +715,17 @@ export default class PaintList extends Component {
                     currentUser={this.props.currentUser}
                     UndoActionHandler={this.UndoActionHandler}
                     TapActionHandler={this.TapActionHandler}
-                    SwipeActionHandler={this.SwipeActionHandler}>
+                    SwipeActionHandler={this.SwipeActionHandler}
+                  >
                     <td>
                       <UndoCell
                         children={this.props.children}
                         role={this.props.role}
-                        key={rowData.id + "-0"}
+                        key={`${rowData.id  }-0`}
                         rowData={rowData}
                         updatePartialQty={this.updatePartialQty}
-                        currentUser={this.state.currentUser}>
+                        currentUser={this.state.currentUser}
+                      >
                         {rowData}
                       </UndoCell>
                     </td>
@@ -728,7 +744,7 @@ export default class PaintList extends Component {
                               {rowData[cell.data]}
                             </cell.CellRenderer>
                           );
-                        } else {
+                        } 
                           return (
                             <td
                               className={cell.className ? cell.className : ""}
@@ -736,7 +752,7 @@ export default class PaintList extends Component {
                               {rowData[cell.data]}
                             </td>
                           );
-                        }
+                        
                       }
                     })}
                   </TableRow>

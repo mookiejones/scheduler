@@ -64,9 +64,10 @@ class ScheduleRow extends Component {
 
     const r = ScheduleRow.rules.parse(row);
     const cn = {};
-    for (const key of Object.keys(r)) {
+    Object.keys(r).forEach((key) => {
       cn[classes[key]] = true;
-    }
+    });
+
     const rowId = `row-trigger-${row.id}`;
     const d = {
       some: 'some_data',
@@ -83,6 +84,7 @@ class ScheduleRow extends Component {
           autoComplete='ok hi-there wtf'
           name={value}
           type={type}
+          style={{ width: header.width }}
           fullWidth={false}
           value={row[value]}
           onChange={this.onChange}
@@ -106,7 +108,6 @@ class ScheduleRow extends Component {
         {headers.map((header, idx) => (
           <TableCell padding={header.padding} key={`cell-${idx}`} width={header.width}>
             {getElement(header, isSelected, row)}
-
             {/* {CheckReadOnly(header, isSelected, row)} */}
           </TableCell>
         ))}
@@ -123,7 +124,7 @@ ScheduleRow.propTypes = {
   /**
    * handles Key Press for unselecting rows
    */
-  handleKeyPress: PropTypes.func,
+  handleKeyPress: PropTypes.func.isRequired,
 
   /**
    * isSelected
@@ -133,18 +134,13 @@ ScheduleRow.propTypes = {
   /**
    * headers
    */
-  headers: PropTypes.array,
+  headers: PropTypes.array.isRequired,
   index: PropTypes.number.isRequired,
-  row: PropTypes.any,
+  row: PropTypes.any.isRequired,
   onSelected: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
 
   handleRowChanged: PropTypes.func.isRequired
-};
-
-ScheduleRow.defaultProps = {
-  isSelected: false,
-  index: -1
 };
 
 export default withStyles(styles)(ScheduleRow);

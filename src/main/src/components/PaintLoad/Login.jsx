@@ -101,6 +101,7 @@ export default class Login extends Component {
             </Select>
             <Button
               onClick={e => this.loginUser(e)}
+              disabled={false}
               bsStyle="primary"
               block
               type="submit">
