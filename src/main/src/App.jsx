@@ -13,25 +13,15 @@ import './App.css';
 import { withStyles } from '@material-ui/core/styles';
 import SwipeableViews from 'react-swipeable-views';
 import MagnaHeader from './components/MagnaHeader';
-
+import DataService from './api/DataService';
 import {
   PaintAppContainer,
   ExcelImportContainer,
   DriverPerformanceContainer,
   ScheduleEditorContainer
 } from './containers';
+import { ExcelIcon, ForkTruck } from './components/Icons';
 
-const ExcelIcon = props => (
-  <SvgIcon {...props}>
-    <path d='M6,2H14L20,8V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V4A2,2 0 0,1 6,2M13,3.5V9H18.5L13,3.5M17,11H13V13H14L12,14.67L10,13H11V11H7V13H8L11,15.5L8,18H7V20H11V18H10L12,16.33L14,18H13V20H17V18H16L13,15.5L16,13H17V11Z' />
-  </SvgIcon>
-);
-
-const ForkTruck = props => (
-  <SvgIcon {...props}>
-    <path d='M6,4V11H4C2.89,11 2,11.89 2,13V17A3,3 0 0,0 5,20A3,3 0 0,0 8,17H10A3,3 0 0,0 13,20A3,3 0 0,0 16,17V13L12,4H6M17,5V19H22V17.5H18.5V5H17M7.5,5.5H11.2L14.5,13H7.5V5.5M5,15.5A1.5,1.5 0 0,1 6.5,17A1.5,1.5 0 0,1 5,18.5A1.5,1.5 0 0,1 3.5,17A1.5,1.5 0 0,1 5,15.5M13,15.5A1.5,1.5 0 0,1 14.5,17A1.5,1.5 0 0,1 13,18.5A1.5,1.5 0 0,1 11.5,17A1.5,1.5 0 0,1 13,15.5Z' />
-  </SvgIcon>
-);
 const styles = theme => ({
   root: {
     backgroundColor: theme.palette.background.paper
@@ -45,46 +35,73 @@ const items = [
   { title: 'Paint Load', icon: <FormatPaint /> },
   { title: 'Driver Performance', icon: <ForkTruck /> }
 ];
-function TabContainer({ children, dir }) {
-  return (
-    <Typography
-      component='div'
-      dir={dir}
-      style={{
-        padding: 8 * 3
-      }}
-    >
-      {children}
-    </Typography>
-  );
-}
+const TabContainer = ({ children, dir }) => (
+  <Typography
+    component='div'
+    dir={dir}
+    style={{
+      padding: 8 * 3
+    }}
+  >
+    {children}
+  </Typography>
+);
 
 TabContainer.propTypes = {
   children: PropTypes.node.isRequired,
   dir: PropTypes.string.isRequired
 };
+
 class App extends Component {
   constructor(props) {
     super(props);
     this.onTabChanged = this.onTabChanged.bind(this);
     this.state = {
-      value: 0,
-      showSettings: false
+      selected: 2,
+      showSettings: false,
+      isConnected: false,
+      currentUser: {
+        name: '',
+        id: undefined,
+        img: ''
+      }
     };
+
+    this.onHandleLogin = this.onHandleLogin.bind(this);
 
     this.onHandleChange = this.onHandleChange.bind(this);
     this.onShowSettings = this.onShowSettings.bind(this);
+    this.onConnectionStateChanged = this.onConnectionStateChanged.bind(this);
+    this.updateUser = this.updateUser.bind(this);
   }
 
   onTabChanged(event, value) {
     this.setState({
-      value
+      selected: value
     });
+  }
+
+  updateUser(user) {
+    this.setState({ currentUser: user });
+  }
+
+  onHandleLogin(args) {
+    DataService.LoginUser(args)
+      .then(o => o.text())
+      .then((o) => {
+        const json = JSON.parse(o).d;
+        const result = JSON.parse(json);
+        return result;
+      })
+      .then(this.updateUser)
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   onHandleChange(event, value) {
     this.setState({
-      value
+      selected: value
     });
   }
 
@@ -92,29 +109,45 @@ class App extends Component {
     debugger;
   }
 
+  onConnectionStateChanged(connected) {
+    this.setState({ isConnected: connected === 'connected' });
+  }
+
   render() {
     const { theme, environment } = this.props;
-    const { value } = this.state;
+    const { selected, currentUser, isConnected } = this.state;
 
     const views = [
-      { view: <ScheduleEditorContainer route={value} />, key: 1 },
-      { view: <ExcelImportContainer route={value} />, key: 2 },
-      { view: <PaintAppContainer route={value} />, key: 3 },
-      { view: <DriverPerformanceContainer route={value} />, key: 4 }
+      { view: <ScheduleEditorContainer route={selected} />, key: 1 },
+      { view: <ExcelImportContainer route={selected} />, key: 2 },
+      {
+        view: (
+          <PaintAppContainer
+            currentUser={currentUser}
+            route={selected}
+            handleConnectionStateChanged={this.onConnectionStateChanged}
+            handleLogin={this.onHandleLogin}
+          />
+        ),
+        key: 3
+      },
+      { view: <DriverPerformanceContainer route={selected} />, key: 4 }
     ];
     return (
       <Grid>
         <MagnaHeader
           onTabChanged={this.onTabChanged}
           showSettings={this.onShowSettings}
+          isConnected={isConnected}
           environment={environment}
+          currentUser={currentUser}
         />
         <Grid style={{ height: '80%' }}>
           <div style={{ paddingTop: '55px' }}>
             <SwipeableViews
               animateHeight
               axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-              index={value}
+              index={selected}
               onChangeIndex={this.handleChangeIndex}
             >
               {views.map(view => (
@@ -126,7 +159,7 @@ class App extends Component {
           </div>
         </Grid>
         <footer>
-          <BottomNavigation value={this.state.value} onChange={this.onHandleChange} showLabels>
+          <BottomNavigation value={selected} onChange={this.onHandleChange} showLabels>
             {items.map((item, idx) => (
               <BottomNavigationAction label={item.title} icon={item.icon} key={`br-${idx}`} />
             ))}

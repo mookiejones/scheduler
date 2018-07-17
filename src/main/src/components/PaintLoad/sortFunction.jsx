@@ -11,7 +11,7 @@ const sortFn = (a, b) => {
     if (posA === posB) {
       if (qtyA < qtyB) {
         return -1;
-      } else if (qtyA > qtyB) {
+      } if (qtyA > qtyB) {
         return 1;
       }
       return 0;

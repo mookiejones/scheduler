@@ -1,6 +1,8 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { Label, Panel, ListGroup, ListGroupItem } from "react-bootstrap";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import {
+ Label, Panel, ListGroup, ListGroupItem
+} from 'react-bootstrap';
 
 export default class ListTop extends Component {
   constructor(props, context) {
@@ -10,23 +12,20 @@ export default class ListTop extends Component {
       currentRevision: 0
     };
   }
+
   getPaintLabel() {
-    const result =
-      this.props.role === "load"
-        ? "Load"
-        : this.props.role === "stage"
-          ? "Staging"
-          : "Pick";
+    const result = this.props.role === 'load' ? 'Load' : this.props.role === 'stage' ? 'Staging' : 'Pick';
     return `Paint ${result} List `;
   }
+
   getEnvironmentLabel() {
-    return this.props.environment === "production"
-      ? ""
-      : `(${this.props.environment})`;
+    return this.props.environment === 'production' ? '' : `(${this.props.environment})`;
   }
+
   getCurrentRoundLabel() {
     debugger;
   }
+
   render() {
     const paintLabel = this.getPaintLabel();
     return (
@@ -39,13 +38,13 @@ export default class ListTop extends Component {
           <ListGroupItem>
             <h3>
               <span>Current Round:</span>
-              <Label bsStyle="primary" style={{ marginLeft: "57px" }}>
+              <Label bsStyle='primary' style={{ marginLeft: '57px' }}>
                 {this.state.currentRoundNumber}
               </Label>
             </h3>
             <h3>
               <span>Schedule Revision: </span>
-              <Label bsStyle="primary" style={{ marginLeft: "15px" }}>
+              <Label bsStyle='primary' style={{ marginLeft: '15px' }}>
                 {this.state.currentRevision}
               </Label>
             </h3>

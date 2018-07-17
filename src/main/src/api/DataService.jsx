@@ -7,6 +7,7 @@ import DriverAverages from './DriverAverages';
 import {
  PRODUCTION, API_SERVER, DELETE_KEY, Constants
 } from '../Constants';
+import PaintStageData from './PaintStageData';
 
 const asPromise = value => new Promise(resolve => resolve(value));
 
@@ -38,7 +39,7 @@ class DataService {
 
   static LoginUser(emp) {
     const url = Constants.VerifyEmployee;
-    const body = stringify({ EmployeeID: emp.user });
+    const body = stringify({ EmployeeID: emp.id });
     return DataItemBase.postData(url, body);
   }
 
@@ -149,23 +150,18 @@ class DataService {
   }
 
   static GetPaintInfo(data) {
-    debugger;
-    alert(data);
-    switch (data) {
-    }
+    return DataItemBase.getDataPromise(data).then(o => new PaintStageData(o.result));
   }
 
-  static GetPaintPickList(){
+  static GetPaintLoadInfo(name) {
+    return DataItemBase.getDataPromise(name)
+      .then(o => new PaintStageData(o.result))
+      .then(o => o);
+  }
+
+  static GetPaintLoad() {
     debugger;
-alert("GetPaintPickList");
-  }
-  static GetPaintLoad(){
-    debugger
-    alert("GetPaintLoad")
-  }
-  static GetPaintPickList(){
-    alert("GetPaintPickList")
-    
+    alert('GetPaintLoad');
   }
 
   static LoadRound() {}

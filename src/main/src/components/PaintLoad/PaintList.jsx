@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
 import * as update from 'react-addons-update';
 import PropTypes from 'prop-types';
-import { Table } from "react-bootstrap";
-import UndoCell from "./UndoCell";
+import { Table, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
+
+import ReactHammer from 'react-hammerjs';
+
+import UndoCell from './UndoCell';
 import DataService from '../../api/DataService';
 
 import SocketScheduler from './SocketScheduler';
-import TableRow from './TableRow';
+
 import ListTop from './ListTop';
 import Columns from './Columns';
 import sortFn from './sortFunction';
@@ -27,20 +31,22 @@ const getTagType = (classname) => {
   return result[0];
 };
 
-export default class PaintList extends Component {
-  constructor(props, context) {
-    super(props, context);
+const styles = theme =>({})
+class PaintList extends Component {
+  constructor(props) {
+    super(props);
     this.undocellRef = React.createRef();
     this.getUndoCell = this.getUndoCell.bind(this);
     this.UndoActionHandler = this.UndoActionHandler.bind(this);
     this.TapActionHandler = this.TapActionHandler.bind(this);
     this.autoRefresh = this.autoRefresh.bind(this);
+    this.updateData = this.updateData.bind(this);
     this._os = OS.getOSVersion();
-
+    this.handleTap = this.handleTap.bind(this);
+    this.handleSwipe = this.handleSwipe.bind(this);
     this.state = {
       data: [],
-      connectionState: ConnectionStates.Disconnected,
-      currentUser: props.currentUser,
+      connectionState: ConnectionStates.Disconnected, 
       currentRevision: '',
       currentRoundNumber: ''
     };
@@ -57,12 +63,15 @@ export default class PaintList extends Component {
     );
   }
 
-  componentDidMount() {
-    const { role, connectionStateChanged } = this.props;
+
+  updateData() {
+    const { role } = this.props;
+
     let func;
     switch (role) {
       case ASSIST:
-        func = 'GetPaintPickList';
+      func=DataService.GetPaintLoadInfo('GetPaintPickList');
+        
         break;
       case STAGE:
         func = 'GetPaintStageList';
@@ -75,21 +84,26 @@ export default class PaintList extends Component {
       default:
         break;
     }
-    DataService[func]()   
-      .then((result) => {
-        this.setState({
-          currentRoundNumber: result.currentRoundNumber,
-          data: result.data
-        });
-      })
-      .catch((error) => {
-        debugger;
+    func
+    .then((result) => {
+      this.setState({
+        currentRoundNumber: result.currentRoundNumber,
+        data: result.data
       });
+    })
+    .catch((error) => {
+      debugger;
+    });
+  }
+
+  componentDidMount() {
+     this.updateData();
 
     const connected = SocketScheduler.isConnected;
-    console.log(`Connection state is ${connected}`);
 
-  connectionStateChanged(connected);
+    console.log(`Connection state is ${connected}`);
+    const { handleConnectionStateChanged } = this.props;
+    handleConnectionStateChanged(connected);
     this.setState({
       connectionState: connected
         ? ConnectionStates.Connected
@@ -102,19 +116,19 @@ export default class PaintList extends Component {
     SocketScheduler.subscribe(ConnectionStates.Update, (msg) => {
       debugger;
     });
-    SocketScheduler.subscribe(ConnectionStates.UpdateNotify, (msg) => {
+    SocketScheduler.subscribe(ConnectionStates.UpdateNotify, () => {
       setTimeout(this.performHardUpdate, 0);
     });
 
     SocketScheduler.subscribe(ConnectionStates.Disconnect, () => {
       console.log(ConnectionStates.Disconnected);
       this.setState({ connectionState: ConnectionStates.Disconnected });
-      connectionStateChanged(ConnectionStates.Disconnected);
+      handleConnectionStateChanged(ConnectionStates.Disconnected);
     });
     SocketScheduler.subscribe(ConnectionStates.Reconnect, () => {
       console.log(ConnectionStates.Reconnect);
       this.setState({ connectionState: ConnectionStates.Reconnected });
-      this.props.connectionStateChanged(ConnectionStates.Connected);
+      handleConnectionStateChanged(ConnectionStates.Connected);
     });
   }
 
@@ -126,43 +140,7 @@ export default class PaintList extends Component {
    * @description Performs hard update of data
    */
   performHardUpdate() {
-    let cmd = 'GetPaintPickList';
-    switch (this.props.role) {
-      case STAGE:
-        cmd = 'GetPaintStageList';
-        break;
-      case LOAD:
-      case 'watch':
-        cmd = 'GetPaintLoadList';
-        break;
-        default:
-        throw new Error('Need to get value for ' + this.props.role);
-    }
-    if (this.props.environment !== 'production') {
-      // cmd += "Test";
-    }
-    DataService.GetPaintInfo(cmd)
-      .then((result) => {
-        this.setState({
-          data: result.data,
-          currentRoundNumber: result.currentRoundNumber
-        });
-      })
-      .catch((err) => {
-        debugger;
-      });
-
-    // DataService.GetPaintInfo(
-    //   this.props.environment !== "production"
-    //     ? "getPntReviseTest"
-    //     : "getPntRevise"
-    // )
-    //   .then((result) => {
-    //     debugger;
-    //   })
-    //   .catch((err) => {
-    //     debugger;
-    //   });
+    this.updateData();
   }
 
   autoRefresh() {
@@ -171,14 +149,16 @@ export default class PaintList extends Component {
   }
 
   checkOut(data, rowIdx) {
+    const { currentUser, environment } = this.props;
+
     debugger;
     let url;
     const newdata = data;
-    newdata[newdata.length - 1] = this.state.currentUser.name;
+    newdata[newdata.length - 1] = currentUser.name;
     // let query = { id: parseInt(data[0],10), pickedBy: this.state.currentUser.id }
-    const query =      'id=' + parseInt(data[0], 10) + '&pickedBy=' + this.state.currentUser.id;
+    const query = `id=${parseInt(data[0],10)}&pickedBy=${currentUser.id}`;
 
-    if (this.props.environment === 'production') {
+    if (environment === 'production') {
       url = 'api/paint/CheckOutRow';
     } else {
       url = 'api/paint/CheckOutRowTest';
@@ -201,18 +181,18 @@ export default class PaintList extends Component {
         } else {
           this.performHardUpdate();
         }
-      } else {
-      }
+      } 
     };
     // request.send(JSON.stringify(query));
     request.send(query);
   }
 
   checkOutSuccess(newData, rowIdx) {
-    const data = update(this.state.data, { $push: [] });
-    data[rowIdx] = newData;
+    const { data } = this.state;
+    const updatedData = update(data, { $push: [] });
+    updatedData[rowIdx] = newData;
     this.setState({
-      data
+      data:updatedData
     });
     this.socket.emit(ConnectionStates.RowUpdate, newData);
   }
@@ -221,11 +201,12 @@ export default class PaintList extends Component {
     let url;
     const newdata = data;
     const request = new XMLHttpRequest();
-    newdata[newdata.length - 2] = this.state.currentUser.name;
+    const { currentUser , environment} = this.props;
+    newdata[newdata.length - 2] = currentUser.name;
     // let query = { id: data[0], pickedBy: this.state.currentUser.id }
     // const query ="id=" + parseInt(data[0], 10) + "&pickedBy=" + this.state.currentUser.id;
 
-    if (this.props.environment === 'production') {
+    if (environment === 'production') {
       url = 'api/paint/CheckInRow';
     } else {
       url = 'api/paint/CheckInRowTest';
@@ -253,7 +234,8 @@ export default class PaintList extends Component {
   }
 
   checkInSuccess(newData, rowIdx) {
-    const dd = update(this.state.data, { $splice: [[rowIdx, 1]] });
+    const { data } = this.state;
+    const dd = update(data, { $splice: [[rowIdx, 1]] });
 
     if (
       Object.prototype.toString.call(dd) === '[object Array]'
@@ -271,6 +253,7 @@ export default class PaintList extends Component {
   }
 
   release(data, rowIdx) {
+    const { currentUser , environment }= this.props;
     let url;
     const newdata = data;
     const request = new XMLHttpRequest();
@@ -279,9 +262,9 @@ export default class PaintList extends Component {
     newdata[newdata.length - 2] = AVAILABLE;
     newdata[newdata.length - 1] = AVAILABLE;
     // let query = { id: data[0], pickedBy: this.state.currentUser.id }
-    const query =      'id=' + parseInt(data[0], 10) + '&pickedBy=' + this.state.currentUser.id;
+    const query =  `id=${parseInt(data[0],10)}&pickedBy=${currentUser.id}`;
 
-    if (this.props.environment === 'production') {
+    if (environment === 'production') {
       url = 'api/paint/ReleaseRow';
     } else {
       url = 'api/paint/ReleaseRowTest';
@@ -309,26 +292,29 @@ export default class PaintList extends Component {
   }
 
   releaseSuccess(newData, rowIdx) {
-    const data = update(this.state.data, { $push: [] });
-    data[rowIdx] = newData;
+    const { data } = this.state;
+
+    const updateData = update(data, { $push: [] });
+    updateData[rowIdx] = newData;
     this.setState({
-      data
+      data:updateData
     });
     this.socket.emit(ConnectionStates.RowUpdate, newData);
   }
 
   stage(data, rowIdx) {
+    const { currentUser, environment} = this.props;
     let url;
     const newdata = data;
     const request = new XMLHttpRequest();
 
     // set Staged-By to current User
-    newdata[newdata.length - 3] = this.state.currentUser.name;
+    newdata[newdata.length - 3] = currentUser.name;
 
     // let query = { id: data[0], pickedBy: this.state.currentUser.id }
-    const query =      'id=' + parseInt(data[0], 10) + '&pickedBy=' + this.state.currentUser.id;
+    const query = `id=${parseInt(data[0],10)}&pickedBy=${currentUser.id}`; 
 
-    if (this.props.environment === 'production') {
+    if ( environment === 'production') {
       url = 'api/paint/StageRow';
     } else {
       url = 'api/paint/StageRowTest';
@@ -356,20 +342,22 @@ export default class PaintList extends Component {
   }
 
   stageSuccess(newData, rowIdx) {
-    const data = update(this.state.data, { $splice: [[rowIdx, 1]] });
+    const { data } = this.state;
+    const updateData = update(data, { $splice: [[rowIdx, 1]] });
     this.setState({
-      data
+      data:updateData
     });
     this.socket.emit(ConnectionStates.RowUpdate, newData);
   }
 
   finalize(data) {
     // let query = { id: data[0], pickedBy: this.state.currentUser.id }
-    const query =      'id=' + parseInt(data[0], 10) + '&pickedBy=' + this.state.currentUser.id;
+    const { currentUser, environment } = this.props;
+    const query = `id=${parseInt(data[0],10)}&pickedBy=${currentUser.id}`;  
     let url;
     const request = new XMLHttpRequest();
 
-    if (this.props.environment === 'production') {
+    if (environment === 'production') {
       url = 'api/paint/FinalizeRow';
     } else {
       url = 'api/paint/FinalizeRowTest';
@@ -399,6 +387,7 @@ export default class PaintList extends Component {
   }
 
   finalizeSuccess(data) {
+
     this.removeRow(data);
     this.socket.emit('rowdelete', data);
     const dd = this.state.data.slice();
@@ -412,6 +401,7 @@ export default class PaintList extends Component {
   }
 
   updatePartialQty(amnt, data) {
+    const { currentUser, environment } = this.props;
     let url;
     const currentRowData = data.slice();
     const updatedRowData = data.slice();
@@ -431,12 +421,12 @@ export default class PaintList extends Component {
     const query = {
       id: currentRowData[0],
       master_id: currentRowData[1],
-      pickedBy: this.state.currentUser.id,
+      pickedBy: currentUser.id,
       amnt: updateAmt,
       newAmnt: newQty
     };
 
-    if (this.props.environment === 'production') {url = "api/paint/updatePartialQty";}
+    if ( environment === 'production') {url = "api/paint/updatePartialQty";}
     else url = 'api/paint/updatePartialQtyTest';
 
     const request = new XMLHttpRequest();
@@ -474,9 +464,12 @@ export default class PaintList extends Component {
 
   updateRow(newData, rowIdx) {
     let rowUpdated = false;
-    if (this.props.role === LOAD) {
-      let data = update(this.state.data, { $push: [] });
-      const temp = data.map(function(rowData, idx) {
+    const { role } = this.props;
+    const { data } = this.state;
+    let udata=[];
+    if (role === LOAD) {
+      udata= update(data, { $push: [] });
+      const temp = udata.map(rowData=> {
         if (rowData[0] === newData[0]) {
           rowUpdated = true;
           return newData;
@@ -484,11 +477,11 @@ export default class PaintList extends Component {
           return rowData;
         
       });
-      data = temp;
+      udata = temp;
       if (rowUpdated) {
-        this.setState({ data });
+        this.setState({ data: udata });
       }
-    } else if (this.props.role === STAGE) {
+    } else if (role === STAGE) {
         if (
           newData[newData.length - 1] !== AVAILABLE &&
           newData[newData.length - 2] !== AVAILABLE &&
@@ -496,8 +489,8 @@ export default class PaintList extends Component {
         ) {
           this.removeRow(newData);
         } else {
-          let data = update(this.state.data, { $push: [] });
-          const temp = data.map(function(rowData, idx) {
+          udata = update(data, { $push: [] });
+          const temp = udata.map(function(rowData, idx) {
             if (rowData[0] === newData[0]) {
               rowUpdated = true;
               return newData;
@@ -505,9 +498,9 @@ export default class PaintList extends Component {
               return rowData;
             }
           });
-          data = temp;
+          udata = temp;
           if (rowUpdated) {
-            this.setState({ data: data });
+            this.setState({ data: udata });
           } else {
             this.newRow(newData);
           }
@@ -519,8 +512,8 @@ export default class PaintList extends Component {
         ) {
           this.removeRow(newData);
         } else {
-          let data = update(this.state.data, { $push: [] });
-          const temp = data.map(function(rowData, idx) {
+         udata = update(this.state.data, { $push: [] });
+          const temp = udata.map(function(rowData, idx) {
             if (rowData[0] === newData[0]) {
               rowUpdated = true;
               return newData;
@@ -528,9 +521,9 @@ export default class PaintList extends Component {
               return rowData;
             }
           });
-          data = temp;
+          udata = temp;
           if (rowUpdated) {
-            this.setState({ data: data });
+            this.setState({ data: udata });
           } else {
             this.newRow(newData);
           }
@@ -540,43 +533,47 @@ export default class PaintList extends Component {
 
   removeRow(row) {
     let idx = -1;
-    let data = update(this.state.data, { $push: [] });
+    const { data } = this.state;
+    let udata = update(data, { $push: [] });
     data.map((rowData, rowIdx) => {
       debugger;
       if (rowData[0] === row[0]) idx = rowIdx;
     });
 
     if (idx > -1) {
-      data = update(this.state.data, { $splice: [[idx, 1]] });
-      this.setState({ data });
+      udata = update(data, { $splice: [[idx, 1]] });
+      this.setState({ data:udata });
     }
   }
 
   newRow(newData) {
     let exists = false;
-    let data = update(this.state.data, { $push: [] });
+    const { data } = this.state;
+    let udata = update(data, { $push: [] });
     debugger;
-    data.map((rowData, rowIdx) => {
+    udata.map((rowData) => {
       debugger;
       if (rowData[0] === newData[0]) exists = true;
     });
 
     if (!exists) {
-      data = update(this.state.data, { $push: [newData] });
-      data.sort(sortFn);
-      this.setState({ data });
+      udata = update(data, { $push: [newData] });
+      udata.sort(sortFn);
+      this.setState({ data:udata });
     }
   }
 
   UndoActionHandler(rowIdx) {
-    const row = this.state.data[rowIdx];
+    const { data } = this.state;
+    const { role, currentUser } = this.props;
+    const row = data[rowIdx];
     // const row = update(this.state.data[rowIdx], { $push: [] });
 
-    switch (this.props.role) {
+    switch (role) {
       case ASSIST:
         if (
-          row.picked_by === this.state.currentUser.name
-          && this.props.role === ASSIST
+          row.picked_by === currentUser.name
+          && role === ASSIST
         ) {
           this.release(row, rowIdx);
         }
@@ -598,16 +595,18 @@ export default class PaintList extends Component {
 
   TapActionHandler(rowIdx, tapTarget) {
     debugger;
+    const { role, currentUser } = this.props;
+    const { data } = this.state;
     const tag = getTagType(tapTarget.className);
     // const row = update(this.state.data[rowIdx], { $push: {} });
-    const row = this.state.data[rowIdx];
-    switch (this.props.role) {
+    const row = data[rowIdx];
+    switch (role) {
       case ASSIST:
         if (row.picked_by === AVAILABLE) {
           this.checkOut(row, rowIdx);
         } else if (
-            row.picked_by === this.state.currentUser.name &&
-            this.props.role === ASSIST &&
+            row.picked_by === currentUser.name &&
+           role === ASSIST &&
             this._os === OS.WINDOWS &&
             tapTarget.classList.contains("label")
           ) {
@@ -640,13 +639,15 @@ export default class PaintList extends Component {
   }
 
   SwipeActionHandler(rowIdx) {
-    const row = update(this.state.data[rowIdx], { $push: [] });
+    const { data } = this.state;
+    const { role, currentUser } = this.props;
+    const row = update(data[rowIdx], { $push: [] });
 
-    switch (this.props.role) {
+    switch (role) {
       case ASSIST:
         if (
-          row.picked_by === this.state.currentUser.name
-          && this.props.role === ASSIST
+          row.picked_by === currentUser.name
+          && role === ASSIST
         ) {
           this.checkIn(row, rowIdx);
         }
@@ -669,107 +670,151 @@ export default class PaintList extends Component {
     debugger;
   }
 
+  updateState(result){
+    this.setState({
+      currentRoundNumber: result.currentRoundNumber,
+      data: result.data
+    })
+  }
+
   customStyle(cell, row) {
     return {};
   }
 
-  render() {
-    let hidden = { display: 'none' };
+  handleSwipe(event){
+    debugger;
+  }
 
+  handleTap(event){
+    debugger;
+  }
+
+  render() {
+    const  hidden = { display: 'none' };
+    const { data, connectionState, currentRoundNumber, currentRevision } = this.state;
+    const { role, environment, currentUser  } = this.props;
+
+    const HammerComponent = ({ children }) => (
+        <TableCell>
+          <ReactHammer onTap={this.onTap} onSwipe={this.onSwipe}>
+          <div>
+            {children}
+            </div>
+          </ReactHammer>
+        </TableCell>
+    );
+    const values = [
+      {key:'1',name:'undo', style:{ minWidth: '70px', lineHeight: '1.42857143' }, title:'' },
+      {key:'2',name:'master_id', style:hidden, title:'master_id'},
+      {key:'3',name:'round',style:hidden, title:'round'},
+      {key:'4',name:'round_position',style:hidden, title:'round_position'},
+      {key:'5',name:'description',style:{}, title:'Description'},
+      {key:'6',name:'color',style:{}, title:'Color'},
+      {key:'7',name:'mold_skin_style',style:{}, title:'Mold Skin Style'},
+      {key:'8',name:'rework_color_chart',style:{}, title:'Rework Color Chart'},
+      {key:'9',name:'quantity',style:{width:'70px'}, title:'Quantity'},
+      {key:'10',name:'handled_by',style:{width:'70px', display:'none'}, title:'Handled By'},
+      {key:'11',name:'picked_by',style:{}, title:'Picked By'},
+    ]
     return (
       <div>
-        <ListTop
-          currentRevision={this.state.currentRevision}
-          currentRoundNumber={this.state.currentRoundNumber}
-          environment={this.props.environment}
-          connectionState={this.state.connectionState}
-          role={this.props.role}
-        />
-        <Table striped bordered condensed hover>
-          <thead>
-            <tr>
-              <th className='undo' />
-              <th style={hidden}>master_id </th>
-              <th style={hidden}>round</th>
-              <th style={hidden}>round_position</th>
-              <th>Description</th>
-              <th>Color</th>
-              <th>Mold Skin Style</th>
-              <th>Rework Color Chart</th>
-              <th>Quantity</th>
-              <th className='action' style={{ width: '70px' }} />
-              <th style={hidden}>Handled By</th>
-              <th>Picked By</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.state.data.map((rowData, rowIdx) => {
+        {/* <ListTop
+          currentRevision={currentRevision}
+          currentRoundNumber={`${currentRoundNumber}`}
+          environment={environment}
+          connectionState={connectionState}
+          role={role}
+        /> */}
+        <Table>
+          <TableHead>
+            <TableRow>
+              {
+                values.map(({key,title,style})=>(<TableCell key={key} style={style}>{title}</TableCell>))
+              }
+            </TableRow>
+          </TableHead>
+          <TableBody style={{ height: '60vh', overflow: 'auto', display: 'block' }}>
+            { data.map((rowData, rowIdx) => {
+             
+              const rowKey = `paint-${rowIdx}`;
               if (rowIdx < 26) {
-                return (
+                return ( 
+                   
                   <TableRow
-                    key={rowIdx}
-                    data={rowData}
-                    role={this.props.role}
-                    rowId={rowIdx}
-                    currentUser={this.props.currentUser}
-                    UndoActionHandler={this.UndoActionHandler}
-                    TapActionHandler={this.TapActionHandler}
-                    SwipeActionHandler={this.SwipeActionHandler}
+                  style={{ display: 'block' }}
+                  key={rowKey}                   
                   >
-                    <td>
+                    <TableCell>
+                      <HammerComponent>
                       <UndoCell
-                        children={this.props.children}
-                        role={this.props.role}
+                         
+                        role={role}
                         key={`${rowData.id  }-0`}
                         rowData={rowData}
                         updatePartialQty={this.updatePartialQty}
-                        currentUser={this.state.currentUser}
+                        currentUser={currentUser}
                       >
                         {rowData}
                       </UndoCell>
-                    </td>
+                      </HammerComponent>
+                    </TableCell>
 
                     {Columns.map((cell, colIdx) => {
+                      const value=rowData[cell.data];
                       if (cell.visible !== false) {
                         if (cell.CellRenderer) {
                           return (
-                            <cell.CellRenderer
-                              children={this.props.children}
-                              role={this.props.role}
-                              key={rowData.id + "-" + colIdx}
+                            <TableCell   key={rowData.id + "-" + colIdx} >
+                            <cell.CellRenderer 
+                              role={role}
+                           
                               rowData={rowData}
                               updatePartialQty={this.updatePartialQty}
-                              currentUser={this.state.currentUser}>
-                              {rowData[cell.data]}
+                              currentUser={currentUser}>
+                              {value}
                             </cell.CellRenderer>
+                            </TableCell>
                           );
                         } 
                           return (
-                            <td
-                              className={cell.className ? cell.className : ""}
-                              key={rowData.id + "-" + colIdx}>
+                           
+                            <TableCell  key={rowData.id + "-" + colIdx}>
+ <HammerComponent>
+                            <div  className={cell.className ? cell.className : ""}
+                             >
                               {rowData[cell.data]}
-                            </td>
+                              </div>
+                              </HammerComponent>
+                            </TableCell>
+                          
                           );
                         
                       }
                     })}
                   </TableRow>
+                
                 );
               }
             })}
-          </tbody>
+          </TableBody>
         </Table>
       </div>
     );
   }
 }
 
-PaintList.propTypes = {
-  connectionStateChanged: PropTypes.func,
+PaintList.propTypes = { 
+  handleConnectionStateChanged:PropTypes.func.isRequired,
   env: PropTypes.string,
-  currentUser: PropTypes.any,
+  currentUser: PropTypes.shape({
+    name:PropTypes.string,
+    id:PropTypes.any,
+    img:PropTypes.string,
+    imgPath: PropTypes.string
+  }).isRequired,
   role: PropTypes.string,
   environment: PropTypes.string,
   OSName: PropTypes.string
 };
+
+export default withStyles(styles)(PaintList);

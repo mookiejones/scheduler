@@ -86,7 +86,14 @@ class MagnaHeader extends Component {
   }
 
   render() {
-    const { classes, environment } = this.props;
+    const { classes, environment, currentUser } = this.props;
+    const getUser = (user) => {
+      if (user.img && user.img.length > 0) {
+        const img = `data:image/png;base64, ${user.img}`;
+        return <img src={img} alt='employee id' style={{ borderRadius: '50%', height: '50px' }} />;
+      }
+      return <div />;
+    };
     return (
       <div className={classes.root}>
         <AppBar position='fixed' color='inherit'>
@@ -96,6 +103,7 @@ class MagnaHeader extends Component {
             </Button>
 
             <Typography className={classes.flex} />
+            {getUser(currentUser)}
             <Typography>{environment}</Typography>
 
             <Typography>Version : {VERSION_NUMBER}</Typography>
@@ -127,7 +135,13 @@ MagnaHeader.propTypes = {
   isConnected: PropTypes.bool,
   showSettings: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
-  onTabChanged: PropTypes.func.isRequired
+  onTabChanged: PropTypes.func.isRequired,
+  currentUser: PropTypes.shape({
+    name: PropTypes.string,
+    id: PropTypes.any,
+    img: PropTypes.string,
+    imgPath: PropTypes.string
+  }).isRequired
 };
 
 export default withStyles(styles)(MagnaHeader);

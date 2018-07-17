@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import * as moment from 'moment';
-import { HighChart } from './HighChart';
 import {
   Grid,
   withStyles,
@@ -17,6 +16,7 @@ import {
 import PropTypes from 'prop-types';
 import * as update from 'react-addons-update';
 import * as Highcharts from 'highcharts';
+import { HighChart } from './HighChart';
 import DataService from '../../api/DataService';
 import DatePicker from './DatePicker';
 
@@ -25,7 +25,7 @@ const defaultFormat = 'YYYY-MM-DDThh:mm';
 function breakIntoSeries(arr, format) {
   const series = [];
   const s = {};
-  arr.forEach(el => {
+  arr.forEach((el) => {
     if (!s.name) {
       s.name = el.full_name;
       s.data = [];
@@ -74,8 +74,7 @@ const defaultOptions = {
   legend: {
     enabled: false,
     layout: 'horizontal',
-    backgroundColor:
-      (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+    backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
   },
   plotOptions: {
     scatter: {
@@ -146,13 +145,13 @@ class DriverPerformance extends Component {
 
     const now = moment();
     const then = moment().subtract(2, 'days');
-    let chartOptions = defaultOptions;
+    const chartOptions = defaultOptions;
 
     this.state = {
       chartType: 'scatter',
       to: now,
       from: then,
-      defaultOptions: defaultOptions,
+      defaultOptions,
       options: { generated: moment().format('MM/DD/YYYY hh:mm:ss') },
       worsePerformers: [],
       underTen: [],
@@ -170,18 +169,18 @@ class DriverPerformance extends Component {
   }
 
   onEndDateChanged(e) {
-    let value = e.target.value;
+    const value = e.target.value;
 
-    let t = moment(value);
+    const t = moment(value);
 
     this.setState({ to: t });
     this.getDriverAverages();
   }
 
   onStartDateChanged(e) {
-    let value = e.target.value;
+    const value = e.target.value;
 
-    let t = moment(value);
+    const t = moment(value);
 
     this.setState({ from: t });
     this.getDriverAverages();
@@ -193,19 +192,17 @@ class DriverPerformance extends Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     const { route } = nextProps;
-    return route === 2;
+    return route === 3;
   }
+
   componentDidUpdate(prevProps, prevState) {
     debugger;
-    let connectionChanged = this.props.isConnected !== this.state.connected;
+    if (prevProps.route !== 3) return;
+    const connectionChanged = this.props.isConnected !== this.state.connected;
     if (connectionChanged) {
       this.setState({ connected: this.props.isConnected });
     }
-    if (
-      connectionChanged ||
-      prevState.from !== this.state.from ||
-      prevState.to !== this.state.to
-    ) {
+    if (connectionChanged || prevState.from !== this.state.from || prevState.to !== this.state.to) {
       this.getDriverAverages();
     }
   }
@@ -229,7 +226,7 @@ class DriverPerformance extends Component {
     };
 
     DataService.GetDriverAverages(JSON.stringify(params))
-      .then(arr => {
+      .then((arr) => {
         if (arr.length > 0) {
           const options = update(this.state.defaultOptions, { $merge: {} });
           options.series = breakIntoSeries(arr[0], format);
@@ -249,7 +246,7 @@ class DriverPerformance extends Component {
           });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
   }
@@ -258,12 +255,12 @@ class DriverPerformance extends Component {
     return (
       <Grid container spacing={24}>
         <DatePicker
-          label="Start Date"
+          label='Start Date'
           time={this.state.to.format(defaultFormat)}
           onChange={this.onStartDateChanged}
         />
         <DatePicker
-          label="End Date"
+          label='End Date'
           time={this.state.from.format(defaultFormat)}
           onChange={this.onEndDateChanged}
         />
@@ -278,7 +275,7 @@ class DriverPerformance extends Component {
         <div style={{ height: '30vh', overflow: 'auto' }}>
           <Paper className={classes.root}>
             <HighChart
-              container="chart"
+              container='chart'
               key={this.state.options.generated}
               options={this.state.options}
             />
@@ -289,10 +286,10 @@ class DriverPerformance extends Component {
           <Grid item xs={6}>
             <Paper className={classes.paper}>
               <Toolbar>
-                <Typography variant="title">Slowest Picks</Typography>
+                <Typography variant='title'>Slowest Picks</Typography>
               </Toolbar>
               <div style={{ height: '30vh', overflow: 'auto' }}>
-                <Table aria-labelledby="tableTitle" className={classes.table}>
+                <Table aria-labelledby='tableTitle' className={classes.table}>
                   <TableHead>
                     <TableRow>
                       <TableCell>Driver</TableCell>
@@ -303,16 +300,12 @@ class DriverPerformance extends Component {
                     {this.state.worsePerformers.map((row, idx) => (
                       <TableRow
                         hover
-                        onClick={event =>
-                          this.props.onDriverSelected(event, row)
-                        }
-                        key={idx}>
+                        onClick={event => this.props.onDriverSelected(event, row)}
+                        key={idx}
+                      >
                         <TableCell>{row.full_name}</TableCell>
                         <TableCell>
-                          {row.seconds} (~{Math.round(
-                            (row.seconds / 60) * 100
-                          ) / 100}{' '}
-                          minutes)
+                          {row.seconds} (~{Math.round((row.seconds / 60) * 100) / 100} minutes)
                         </TableCell>
                       </TableRow>
                     ))}
@@ -324,10 +317,10 @@ class DriverPerformance extends Component {
           <Grid item xs={6}>
             <Paper className={classes.paper}>
               <Toolbar>
-                <Typography variant="title">Picks Under 10 seconds</Typography>
+                <Typography variant='title'>Picks Under 10 seconds</Typography>
               </Toolbar>
               <div style={{ height: '30vh', overflow: 'auto' }}>
-                <Table aria-labelledby="tableTitle" className={classes.table}>
+                <Table aria-labelledby='tableTitle' className={classes.table}>
                   <TableHead>
                     <TableRow>
                       <TableCell>Driver</TableCell>
@@ -338,10 +331,9 @@ class DriverPerformance extends Component {
                     {this.state.underTen.map((row, idx) => (
                       <TableRow
                         hover
-                        onClick={event =>
-                          this.props.onDriverSelected(event, row)
-                        }
-                        key={idx}>
+                        onClick={event => this.props.onDriverSelected(event, row)}
+                        key={idx}
+                      >
                         <TableCell>{row.full_name}</TableCell>
                         <TableCell>{row.c}</TableCell>
                       </TableRow>
@@ -355,6 +347,7 @@ class DriverPerformance extends Component {
       </Grid>
     );
   }
+
   render() {
     const Options = this.getOptions();
     const Chart = this.getChart();

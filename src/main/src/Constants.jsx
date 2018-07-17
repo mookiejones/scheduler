@@ -100,12 +100,16 @@ const GET_PAINT_SCHEDULE = 'GetPaintSchedule';
 const GET_PROGRAM_COLORS = 'GetProgramColors';
 const PAINT_SCHEDULE_STYLES = 'GetPaintScheduleStyles';
 const SCHEDULE_NEW_ROUND = 'ScheduleNewRound';
-
-const VERIFY_EMPLOYEE_ID = 'VerifyEmpID';
+const GET_PAINT_PICKLIST = 'GetPaintPickList';
+const VERIFY_EMPLOYEE_ID = 'GetEmployee';
 
 class Constants {
   static get VerifyEmployee() {
     return VERIFY_EMPLOYEE_ID;
+  }
+
+  static get PaintPickList() {
+    return GET_PAINT_PICKLIST;
   }
 
   static get Temp() {

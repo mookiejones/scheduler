@@ -2,9 +2,7 @@ import fetch from 'node-fetch';
 import {
  API_SERVER, TEST, IS_TEST, PRODUCTION
 } from '../Constants';
-import { stringify } from '../../node_modules/postcss';
 
-const isArray = item => Object.prototype.toString.call(item) === '[object Array]';
 const sortFn = (a, b) => {
   const roundA = parseInt(a[2], 10);
   const posA = parseInt(a[3], 10);
@@ -30,9 +28,17 @@ const sortFn = (a, b) => {
 };
 
 export default class DataItemBase {
+  static isArray(item) {
+    return Object.prototype.toString.call(item) === '[object Array]';
+  }
+
   url(name) {
     const path = IS_TEST ? `${name}Test` : name;
     return `${API_SERVER}/${path}`;
+  }
+
+  static sort(a, b) {
+    return sortFn(a, b);
   }
 
   static getDataPromise(url) {
@@ -56,6 +62,7 @@ export default class DataItemBase {
       })
 
       .catch((e) => {
+        console.error(`Failed to get ${path}`);
         console.error(e);
         debugger;
       });

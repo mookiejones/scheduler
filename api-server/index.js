@@ -158,7 +158,7 @@ app.post(
     }
   }
 );
-app.post('/reporting/paint.asmx/VerifyEmpID?:EmployeeID', (req, ress, next) => {
+app.post('/reporting/paint.asmx/GetEmployee?:EmployeeID', (req, ress, next) => {
   try {
     var request = new XMLHttpRequest();
 

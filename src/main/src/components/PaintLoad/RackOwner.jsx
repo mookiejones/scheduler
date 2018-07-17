@@ -1,42 +1,42 @@
-import React, { Component } from "react";
-import * as classnames from "classnames";
+import React, { Component } from 'react';
+import * as classnames from 'classnames';
 
-import { AVAILABLE } from "../../Constants";
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
+import { AVAILABLE } from '../../Constants';
+
 export default class RackOwner extends Component {
   render() {
-    const display =
-      this.props.children !== AVAILABLE
-        ? /\s*([^\s]+)\s[^\s]/i.exec(this.props.children)[0]
-        : "AVAILABLE";
+    const { children, currentUser } = this.props;
+    const display = children !== AVAILABLE ? /\s*([^\s]+)\s[^\s]/i.exec(children)[0] : 'AVAILABLE';
 
     const styles = classnames({
       tap: true,
       label: true,
-      "label-success": this.props.children === AVAILABLE,
-      "label-info": this.props.children === this.props.currentUser.name,
-      "label-primary":
-        this.props.children !== AVAILABLE &&
-        this.props.children !== this.props.currentUser.name
+      'label-success': children === AVAILABLE,
+      'label-info': children === currentUser.name,
+      'label-primary': children !== AVAILABLE && children !== currentUser.name
     });
 
     return (
-      <td
-        className="tap"
+      <div
+        className='tap'
         style={{
-          textAlign: "center",
-          paddingTop: "25px",
-          paddingBottom: "25px"
-        }}>
-        <span className={styles}>
-          {this.props.children === AVAILABLE ? "AVAILABLE" : display}
-        </span>
-      </td>
+          textAlign: 'center',
+          paddingTop: '25px',
+          paddingBottom: '25px'
+        }}
+      >
+        <span className={styles}>{children === AVAILABLE ? 'AVAILABLE' : display}</span>
+      </div>
     );
   }
 }
 RackOwner.propTypes = {
-  children: PropTypes.any,
   rackOwner: PropTypes.any,
-  currentUser: PropTypes.any
+  currentUser: PropTypes.shape({
+    name: PropTypes.string,
+    id: PropTypes.any,
+    img: PropTypes.string,
+    imgPath: PropTypes.string
+  }).isRequired
 };

@@ -7,7 +7,6 @@ import {
 
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
-import { renderComponent } from 'recompose';
 
 const styles = {
   root: {
@@ -33,7 +32,7 @@ class ScheduleEditorTableHead extends Component {
   }
 
   render() {
-    const { rules, headers, classes } = this.props;
+    const { headers } = this.props;
     const { c } = this.state;
     return (
       <TableHead className={classNames(c)} style={{ display: 'block' }}>
@@ -59,4 +58,4 @@ ScheduleEditorTableHead.propTypes = {
   headers: PropTypes.array.isRequired
 };
 
-export default ScheduleEditorTableHead;
+export default withStyles(styles)(ScheduleEditorTableHead);

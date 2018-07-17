@@ -11,41 +11,23 @@ export default class Main extends Component {
 
     this.state = {
       showDialog: true,
-      connectionState: 'disconnected',
-      disabled: false,
-      currentUser: {
-        id: -1,
-        name: ''
-      },
-      role: ''
+      role: 'assist'
     };
-    this.loggedIn = this.loggedIn.bind(this);
-  }
-
-  loggedIn(args) {
-    DataService.LoginUser(args)
-      .then(o => o.json())
-      .then((o) => {
-        this.setState({
-          showDialog: false,
-          currentUser: {
-            name: o,
-            id: args.user
-          },
-          role: args.type
-        });
-        debugger;
-      })
-      .catch((error) => {
-        debugger;
-      });
-    // this.setState({ showDialog: false });
+    this.handleLogInAction = this.handleLogInAction.bind(this);
   }
 
   setUser(userId, name, role) {
     debugger;
 
-    this.setState({ currentUser: { id: userId, name }, role });
+    this.setState({ role });
+  }
+
+  handleLogInAction(args) {
+    const { handleLogin } = this.props;
+    this.setState({
+      role: args.type
+    });
+    handleLogin(args);
   }
 
   shouldComponentUpdate(nextProps) {
@@ -54,14 +36,18 @@ export default class Main extends Component {
   }
 
   render() {
-    const { showDialog, currentUser, role } = this.state;
-    const { loggedIn, environment, route } = this.props;
+    const { showDialog, role } = this.state;
+    const {
+ environment, route, handleConnectionStateChanged, currentUser
+} = this.props;
+    const show = currentUser.name.length === 0 && route === 2;
+
     const getContent = () => {
-      if (currentUser.id !== -1) {
+      if (currentUser.id && currentUser.id !== -1) {
         return (
           <PaintList
             {...this.props}
-            connectionStateChanged={connectionState => this.setState({ connectionState })}
+            connectionStateChanged={handleConnectionStateChanged}
             role={role}
             environment={environment}
             currentUser={currentUser}
@@ -70,7 +56,7 @@ export default class Main extends Component {
       }
       return (
         <div>
-          <LoginDialog open={showDialog && route === 2} loggedIn={this.loggedIn} {...this.props} />
+          <LoginDialog open={show} handleLogin={this.handleLogInAction} currentUser={currentUser} />
         </div>
       );
     };
@@ -79,6 +65,14 @@ export default class Main extends Component {
 }
 
 Main.propTypes = {
+  environment: PropTypes.string,
   route: PropTypes.number,
-  connectionState: PropTypes.any
+  currentUser: PropTypes.shape({
+    name: PropTypes.string,
+    id: PropTypes.any,
+    img: PropTypes.string
+  }).isRequired,
+  connectionState: PropTypes.string,
+  handleConnectionStateChanged: PropTypes.func.isRequired,
+  handleLogin: PropTypes.func.isRequired
 };

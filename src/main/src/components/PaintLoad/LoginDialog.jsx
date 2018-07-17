@@ -15,14 +15,31 @@ export default class LoginDialog extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      user: -1,
+      id: props.currentUser.id,
+
       type: 'assist'
     };
+    this.updateId = this.updateId.bind(this);
+    this.handleLoginAction = this.handleLoginAction.bind(this);
+  }
+
+  updateId(event) {
+    const value = parseInt(event.target.value, 10);
+
+    this.setState({ id: value });
+
+    // e => this.setState({ user["id"]: e.target.value })
+  }
+
+  handleLoginAction() {
+    const { handleLogin } = this.props;
+    handleLogin(this.state);
   }
 
   render() {
-    const { user, type } = this.state;
-    const { open, loggedIn } = this.props;
+    const { type, id } = this.state;
+    const { open, handleLogin } = this.props;
+    const showValue = () => id || '';
     return (
       <Dialog disableBackdropClick disableEscapeKeyDown maxWidth='xs' open={open}>
         <DialogTitle id='confirmation-dialog-title'>Login</DialogTitle>
@@ -32,13 +49,12 @@ export default class LoginDialog extends Component {
               label='Employee ID'
               type='number'
               autoFocus
-              defaultValue={-1}
-              value={user}
-              onChange={e => this.setState({ user: e.target.value })}
+              value={showValue()}
+              onChange={this.updateId}
             />
             <TextField
               label='Login Type'
-              secelt
+              select
               value={type}
               onChange={e => this.setState({ type: e.target.value })}
             >
@@ -46,7 +62,10 @@ export default class LoginDialog extends Component {
               <MenuItem value='stage'>Stage</MenuItem>
               <MenuItem value='load'>Load</MenuItem>
             </TextField>
-            <Button onClick={() => loggedIn(this.state)} disabled={user === -1}>
+            <Button
+              onClick={this.handleLoginAction}
+              disabled={this.state.id == undefined || this.state.id === -1}
+            >
               Login
             </Button>
           </Grid>
@@ -56,6 +75,11 @@ export default class LoginDialog extends Component {
   }
 }
 LoginDialog.propTypes = {
-  loggedIn: PropTypes.func.isRequired,
+  currentUser: PropTypes.shape({
+    name: PropTypes.string,
+    id: PropTypes.any,
+    img: PropTypes.string
+  }).isRequired,
+  handleLogin: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired
 };
