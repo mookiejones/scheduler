@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import * as update from 'react-addons-update';
 import PropTypes from 'prop-types';
-import { Table, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core';
+import { Table, TableHead, TableBody, TableRow, TableCell, TextField, Input, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import HammerComponent from './HammerComponent';
 import classNames from 'classnames';
@@ -103,7 +103,7 @@ class PaintList extends Component {
         func = 'GetPaintLoad';
         break;
       case 'watch':
-        break;
+        break;6
       default:
         break;
     }
@@ -774,7 +774,7 @@ class PaintList extends Component {
                         SwipeActionHandler={this.SwipeActionHandler}
                         UndoActionHandler={this.UndoActionHandler}>
                           {cell.CellRenderer && <cell.CellRenderer className={classNames(classes.body)}  role={role} rowData={rowData} updatePartialQty={this.updatePartialQty} currentUser={currentUser}>{value}</cell.CellRenderer>}
-                          {!cell.CellRenderer && <div  className={classNames(classes.body,cell.className )}>{value}</div>}
+                          {!cell.CellRenderer && <div  className={classNames(classes.body,cell.className )}><Typography  >  {value}</Typography></div>}
                         </HammerComponent>
                       )
                          

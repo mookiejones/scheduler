@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import * as classnames from 'classnames';
-import { Badge } from '@material-ui/core';
+import { Badge, Typography } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { AVAILABLE } from '../../Constants';
 
@@ -26,7 +26,8 @@ export default class RackOwner extends Component {
             paddingBottom: '25px'
           }}
         >
-          <span className={styles}>{display}</span>
+          <Typography>{display}</Typography>
+          {/* <span className={styles}>{display}</span> */}
         </div>
       );
     }

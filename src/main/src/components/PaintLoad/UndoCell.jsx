@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Undo } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
-import { TableCell } from '@material-ui/core';
+import { TableCell, Input } from '@material-ui/core';
 import classNames from 'classnames';
 import HammerComponent from './HammerComponent';
 
@@ -36,7 +36,11 @@ class UndoCell extends Component {
  rowData, role, currentUser, SwipeActionHandler
 } = this.props;
 
-    const answer = <div className={classNames('tap', 'undo')}>{rowData.ten}</div>;
+    const answer = (
+      <div className={classNames('tap', 'undo')}>
+        <Input disableUnderline value={rowData.ten} />
+      </div>
+    );
 
     const undo = (
       <Undo
