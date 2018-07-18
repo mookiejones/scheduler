@@ -197,12 +197,14 @@ class DriverPerformance extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     debugger;
+    const { isConnected } = this.props;
+    const { from, connected, to } = this.state;
     if (prevProps.route !== 3) return;
-    const connectionChanged = this.props.isConnected !== this.state.connected;
+    const connectionChanged = isConnected !== connected;
     if (connectionChanged) {
-      this.setState({ connected: this.props.isConnected });
+      this.setState({ connected: isConnected });
     }
-    if (connectionChanged || prevState.from !== this.state.from || prevState.to !== this.state.to) {
+    if (connectionChanged || prevState.from !== from || prevState.to !== to) {
       this.getDriverAverages();
     }
   }
@@ -212,9 +214,10 @@ class DriverPerformance extends Component {
   }
 
   getDriverAverages() {
+    const { from, to, defaultOptions } = this.state;
     const params = {
-      startdate: this.state.from.format('YYYY-MM-DD HH:mm:ss'),
-      enddate: this.state.to.format('YYYY-MM-DD HH:mm:ss')
+      startdate: from.format('YYYY-MM-DD HH:mm:ss'),
+      enddate: to.format('YYYY-MM-DD HH:mm:ss')
     };
 
     const format = 'MM/DD/YYYY hh:mm:ss A';
@@ -228,7 +231,7 @@ class DriverPerformance extends Component {
     DataService.GetDriverAverages(JSON.stringify(params))
       .then((arr) => {
         if (arr.length > 0) {
-          const options = update(this.state.defaultOptions, { $merge: {} });
+          const options = update(defaultOptions, { $merge: {} });
           options.series = breakIntoSeries(arr[0], format);
 
           for (let i = 0; i < arr[2].length; i++) {
@@ -252,16 +255,17 @@ class DriverPerformance extends Component {
   }
 
   getOptions() {
+    const { to, from } = this.state;
     return (
       <Grid container spacing={24}>
         <DatePicker
           label='Start Date'
-          time={this.state.to.format(defaultFormat)}
+          time={to.format(defaultFormat)}
           onChange={this.onStartDateChanged}
         />
         <DatePicker
           label='End Date'
-          time={this.state.from.format(defaultFormat)}
+          time={from.format(defaultFormat)}
           onChange={this.onEndDateChanged}
         />
       </Grid>
@@ -269,15 +273,16 @@ class DriverPerformance extends Component {
   }
 
   getChart() {
-    const { classes } = this.props;
+    const { classes, onDriverSelected } = this.props;
+    const { options, worsePerformers, underTen } = this.state;
     return (
       <Grid item>
         <div style={{ height: '30vh', overflow: 'auto' }}>
           <Paper className={classes.root}>
             <HighChart
               container='chart'
-              key={this.state.options.generated}
-              options={this.state.options}
+              key={options.generated}
+              options={options}
             />
           </Paper>
         </div>
@@ -289,7 +294,7 @@ class DriverPerformance extends Component {
                 <Typography variant='title'>Slowest Picks</Typography>
               </Toolbar>
               <div style={{ height: '30vh', overflow: 'auto' }}>
-                <Table aria-labelledby='tableTitle' className={classes.table}>
+                <Table className={classes.table}>
                   <TableHead>
                     <TableRow>
                       <TableCell>Driver</TableCell>
@@ -297,10 +302,10 @@ class DriverPerformance extends Component {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {this.state.worsePerformers.map((row, idx) => (
+                    {worsePerformers.map((row, idx) => (
                       <TableRow
                         hover
-                        onClick={event => this.props.onDriverSelected(event, row)}
+                        onClick={event =>onDriverSelected(event, row)}
                         key={idx}
                       >
                         <TableCell>{row.full_name}</TableCell>
@@ -320,7 +325,7 @@ class DriverPerformance extends Component {
                 <Typography variant='title'>Picks Under 10 seconds</Typography>
               </Toolbar>
               <div style={{ height: '30vh', overflow: 'auto' }}>
-                <Table aria-labelledby='tableTitle' className={classes.table}>
+                <Table className={classes.table}>
                   <TableHead>
                     <TableRow>
                       <TableCell>Driver</TableCell>
@@ -328,10 +333,10 @@ class DriverPerformance extends Component {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {this.state.underTen.map((row, idx) => (
+                    {underTen.map((row, idx) => (
                       <TableRow
                         hover
-                        onClick={event => this.props.onDriverSelected(event, row)}
+                        onClick={event => onDriverSelected(event, row)}
                         key={idx}
                       >
                         <TableCell>{row.full_name}</TableCell>
@@ -351,7 +356,8 @@ class DriverPerformance extends Component {
   render() {
     const Options = this.getOptions();
     const Chart = this.getChart();
-    return !this.state.options.series ? (
+    const { options } = this.state;
+    return !options.series ? (
       Options
     ) : (
       <Grid container>

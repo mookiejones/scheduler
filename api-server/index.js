@@ -99,23 +99,92 @@ app.get('/test', (req, res) => {
   });
 });
 
-const links = [
-  'getPntRevise',
-  'GetPaintLoadList',
-  'GetPaintPickList',
-  'GetPaintStageList',
-  'GetPaintSchedule',
-  'GetPaintScheduleStyles',
-  'ScheduleNewRound',
-  'GetProgramColors',
-  'AddColorRule',
-  'GetColorRules'
+const links = [{
+    type: 'get',
+    link: 'getPntRevise'
+  },
+  {
+    type: 'get',
+    link: 'GetPaintLoadList'
+  },
+  {
+    type: 'get',
+    link: 'GetPaintPickList'
+  },
+  {
+    type: 'get',
+    link: 'GetPaintStageList'
+  },
+  {
+    type: 'get',
+    link: 'GetPaintSchedule'
+  },
+  {
+    type: 'get',
+    link: 'GetPaintScheduleStyles'
+  },
+  {
+    type: 'get',
+    link: 'ScheduleNewRound'
+  },
+  {
+    type: 'get',
+    link: 'GetProgramColors'
+  },
+  {
+    type: 'get',
+    link: 'AddColorRule'
+  },
+  {
+    type: 'post',
+    link: 'CheckOutRow'
+  },
+  {
+    type: 'get',
+    link: 'GetColorRules'
+  }
 ];
+links
+  .filter(link => link.type === "get")
+  .forEach(link => {
+    app.get(`/reporting/paint.asmx/${link.link}`, getInfo);
+    app.get(`/reporting/paint.asmx/${link.link}Test`, getInfo);
+  })
 
-links.forEach((link) => {
-  app.get(`/reporting/paint.asmx/${link}`, getInfo);
-  app.get(`/reporting/paint.asmx/${link}Test`, getInfo);
-});
+const postInfo = (req, res, next) => {
+  const request = new XMLHttpRequest();
+  let url = `http://norweb${req.url}`;
+  request.open('POST', url, true);
+  request.setRequestHeader(
+    'Content-Type',
+    'application/json; charset=UTF-8'
+  );
+  request.onload = () => {
+    try {
+      if (request.status >= 200 && request.status < 400) {
+        var data = JSON.parse(request.responseText);
+        if (data.d) {
+          if (/[\[\{:]+/i.test(data.d)) res.send(JSON.parse(data.d));
+          else {
+            res.send(data);
+          }
+        } else {
+          debugger;
+        }
+      }
+    } catch (e) {
+      debugger;
+    }
+
+  }
+  request.send(JSON.stringify(req.body));
+}
+links
+  .filter(link => link.type === "post")
+  .forEach(link => {
+    app.post(`/reporting/paint.asmx/${link.link}`, postInfo);
+    app.post(`/reporting/paint.asmx/${link.link}Test`, postInfo);
+  })
 
 // app.post(`/reporting/paint.asmx/DeleteColorRule/id/${itemId}`, (req, ress, next) => {
 //   ress.send({

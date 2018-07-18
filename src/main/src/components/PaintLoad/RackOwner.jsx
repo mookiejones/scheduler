@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import * as classnames from 'classnames';
-
+import { Badge } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { AVAILABLE } from '../../Constants';
 
@@ -16,18 +16,24 @@ export default class RackOwner extends Component {
       'label-info': children === currentUser.name,
       'label-primary': children !== AVAILABLE && children !== currentUser.name
     });
-
+    if (children === AVAILABLE) {
+      return (
+        <div
+          className='tap'
+          style={{
+            textAlign: 'center',
+            paddingTop: '25px',
+            paddingBottom: '25px'
+          }}
+        >
+          <span className={styles}>{display}</span>
+        </div>
+      );
+    }
     return (
-      <div
-        className='tap'
-        style={{
-          textAlign: 'center',
-          paddingTop: '25px',
-          paddingBottom: '25px'
-        }}
-      >
-        <span className={styles}>{children === AVAILABLE ? 'AVAILABLE' : display}</span>
-      </div>
+      <Badge color='primary' badgeContent='hi'>
+        {display}
+      </Badge>
     );
   }
 }

@@ -1,24 +1,46 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Undo } from '@material-ui/icons';
+import { withStyles } from '@material-ui/core/styles';
+import { TableCell } from '@material-ui/core';
+import classNames from 'classnames';
+import HammerComponent from './HammerComponent';
 
-const styles = ['green', 'yellow', 'orange', 'red', 'purple', 'blue'];
+const styles = theme => ({
+  root: {},
+  footer: {},
+  hover: {},
+  head: {},
+  selected: {},
+  purple: {
+    backgroundColor: 'purple'
+  },
+  green: {
+    backgroundColor: 'green'
+  },
+  yellow: {
+    backgroundColor: 'yellow'
+  },
+  orange: {
+    backgroundColor: 'orange'
+  },
+  blue: {
+    backgroundColor: 'blue'
+  }
+});
+const colors = ['green', 'yellow', 'orange', 'red', 'purple', 'blue'];
 
-export default class UndoCell extends Component {
-  render() {
-    const { rowData, role, currentUser } = this.props;
+class UndoCell extends Component {
+  getCell() {
+    const {
+ rowData, role, currentUser, SwipeActionHandler
+} = this.props;
 
-    const answer = (
-      <div
-        className={`tap undo rack-group-${styles[parseInt(rowData.round_pos, 10) % styles.length]}`}
-      >
-        {rowData.ten}
-      </div>
-    );
+    const answer = <div className={classNames('tap', 'undo')}>{rowData.ten}</div>;
 
     const undo = (
       <Undo
-        className={`undo rack-group-${styles[parseInt(rowData.round_pos, 10) % styles.length]}`}
+        className={`undo rack-group-${styles[parseInt(rowData.round_pos, 10) % colors.length]}`}
       />
     );
 
@@ -38,10 +60,25 @@ export default class UndoCell extends Component {
         return <span />;
     }
   }
+
+  render() {
+    const { classes, SwipeActionHandler } = this.props;
+    const cell = this.getCell();
+    return (
+      <HammerComponent
+        className={classes.root}
+        content={cell}
+        SwipeActionHandler={SwipeActionHandler}
+        {...this.props}
+      />
+    );
+  }
 }
 UndoCell.propTypes = {
+  classes: PropTypes.object.isRequired,
   role: PropTypes.string,
   rowData: PropTypes.any,
   currentUser: PropTypes.any,
   round_pos: PropTypes.any
 };
+export default withStyles(styles)(UndoCell);

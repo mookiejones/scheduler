@@ -4,8 +4,8 @@ import * as classnames from 'classnames';
 
 export default class Description extends Component {
   render() {
-    const { description, children } = this.props;
-
+    const { children } = this.props;
+    const description = children;
     const classname = 'tap description';
 
     if (description !== '') {
@@ -13,13 +13,13 @@ export default class Description extends Component {
         tap: true,
         description: true,
         label: true,
-        'label-default':
+        labelDefault:
           description !== 'Ship If Good'
           && description !== 'Build'
           && !/^(?:Do Not Ship|Red Hot !!)$/gi.test(description),
-        'label-danger': /^(?:Do Not Ship|Red Hot !!)$/gi.test(description),
-        'label-info': description === 'Ship If Good',
-        'label-warning': description === 'Build'
+        labelDanger: /^(?:Do Not Ship|Red Hot !!)$/gi.test(description),
+        labelInfo: description === 'Ship If Good',
+        labelWarning: description === 'Build'
       });
 
       return (

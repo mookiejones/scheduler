@@ -52,6 +52,8 @@ export default class DataItemBase {
     if (/\//.test(name) && !PRODUCTION) {
       const mach = /^([^/]+)(\/.*)/gi.exec(name);
       path = `${mach[1]}Test${mach[2]}`;
+    } else if (path !== 'GetEmployee') {
+      path += 'TEST';
     }
 
     const url = `${API_SERVER}/reporting/paint.asmx/${path}? HTTP/1.1`;
@@ -69,7 +71,16 @@ export default class DataItemBase {
   }
 
   static postData(name, body) {
-    const url = `${API_SERVER}/reporting/paint.asmx/${name}`;
+    let path = name;
+
+    // fix path so test goes before query
+    if (/\//.test(name) && !PRODUCTION) {
+      const mach = /^([^/]+)(\/.*)/gi.exec(name);
+      path = `${mach[1]}Test${mach[2]}`;
+    } else if (path !== 'GetEmployee') {
+      path += 'TEST';
+    }
+    const url = `${API_SERVER}/reporting/paint.asmx/${path}? HTTP/1.1`;
 
     const options = {
       method: 'POST',

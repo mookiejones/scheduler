@@ -3,8 +3,8 @@ import * as update from 'react-addons-update';
 import PropTypes from 'prop-types';
 import { Table, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-
-import ReactHammer from 'react-hammerjs';
+import HammerComponent from './HammerComponent';
+import classNames from 'classnames';
 
 import UndoCell from './UndoCell';
 import DataService from '../../api/DataService';
@@ -28,10 +28,32 @@ const getTagType = (classname) => {
   const result = /((?:undo|description|color|mold_skin_style|rework_color_chart|quantity|picked_by|staged_by))/i.exec(
     classname
   );
-  return result[0];
+  if(result)
+    return result[0];
+
+  return null;
 };
 
-const styles = theme =>({})
+const styles = () =>({
+  
+  root:{
+
+  },
+  selected: {
+
+  },
+  hover:{
+
+  },
+  head: {
+
+  },
+  footer: {
+
+  }
+})
+
+
 class PaintList extends Component {
   constructor(props) {
     super(props);
@@ -44,6 +66,7 @@ class PaintList extends Component {
     this._os = OS.getOSVersion();
     this.handleTap = this.handleTap.bind(this);
     this.handleSwipe = this.handleSwipe.bind(this);
+    this.handleUndo = this.handleUndo.bind(this);
     this.state = {
       data: [],
       connectionState: ConnectionStates.Disconnected, 
@@ -151,40 +174,35 @@ class PaintList extends Component {
   checkOut(data, rowIdx) {
     const { currentUser, environment } = this.props;
 
-    debugger;
-    let url;
+   
+    let url="CheckOutRow";
     const newdata = data;
-    newdata[newdata.length - 1] = currentUser.name;
+    newdata.picked_by = currentUser.name;
     // let query = { id: parseInt(data[0],10), pickedBy: this.state.currentUser.id }
-    const query = `id=${parseInt(data[0],10)}&pickedBy=${currentUser.id}`;
+    const query = `id=${parseInt(data.id,10)}&pickedBy=${currentUser.id}`;
+    const eventDate= new Date();
+    const body = {
+      id:parseInt(data.id,10),
+      pickedBy:currentUser.id,
+      checkOutDate:eventDate.toISOString()
+    };
 
-    if (environment === 'production') {
-      url = 'api/paint/CheckOutRow';
-    } else {
-      url = 'api/paint/CheckOutRowTest';
-    }
-
-    const request = new XMLHttpRequest();
-
-    request.open('POST', url, true);
-    // request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    request.setRequestHeader(
-      'Content-Type',
-      'application/x-www-form-urlencoded; charset=UTF-8'
-    );
-    request.onload = () => {
-      if (request.status >= 200 && request.status < 400) {
-        const msg = JSON.parse(request.response);
+    DataService.CheckOutRow(body)
+      .then(result=>{
+        
+       
         // let res = JSON.parse(msg.d);
-        if (msg.value > 0) {
+        if (result && result.value > 0) {
           this.checkOutSuccess(newdata, rowIdx);
         } else {
           this.performHardUpdate();
         }
-      } 
-    };
-    // request.send(JSON.stringify(query));
-    request.send(query);
+      
+      })
+      .catch(o=>{
+        debugger;
+      })
+ 
   }
 
   checkOutSuccess(newData, rowIdx) {
@@ -593,24 +611,25 @@ class PaintList extends Component {
     }
   }
 
-  TapActionHandler(rowIdx, tapTarget) {
-    debugger;
+  TapActionHandler(event, row) {
+  
     const { role, currentUser } = this.props;
+    const { classList } = event;
     const { data } = this.state;
-    const tag = getTagType(tapTarget.className);
+    const tag = getTagType(event.className);
     // const row = update(this.state.data[rowIdx], { $push: {} });
-    const row = data[rowIdx];
+   const idx = data.indexOf(row);
     switch (role) {
       case ASSIST:
         if (row.picked_by === AVAILABLE) {
-          this.checkOut(row, rowIdx);
+          this.checkOut(row, idx);
         } else if (
             row.picked_by === currentUser.name &&
            role === ASSIST &&
             this._os === OS.WINDOWS &&
-            tapTarget.classList.contains("label")
+            classList.contains("label")
           ) {
-            this.checkIn(row, rowIdx);
+            this.checkIn(row, idx);
           }
         break;
       case STAGE:
@@ -619,7 +638,7 @@ class PaintList extends Component {
           && row.handled_by !== AVAILABLE
           && row.staged_by !== AVAILABLE
           && this._os === OS.WINDOWS
-          && tapTarget.classList.contains('label')
+          && classList.contains('label')
         ) {
           this.stage(row);
         }
@@ -629,7 +648,7 @@ class PaintList extends Component {
           row.picked_by !== AVAILABLE
           && row.handled_by !== AVAILABLE
           && this._os === OS.WINDOWS
-          && tapTarget.classList.contains('label')
+          && classList.contains('label')
         ) {
           this.finalize(row);
         }
@@ -688,34 +707,16 @@ class PaintList extends Component {
   handleTap(event){
     debugger;
   }
+  handleUndo(event){
+    debugger;
+  }
 
   render() {
     const  hidden = { display: 'none' };
     const { data, connectionState, currentRoundNumber, currentRevision } = this.state;
-    const { role, environment, currentUser  } = this.props;
+    const { role, environment, currentUser, classes  } = this.props;
 
-    const HammerComponent = ({ children }) => (
-        <TableCell>
-          <ReactHammer onTap={this.onTap} onSwipe={this.onSwipe}>
-          <div>
-            {children}
-            </div>
-          </ReactHammer>
-        </TableCell>
-    );
-    const values = [
-      {key:'1',name:'undo', style:{ minWidth: '70px', lineHeight: '1.42857143' }, title:'' },
-      {key:'2',name:'master_id', style:hidden, title:'master_id'},
-      {key:'3',name:'round',style:hidden, title:'round'},
-      {key:'4',name:'round_position',style:hidden, title:'round_position'},
-      {key:'5',name:'description',style:{}, title:'Description'},
-      {key:'6',name:'color',style:{}, title:'Color'},
-      {key:'7',name:'mold_skin_style',style:{}, title:'Mold Skin Style'},
-      {key:'8',name:'rework_color_chart',style:{}, title:'Rework Color Chart'},
-      {key:'9',name:'quantity',style:{width:'70px'}, title:'Quantity'},
-      {key:'10',name:'handled_by',style:{width:'70px', display:'none'}, title:'Handled By'},
-      {key:'11',name:'picked_by',style:{}, title:'Picked By'},
-    ]
+   
     return (
       <div>
         {/* <ListTop
@@ -726,70 +727,57 @@ class PaintList extends Component {
           role={role}
         /> */}
         <Table>
-          <TableHead>
+          <TableHead style={{display:'block'}}>
             <TableRow>
               {
-                values.map(({key,title,style})=>(<TableCell key={key} style={style}>{title}</TableCell>))
+                Columns.filter(o=>o.visible)
+                  .map((c)=>{return (<TableCell variant='head' key={c.key} >{c.title}</TableCell>)})
               }
             </TableRow>
           </TableHead>
           <TableBody style={{ height: '60vh', overflow: 'auto', display: 'block' }}>
             { data.map((rowData, rowIdx) => {
-             
+             const colors = ['green', 'yellow', 'orange', 'red', 'purple', 'blue'];
+             const color={backgroundColor:colors[parseInt(rowData.round_pos, 10) % colors.length]}
               const rowKey = `paint-${rowIdx}`;
               if (rowIdx < 26) {
                 return ( 
                    
-                  <TableRow
-                  style={{ display: 'block' }}
-                  key={rowKey}                   
-                  >
-                    <TableCell>
-                      <HammerComponent>
+                  <TableRow hover className={classNames(classes.row)} key={rowKey} >
+                    
+                   
                       <UndoCell
-                         
+                        style={ color}
                         role={role}
                         key={`${rowData.id  }-0`}
                         rowData={rowData}
                         updatePartialQty={this.updatePartialQty}
                         currentUser={currentUser}
+                        TapActionHandler={this.TapActionHandler}
+                        SwipeActionHandler={this.SwipeActionHandler}
+                        UndoActionHandler={this.UndoActionHandler}
+                        {...this.props}
                       >
                         {rowData}
                       </UndoCell>
-                      </HammerComponent>
-                    </TableCell>
+                     
 
-                    {Columns.map((cell, colIdx) => {
-                      const value=rowData[cell.data];
-                      if (cell.visible !== false) {
-                        if (cell.CellRenderer) {
-                          return (
-                            <TableCell   key={rowData.id + "-" + colIdx} >
-                            <cell.CellRenderer 
-                              role={role}
-                           
-                              rowData={rowData}
-                              updatePartialQty={this.updatePartialQty}
-                              currentUser={currentUser}>
-                              {value}
-                            </cell.CellRenderer>
-                            </TableCell>
-                          );
-                        } 
-                          return (
-                           
-                            <TableCell  key={rowData.id + "-" + colIdx}>
- <HammerComponent>
-                            <div  className={cell.className ? cell.className : ""}
-                             >
-                              {rowData[cell.data]}
-                              </div>
-                              </HammerComponent>
-                            </TableCell>
-                          
-                          );
-                        
-                      }
+                    {Columns.filter( c =>c.visible)
+                      .map((cell, colIdx) => {
+
+                      const value = rowData[cell.data];
+                      const key=`${rowData.id}-${colIdx}`;
+                      return (
+                        <HammerComponent key={key} {...this.props}   
+                        rowData={rowData}
+                        TapActionHandler={this.TapActionHandler}
+                        SwipeActionHandler={this.SwipeActionHandler}
+                        UndoActionHandler={this.UndoActionHandler}>
+                          {cell.CellRenderer && <cell.CellRenderer className={classNames(classes.body)}  role={role} rowData={rowData} updatePartialQty={this.updatePartialQty} currentUser={currentUser}>{value}</cell.CellRenderer>}
+                          {!cell.CellRenderer && <div  className={classNames(classes.body,cell.className )}>{value}</div>}
+                        </HammerComponent>
+                      )
+                         
                     })}
                   </TableRow>
                 

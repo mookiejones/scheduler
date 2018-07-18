@@ -82,6 +82,24 @@ class DataService {
     // SqlHelper.AddColorRule(rule);
   }
 
+  static CheckOutRow(data) {
+    const url = `${API_SERVER}/reporting/paint.asmx/CheckOutRow`;
+
+    const body = stringify(data);
+
+    return DataItemBase.postData('CheckOutRow', body)
+      .then((o) => {
+        if (!o.ok) {
+          debugger;
+        }
+        return o.json();
+      })
+
+      .catch((error) => {
+        debugger;
+      });
+  }
+
   static SaveColorRule(item) {
     debugger;
     return DataItemBase.getDataPromise(`SaveColorRule/id/${item}`).then(DataService.GetColorRules);

@@ -38,7 +38,7 @@ export default class LoginDialog extends Component {
 
   render() {
     const { type, id } = this.state;
-    const { open, handleLogin } = this.props;
+    const { open } = this.props;
     const showValue = () => id || '';
     return (
       <Dialog disableBackdropClick disableEscapeKeyDown maxWidth='xs' open={open}>
@@ -62,10 +62,7 @@ export default class LoginDialog extends Component {
               <MenuItem value='stage'>Stage</MenuItem>
               <MenuItem value='load'>Load</MenuItem>
             </TextField>
-            <Button
-              onClick={this.handleLoginAction}
-              disabled={this.state.id == undefined || this.state.id === -1}
-            >
+            <Button onClick={this.handleLoginAction} disabled={id === undefined || id === -1}>
               Login
             </Button>
           </Grid>

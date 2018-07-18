@@ -1,24 +1,7 @@
 import DataItemBase from './DataItemBase';
 
 const isArray = item => Object.prototype.toString.call(item) === '[object Array]';
-const sortFn = function (a, b) {
-  const roundA = parseInt(a[2], 10);
-  const posA = parseInt(a[3], 10);
-  const roundB = parseInt(b[2], 10);
-  const posB = parseInt(b[3], 10);
-  const qtyA = parseInt(a[9], 10);
-  const qtyB = parseInt(b[9], 10);
 
-  if (roundA === roundB) {
-    // if round is the same, sort by round_position
-    if (posA === posB) {
-      return qtyA < qtyB ? -1 : qtyA > qtyB ? 1 : 0;
-    }
-    return posA < posB ? -1 : 1;
-    // return (posA < posB) ? -1 : (posA > posB) ? 1 : 0;
-  }
-  return roundA < roundB ? -1 : 1;
-};
 export default class PaintStageData extends DataItemBase {
   static fetch(isTesting) {
     console.info(`Fetching Paint Schedule Data testing: ${isTesting}`);
@@ -53,8 +36,11 @@ export default class PaintStageData extends DataItemBase {
         staged_by: item[11],
         handled_by: item[12],
         picked_by: item[13],
-        extra1: item[14],
-        extra2: item[15]
+        stage_id: item[14],
+        handle_id: item[15],
+        pick_id: item[16],
+        extra1: item[17],
+        extra2: item[18]
       }));
       // this.originalRows = value;
 
