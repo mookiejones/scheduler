@@ -1,0 +1,973 @@
+/**
+ * PaintList.
+ *
+ * Renders Items for Paint Load App.
+ *
+ * @since 7-25-2018
+ *
+ * @class PaintList
+ */
+
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import HammerRow from './HammerRow';
+import RackOwner from './RackOwner';
+import Calculator from './Calculator';
+import UndoCell from './UndoCell';
+import Description from './Description';
+import update from 'immutability-helper';
+import Fetch, { options } from '../../DataFetcher';
+import io from 'socket.io-client';
+
+import {
+  AVAILABLE,
+  ASSIST,
+  PRODUCTION,
+  STAGE,
+  WATCH,
+  LOAD,
+  UNDO_KEY,
+  ROUND_KEY,
+  GET_PAINT_PICK_LIST,
+  GET_PAINT_REVISE
+} from './Constants';
+/**
+ * Gets Formatted Date for Queries
+ * @param {Date} date
+ */
+const GetFormattedDate = (date) => {
+  let year = date.getFullYear();
+  let month = date.getMonth() + 1;
+  let day = date.getDate();
+
+  const result = `${year}-${month}-${day}`;
+  return result;
+};
+
+const sortFn = (a, b) => {
+  let roundA = parseInt(a.round, 10);
+  let posA = parseInt(a.round_position, 10);
+  let roundB = parseInt(b.round, 10);
+  let posB = parseInt(b.round_position, 10);
+  let qtyA = parseInt(a.quantity, 10);
+  let qtyB = parseInt(b.quantity, 10);
+
+  if (roundA === roundB) {
+    //if round is the same, sort by round_position
+    if (posA === posB) {
+      return qtyA < qtyB ? -1 : qtyA > qtyB ? 1 : 0;
+    } else {
+      return posA < posB ? -1 : 1;
+      //return (posA < posB) ? -1 : (posA > posB) ? 1 : 0;
+    }
+  } else {
+    return roundA < roundB ? -1 : 1;
+  }
+};
+
+const COLUMN_DEFINITIONS = [
+  {
+    title: '',
+    key: 'id',
+    data: 0,
+    className: UNDO_KEY,
+    orderable: false,
+    CellRenderer: UndoCell
+  },
+  {
+    key: 'master_id',
+    title: 'master_id',
+    data: 1,
+    visible: false,
+    orderable: false
+  },
+  {
+    key: ROUND_KEY,
+    title: ROUND_KEY,
+    data: 2,
+    visible: false,
+    orderable: true
+  },
+  {
+    key: 'round_position',
+    title: 'round pos',
+    data: 3,
+    visible: false,
+    orderable: true
+  },
+  {
+    key: 'program',
+    title: 'Description',
+    data: 4,
+    className: 'tap',
+    orderable: false,
+    CellRenderer: Description
+  },
+  { title: 'notes', key: 'notes', data: 5, visible: false, orderable: false },
+  { title: 'Color', key: 'color', data: 6, className: 'tap', orderable: false },
+  {
+    title: 'Mold Skin Style',
+    key: 'mold_skin_style',
+    data: 7,
+    className: 'tap',
+    orderable: false
+  },
+  {
+    title: 'Rework Color Chart',
+    key: 'rework_color_chart',
+    data: 8,
+    className: 'tap',
+    orderable: false
+  },
+  {
+    title: 'Quantity',
+    key: 'quantity',
+    data: 9,
+    className: 'tap',
+    orderable: false
+  },
+  {
+    title: '',
+    data: null,
+    className: 'action',
+    orderable: false,
+    visible: true,
+    CellRenderer: Calculator
+  },
+  { data: 10, visible: false, key: 'loc' },
+  {
+    title: 'StagedBy',
+    data: 11,
+    visible: false,
+    className: 'tap',
+    orderable: false,
+    key: 'staged_by'
+  },
+  {
+    title: 'handledBy',
+    data: 12,
+    visible: false,
+    className: 'tap',
+    orderable: false,
+    key: 'handled_by'
+  },
+  {
+    title: 'Picked By',
+    data: 13,
+    className: 'pickedBy tap',
+    orderable: false,
+    visible: true,
+    CellRenderer: RackOwner,
+    key: 'grab_by'
+  }
+];
+export default class PaintList extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: [],
+      currentRevision: '',
+      currentRoundNumber: ''
+    };
+    this.onRelease = this.onRelease.bind(this);
+    this.updateData = this.updateData.bind(this);
+    this.updatePaint = this.updatePaint.bind(this);
+    this.performHardUpdate = this.performHardUpdate.bind(this);
+    this.TapActionHandler = this.TapActionHandler.bind(this);
+    this.SwipeActionHandler = this.SwipeActionHandler.bind(this);
+    this.UndoActionHandler = this.UndoActionHandler.bind(this);
+    this.autoRefresh = this.autoRefresh.bind(this);
+  }
+
+  /**
+   *
+   * @param {*} result
+   */
+  updateData(result) {
+    const srtdData = result.sort(sortFn);
+
+    if (Object.prototype.toString.call(srtdData) === '[object Array]') {
+      this.setState({
+        data: srtdData,
+        currentRoundNumber: srtdData[0].round
+      });
+    } else {
+      this.setState({ data: srtdData });
+    }
+  }
+  /**
+   * updatePaint
+   * @param {*} data
+   */
+  updatePaint(data) {
+    let value = data[0].revision_name;
+    this.setState({ currentRevision: data[0].revision_name });
+  }
+
+  /**
+   *
+   */
+  componentDidMount() {
+    const { role, env } = this.props;
+    let url = 'GetPaintPickList';
+    switch (role) {
+      case STAGE:
+        url = 'GetPaintStageList';
+        break;
+      case WATCH:
+      case LOAD:
+        url = 'GetPaintLoadList';
+        break;
+      default:
+        break;
+    }
+
+    Fetch(url, env)
+      .then(this.updateData)
+      .catch(Fetch.HandleError);
+
+    Fetch(GET_PAINT_REVISE, env)
+      .then(this.updatePaint)
+      .catch(Fetch.HandleError);
+
+    this.refresh = setTimeout(this.autoRefresh, 35 * 1000);
+
+    const path =
+      env === PRODUCTION
+        ? 'http://normagnaapps1:5555/paint-load'
+        : 'http://nord:5555/paint-load';
+
+    this.socket = io(path);
+    this.socket
+      .on('rowupdate', this.updateRow)
+      .on('rowdelete', this.removeRow)
+      .on('newrow', this.newRow)
+      .on('update-notify', () => {
+        setTimeout(this.performHardUpdate(), 0);
+      })
+      .on('disconnect', () => {
+        console.warn('disconnected');
+      })
+      .on('reconnect', () => {
+        console.warn('connected');
+      });
+  }
+
+  /**
+   * componentWillUnmount
+   */
+  componentWillUnmount() {
+    clearTimeout(this.refresh);
+  }
+
+  /**
+   * autoRefresh
+   */
+  autoRefresh() {
+    this.performHardUpdate();
+    this.refresh = setTimeout(this.autoRefresh, 31 * 1000);
+  }
+
+  /**
+   * performHardUpdate
+   */
+  performHardUpdate() {
+    const { role, env } = this.props;
+    let url = 'GetPaintPickList';
+
+    if (env === PRODUCTION) {
+      if (role === STAGE) url = 'GetPaintStageList';
+      if (role === LOAD || role === WATCH) url = 'GetPaintLoadList';
+    }
+
+    Fetch(url, env)
+      .then((data) => {
+        const srtdData = data.sort(sortFn);
+        if (Object.prototype.toString.call(srtdData) === '[object Array]') {
+          this.setState({
+            data: srtdData,
+            currentRoundNumber: srtdData[0].round
+          });
+        } else {
+          this.setState({ data: srtdData });
+        }
+      })
+      .catch(Fetch.HandleError);
+
+    Fetch(GET_PAINT_REVISE, env)
+      .then((data) => {
+        this.setState({ currentRevision: data[0].revision_name });
+      })
+      .catch((error) => {
+        debugger;
+      });
+  }
+
+  /**
+   * Check out row
+   * @param {*} data
+   * @param {*} rowIdx
+   */
+  checkOut(data, rowIdx) {
+    const { currentUser, env } = this.props;
+
+    var newdata = data;
+    newdata.staged_by = currentUser.name;
+    const eventDate = GetFormattedDate(new Date());
+    var query = options({
+      id: parseInt(data.id, 10),
+      pickedBy: currentUser.id,
+      checkoutDate: eventDate
+    });
+
+    const url = 'CheckOutRow';
+    Fetch(url, env, query)
+      .then((d) => {
+        if (d.value > 0) {
+          this.checkOutSuccess(newdata, rowIdx);
+        } else {
+          this.performHardUpdate();
+        }
+      })
+      .catch(Fetch.HandleError);
+  }
+
+  /**
+   * Successfully Checked out Item
+   * @param {PaintRowData} newData
+   * @param {Number} rowIdx
+   */
+  checkOutSuccess(newData, rowIdx) {
+    var data = update(this.state.data, {});
+    data[rowIdx] = newData;
+    this.setState({
+      data: data
+    });
+    this.socket.emit('rowupdate', newData);
+  }
+
+  /**
+   * Check in item
+   * @param {RowData} data
+   * @param {Number} rowIdx
+   */
+  checkIn(data, rowIdx) {
+    const { env, currentUser } = this.props;
+
+    var newdata = data;
+    var request = new XMLHttpRequest();
+    newdata.grab_by = currentUser.name;
+    var query = {
+      id: data.id,
+      pickedBy: currentUser.id,
+      checkInDate: GetFormattedDate(new Date())
+    };
+    const url = 'CheckInRow';
+    Fetch(url, env, options(query))
+      .then((d) => {
+        if (d.value > 0) {
+          this.checkInSuccess(newdata, rowIdx);
+        } else {
+          this.performHardUpdate();
+        }
+      })
+      .catch(Fetch.HandleError);
+
+    // request.send(JSON.stringify(query));
+  }
+
+  checkInSuccess(newData, rowIdx) {
+    var dd = update(this.state.data, { $splice: [[rowIdx, 1]] });
+
+    if (
+      Object.prototype.toString.call(dd) === '[object Array]' &&
+      Object.prototype.toString.call(dd[0]) === '[object Array]' &&
+      dd[0].length > 2
+    ) {
+      this.setState({
+        data: dd,
+        currentRoundNumber: dd[0][2]
+      });
+    } else {
+      this.setState({ data: dd });
+    }
+    this.socket.emit('rowupdate', newData);
+  }
+
+  /**
+   *
+   * @param {*} data
+   * @param {*} newdata
+   * @param {*} rowIdx
+   */
+  onRelease(data, newdata, rowIdx) {
+    if (data.value > 0) {
+      this.releaseSuccess(newdata, rowIdx);
+    } else {
+      this.performHardUpdate();
+    }
+  }
+
+  /**
+   * Release Item
+   * @param {PaintRowItem} data
+   * @param {Number} rowIdx
+   */
+  release(data, rowIdx) {
+    var newdata = data;
+    const { currentUser, env } = this.props;
+
+    newdata.grab_by = AVAILABLE;
+    newdata.handled_by = AVAILABLE;
+    newdata.staged_by = AVAILABLE;
+
+    var query = { id: data.id, pickedBy: currentUser.id };
+    const o = options(query);
+    const url = 'ReleaseRow';
+
+    Fetch(url, env, o)
+      .then((d) => {
+        if (d.value > 0) {
+          this.releaseSuccess(newdata, rowIdx);
+        } else {
+          this.performHardUpdate();
+        }
+      })
+      .catch(Fetch.ErrorHandler);
+  }
+
+  /**
+   *
+   * @param {*} newData
+   * @param {*} rowIdx
+   */
+  releaseSuccess(newData, rowIdx) {
+    var data = update(this.state.data, { $push: [] });
+    data[rowIdx] = newData;
+    this.setState({
+      data: data
+    });
+    this.socket.emit('rowupdate', newData);
+  }
+
+  stage(data, rowIdx) {
+    debugger;
+    var url;
+    var newdata = data;
+    var request = new XMLHttpRequest();
+
+    //set Staged-By to current User
+    newdata[newdata.length - 3] = this.state.currentUser.name;
+
+    var query = { id: data[0], pickedBy: this.state.currentUser.id };
+
+    if (this.props.environment === PRODUCTION) {
+      url = '../paint.asmx/StageRow';
+    } else {
+      url = '../paint.asmx/StageRowTest';
+    }
+
+    request.open('POST', url, true);
+    request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    request.onload = () => {
+      if (request.status >= 200 && request.status < 400) {
+        var res = JSON.parse(request.response);
+        var responseData = JSON.parse(res.d);
+        if (responseData.value > 0) {
+          this.stageSuccess(newdata, rowIdx);
+        } else {
+          this.performHardUpdate();
+        }
+      } else {
+      }
+    };
+    request.send(JSON.stringify(query));
+  }
+
+  stageSuccess(newData, rowIdx) {
+    var data = update(this.state.data, { $splice: [[rowIdx, 1]] });
+    this.setState({
+      data: data
+    });
+    this.socket.emit('rowupdate', newData);
+  }
+
+  finalize(data) {
+    var query = { id: data[0], pickedBy: this.state.currentUser.id };
+    var url = 'FinalizeRow';
+
+    Fetch(url, options(query))
+      .then((data) => {
+        debugger;
+      })
+      .catch((error) => {
+        debugger;
+      });
+    // var request = new XMLHttpRequest();
+
+    // if (this.props.environment == PRODUCTION) {
+    //   url = '../paint.asmx/FinalizeRow';
+    // } else {
+    //   url = '../paint.asmx/FinalizeRowTest';
+    // }
+
+    // request.open('POST', url, true);
+    // request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    // request.onload = () => {
+    //   if (request.status >= 200 && request.status < 400) {
+    //     var res = JSON.parse(request.response);
+    //     var responseData = JSON.parse(res.d);
+    //     if (responseData.value > 0) {
+    //       this.finalizeSuccess(newdata, rowIdx);
+    //     } else {
+    //       this.performHardUpdate();
+    //     }
+    //   } else {
+    //   }
+    // };
+    // request.send(JSON.stringify(query));
+  }
+
+  finalizeSuccess(data) {
+    this.removeRow(data);
+    this.socket.emit('rowdelete', data);
+    var dd = this.state.data.slice();
+    if (
+      Object.prototype.toString.call(dd) === '[object Array]' &&
+      Object.prototype.toString.call(dd[0]) === '[object Array]' &&
+      dd[0].length > 2
+    ) {
+      this.setState({ currentRoundNumber: dd[0][2] });
+    }
+  }
+
+  updatePartialQty(amnt, data) {
+    debugger;
+    var url;
+    var currentRowData = data.slice();
+    var updatedRowData = data.slice();
+    var newRowData = data.slice();
+    newRowData[0] = '0';
+
+    var newQty = 0;
+    var updateAmt = parseInt(amnt, 10);
+    newQty = currentRowData[9] - updateAmt;
+
+    if (newQty < 0) newQty = 0;
+
+    updatedRowData[9] = updateAmt.toString();
+    newRowData[9] = newQty.toString();
+    newRowData[newRowData.length - 1] = AVAILABLE;
+
+    var query = {
+      id: currentRowData[0],
+      master_id: currentRowData[1],
+      pickedBy: this.state.currentUser.id,
+      amnt: updateAmt,
+      newAmnt: newQty
+    };
+    url = 'updatePartialQty';
+
+    var request = new XMLHttpRequest();
+
+    request.open('POST', url, true);
+    request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    request.onload = () => {
+      if (request.status >= 200 && request.status < 400) {
+        var res = JSON.parse(request.response);
+        var responseData = JSON.parse(res.d);
+        console.log(responseData);
+        if (responseData.numChanged > 0) {
+          this.updatePartialQtySuccess(
+            updatedRowData,
+            newRowData,
+            responseData
+          );
+        } else {
+          this.performHardUpdate();
+        }
+      } else {
+      }
+    };
+    request.send(JSON.stringify(query));
+
+    /*$.ajax({
+          method: "POST",
+          url: url,
+          data: JSON.stringify(query),
+          contentType: "application/json; charest=utf-8",
+          dataType: "json",
+          success (msg) {
+              var res = JSON.parse(msg.d);
+              if (res.numChanged > 0) { this.updatePartialQtySuccess(updatedRowData, newRowData, res); }
+              else { performHardUpdate(); }
+          }.bind(this),
+          error (request, status, error) {
+              console.log(error);
+          }
+      });*/
+  }
+
+  updatePartialQtySuccess(updatedRowData, newRowData, res) {
+    debugger;
+    this.updateRow(updatedRowData);
+    this.socket.emit('rowupdate', updatedRowData);
+    if (parseInt(res.newId, 10) > 1 && parseInt(newRowData[9], 10) > 0) {
+      newRowData[0] = res.newId.toString();
+      this.newRow(newRowData);
+      this.socket.emit('newrow', newRowData);
+    }
+  }
+  updateRow(newData) {
+    debugger;
+    var rowUpdated = false;
+    const { role } = this.props;
+    const { data } = this.state;
+    let d;
+    let temp;
+    if (role === LOAD) {
+      debugger;
+      // Test this
+      d = update(data, { $push: [] }).map((rowData) => {
+        if (rowData[0] === newData[0]) {
+          rowUpdated = true;
+          return newData;
+        } else {
+          return rowData;
+        }
+      });
+
+      d = update(data, { $push: [] });
+      temp = data.map(function(rowData) {
+        if (rowData[0] === newData[0]) {
+          rowUpdated = true;
+          return newData;
+        } else {
+          return rowData;
+        }
+      });
+
+      d = temp;
+      if (rowUpdated) this.setState({ data: d });
+    } else {
+      debugger;
+      if (role === STAGE) {
+      }
+      if (this.props.role === STAGE) {
+        if (
+          newData.staged_by !== AVAILABLE &&
+          newData[newData.length - 2] !== AVAILABLE &&
+          newData[newData.length - 3] !== AVAILABLE
+        ) {
+          this.removeRow(newData);
+        } else {
+          d = update(data, { $push: [] });
+          temp = d.map((rowData) => {
+            if (rowData[0] === newData[0]) {
+              rowUpdated = true;
+              return newData;
+            } else {
+              return rowData;
+            }
+          });
+          d = temp;
+          if (rowUpdated) {
+            this.setState({ data: d });
+          } else {
+            this.newRow(newData);
+          }
+        }
+      } else {
+        if (
+          newData.staged_by !== AVAILABLE &&
+          newData[newData.length - 2] !== AVAILABLE
+        ) {
+          this.removeRow(newData);
+        } else {
+          d = update(data, { $push: [] });
+          temp = d.map((rowData) => {
+            if (rowData[0] === newData[0]) {
+              rowUpdated = true;
+              return newData;
+            } else {
+              return rowData;
+            }
+          });
+          d = temp;
+          if (rowUpdated) {
+            this.setState({ data: d });
+          } else {
+            this.newRow(newData);
+          }
+        }
+      }
+    }
+  }
+
+  removeRow(row) {
+    var idx = -1;
+    debugger;
+    var data = update(this.state.data, { $push: [] });
+    // eslint-disable-next-line
+    data.map(function(rowData, rowIdx) {
+      if (rowData[0] === row[0]) idx = rowIdx;
+    });
+
+    if (idx > -1) {
+      data = update(this.state.data, { $splice: [[idx, 1]] });
+      this.setState({ data: data });
+    }
+  }
+
+  /**
+   * Add new row
+   * @param {*} newData
+   */
+  newRow(newData) {
+    var exists = false;
+    const { data } = this.state;
+    let d = update(this.state.data, { $push: [] });
+    exists = d.some((rowData) => rowData[0] === newData[0]);
+
+    if (!exists) {
+      d = update(data, { $push: [newData] });
+      d.sort(sortFn);
+      this.setState({ data: d });
+    }
+  }
+
+  UndoActionHandler(rowIdx) {
+    const { data } = this.state;
+    const { currentUser } = this.props;
+
+    let row = update(data[rowIdx], { $merge: {} });
+
+    const { role } = this.props;
+    switch (role) {
+      case ASSIST:
+        if (row.grab_by === currentUser.name) {
+          this.release(row, rowIdx);
+        }
+        break;
+      case STAGE:
+        if (row.staged_by !== AVAILABLE && row.handled_by !== AVAILABLE) {
+          this.release(row, rowIdx);
+        }
+        break;
+      case LOAD:
+        if (row.staged_by !== AVAILABLE && row.handled_by !== AVAILABLE) {
+          this.release(row, rowIdx);
+        }
+        break;
+
+      default:
+    }
+  }
+
+  TapActionHandler(rowIdx, tapTarget) {
+    const {
+      role,
+      currentUser: { name },
+      OSName
+    } = this.props;
+    const { data } = this.state;
+
+    var row = update(data[rowIdx], {});
+    switch (role) {
+      case ASSIST:
+        if (row.staged_by === AVAILABLE) {
+          this.checkOut(row, rowIdx);
+        } else {
+          if (
+            row.staged_by === name &&
+            role === ASSIST &&
+            OSName === 'Windows' &&
+            tapTarget.classList.contains('label')
+          ) {
+            this.checkIn(row, rowIdx);
+          }
+        }
+        break;
+      case STAGE:
+        if (
+          row.staged_by !== AVAILABLE &&
+          row.handled_by !== AVAILABLE &&
+          row.grabbed_by !== AVAILABLE &&
+          OSName === 'Windows' &&
+          tapTarget.classList.contains('label')
+        ) {
+          this.stage(row);
+        }
+        break;
+      case LOAD:
+        if (
+          row.staged_by !== AVAILABLE &&
+          row.handled_by !== AVAILABLE &&
+          OSName === 'Windows' &&
+          tapTarget.classList.contains('label')
+        ) {
+          this.finalize(row);
+        }
+        break;
+      default:
+    }
+  }
+
+  SwipeActionHandler(rowIdx) {
+    debugger;
+    const { data } = this.state;
+    const {
+      role,
+      currentUser: { name }
+    } = this.props;
+    var row = update(data[rowIdx], {});
+
+    switch (role) {
+      case ASSIST:
+        if (row.staged_by === name && role === ASSIST)
+          this.checkIn(row, rowIdx);
+
+        break;
+      case STAGE:
+        if (row.staged_by !== AVAILABLE && row.handled_by !== AVAILABLE) {
+          this.stage(row, rowIdx);
+        }
+        break;
+      case LOAD:
+        if (row.staged_by !== AVAILABLE && row.handled_by !== AVAILABLE) {
+          this.finalize(row);
+        }
+        break;
+      default:
+    }
+  }
+
+  render() {
+    const hidden = { display: 'none' };
+    const { role, currentUser, env } = this.props;
+    const { currentRoundNumber, currentRevision, data } = this.state;
+    const label = role === LOAD ? 'Load' : role === STAGE ? 'Staging' : 'Pick';
+    const title = `Paint ${label} List`;
+    return (
+      <div>
+        <div>
+          <ul className="nav nav-pills" role="tablist">
+            <li role="presentation">
+              <h1>{title}</h1>
+            </li>
+            <li role="presentation" style={{ margin: '30px 15px 0px 15px' }}>
+              Current Round <span className="badge">{currentRoundNumber}</span>
+            </li>
+            <li role="presentation" style={{ margin: '30px 15px 0px 15px' }}>
+              Schedule Revision{' '}
+              <span className="badge">{currentRoundNumber}</span>
+            </li>
+            <li style={{ margin: '23px 15px 0px 15px' }}>
+              <div className="form-group">
+                <input
+                  type="checkbox"
+                  name="rework-checkbox"
+                  id="rework-checkbox"
+                  autoComplete="off"
+                />
+                <div className="btn-group">
+                  <label htmlFor="rework-checkbox" className="btn btn-default">
+                    <span className="glyphicon glyphicon-ok" />
+                    <span>{''}</span>
+                  </label>
+                  <label
+                    htmlFor="rework-checkbox"
+                    className="btn btn-default active">
+                    Rework Driver
+                  </label>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <table className="table table-bordered">
+          <thead>
+            <tr>
+              <th className="undo" />
+              <th style={hidden}>master_id </th>
+              <th style={hidden}>round</th>
+              <th style={hidden}>round_position</th>
+              <th>Description</th>
+              <th>Color</th>
+              <th>Mold Skin Style</th>
+              <th>Rework Color Chart</th>
+              <th>Quantity</th>
+              <th className="action" style={{ width: '70px' }} />
+              <th style={hidden}>Handled By</th>
+              <th>Picked By</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((rowData, rowIdx) => {
+              if (rowIdx < 26) {
+                return (
+                  <HammerRow
+                    role={role}
+                    key={rowData.id}
+                    rowId={rowIdx}
+                    rowData={rowData}
+                    UndoActionHandler={this.UndoActionHandler}
+                    TapActionHandler={this.TapActionHandler}
+                    SwipeActionHandler={this.SwipeActionHandler}
+                    currentUser={currentUser}>
+                    {COLUMN_DEFINITIONS.map((columnMetaData, colIdx) => {
+                      const value = rowData[columnMetaData.key];
+
+                      if (columnMetaData.visible !== false) {
+                        if (columnMetaData.CellRenderer)
+                          return (
+                            <columnMetaData.CellRenderer
+                              role={role}
+                              key={rowData.id + '-' + colIdx}
+                              rowData={rowData}
+                              updatePartialQty={this.updatePartialQty}
+                              currentUser={currentUser}>
+                              {value}
+                            </columnMetaData.CellRenderer>
+                          );
+                        else
+                          return (
+                            <td
+                              className={
+                                columnMetaData.className
+                                  ? columnMetaData.className
+                                  : ''
+                              }
+                              key={rowData.id + '-' + colIdx}>
+                              {value}
+                            </td>
+                          );
+                      }
+                    })}
+                  </HammerRow>
+                );
+              }
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+}
+
+PaintList.propTypes = {
+  OSName: PropTypes.string.isRequired,
+  role: PropTypes.string.isRequired,
+  currentUser: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    img: PropTypes.string,
+    imgPath: PropTypes.string,
+    name: PropTypes.string
+  }),
+  route: PropTypes.shape({
+    env: PropTypes.string,
+    path: PropTypes.string,
+    component: PropTypes.any
+  })
+};

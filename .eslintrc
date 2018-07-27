@@ -1,0 +1,33 @@
+{
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    "env": {
+        "browser": true,
+        "node": true
+    },
+    "plugins": [
+        "react"
+    ],
+    "rules": {
+        "no-extend-native": "off",
+        "semi": 2,
+        "no-console": "off",
+        "no-restricted-globals": [
+            "error", {
+                "name": "event",
+                "message": "IDK"
+            }
+        ]
+    }
+}
+
+}
