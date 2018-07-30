@@ -30,6 +30,7 @@ class PaintScheduleEditor extends Component {
     this.env = props.env;
 
     this.state = {
+      isMounted: false,
       alertContent: '',
       changedRows: [],
       expandedRows: {},
@@ -675,12 +676,16 @@ class PaintScheduleEditor extends Component {
       o.contains = o.contains === 1;
       return o;
     });
+    this.showAlert(`Changed ${result.result.value} rules`);
     this.setState({ rules: rules });
   }
 
   handleAddColorRule() {
     Fetch('AddColorRule', this.env)
-      .then((result) => this.setState({ rules: convertItems(result.items) }))
+      .then((result) => {
+        debugger;
+        this.setState({ rules: convertItems(result.items) });
+      })
       .catch((error) => {
         debugger;
       });
@@ -729,7 +734,7 @@ class PaintScheduleEditor extends Component {
      */
     const styling = rules.map(
       ({ title, color }) =>
-        `.${title}>div{ background-color:${color}!important;}`
+        `.${title}>div{ background-color:${color}!important;color:black;}`
     );
 
     const contextMenu = (
@@ -748,59 +753,64 @@ class PaintScheduleEditor extends Component {
         onCopySelectedAbove={this.onCopySelectedAbove}
       />
     );
+
+    const DataGrid = (
+      <div>
+        <style type="text/css">{styling}</style>
+
+        <SettingsDialog
+          rules={rules}
+          show={showSettings}
+          handleDeleteColorRule={this.handleDeleteColorRule}
+          handleAddColorRule={this.handleAddColorRule}
+          handleSettingsClick={this.handleSettingsClick}
+          handleCommit={this.handleCommitRule}
+        />
+
+        <TopSection
+          rows={rows.length}
+          round={selectedRound}
+          roundSummary={roundSummary}
+          handleSettingsClick={this.handleSettingsClick}
+        />
+
+        {/* rowHeight={50} 
+      toolbar={<Toolbar enableFilter={true} 
+      */}
+        <ReactDataGrid
+          minHeight={height}
+          contextMenu={contextMenu}
+          enableCellSelect={true}
+          onColumnResize={this.onColumnResize}
+          onGridRowsUpdated={this.handleGridRowsUpdated}
+          onCellSelected={this.onCellSelected}
+          columns={columns}
+          rowGetter={this.rowGetter}
+          rowsCount={rows.length}
+          scrollToRowIndex={scrollToRowIndex}
+          rowRenderer={
+            <RowRenderer
+              getProgramColors={this.getProgramColors}
+              rules={rules}
+            />
+          }
+        />
+        <AddNewRoundButton
+          newRows={newRows}
+          handleAddNewRound={this.addNewRound}
+        />
+        {selectedRounds.length > 0 && <button>Delete Rounds</button>}
+        <AlertComponent content={alertContent} />
+      </div>
+    );
+
+    const Loader = <LoadingIcon loading={loaded} />;
+
     return (
       // eslint-disable-next-line
       <div className="rdg">
-        {loaded && (
-          <div>
-            <style type="text/css">{styling}</style>
-
-            <SettingsDialog
-              rules={rules}
-              show={showSettings}
-              handleDeleteColorRule={this.handleDeleteColorRule}
-              handleAddColorRule={this.handleAddColorRule}
-              handleSettingsClick={this.handleSettingsClick}
-              handleCommit={this.handleCommitRule}
-            />
-
-            <TopSection
-              rows={rows.length}
-              round={selectedRound}
-              roundSummary={roundSummary}
-              handleSettingsClick={this.handleSettingsClick}
-            />
-
-            {/* rowHeight={50} 
-          toolbar={<Toolbar enableFilter={true} 
-          */}
-            <ReactDataGrid
-              minHeight={height}
-              contextMenu={contextMenu}
-              enableCellSelect={true}
-              onColumnResize={this.onColumnResize}
-              onGridRowsUpdated={this.handleGridRowsUpdated}
-              onCellSelected={this.onCellSelected}
-              columns={columns}
-              rowGetter={this.rowGetter}
-              rowsCount={rows.length}
-              scrollToRowIndex={scrollToRowIndex}
-              rowRenderer={
-                <RowRenderer
-                  getProgramColors={this.getProgramColors}
-                  rules={rules}
-                />
-              }
-            />
-            <AddNewRoundButton
-              newRows={newRows}
-              handleAddNewRound={this.addNewRound}
-            />
-            {selectedRounds.length > 0 && <button>Delete Rounds</button>}
-            <AlertComponent content={alertContent} />
-          </div>
-        )}
-        {!loaded && <LoadingIcon loading={loaded} />}
+        {loaded && DataGrid}
+        {!loaded && Loader}
       </div>
     );
   }

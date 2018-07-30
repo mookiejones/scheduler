@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { Fetch, options, URLS } from '../../shared';
+import { Alert, Button } from 'react-bootstrap';
 export default class ExcelImport extends Component {
   constructor(props) {
     super(props);
@@ -19,11 +20,22 @@ export default class ExcelImport extends Component {
         hidden: true,
         bold: '',
         normal: ''
-      }
+      },
+      showAlert: false
     };
+
+    this.handleShow = this.handleShow.bind(this);
+    this.handleDismiss = this.handleDismiss.bind(this);
   }
 
-  componentWillMount() {
+  handleShow() {
+    this.setState({ showAlert: true });
+  }
+
+  handleDismiss() {
+    this.setState({ showAlert: false });
+  }
+  componentDidMount() {
     this.loadRound();
   }
   showHide() {
@@ -138,8 +150,9 @@ export default class ExcelImport extends Component {
     }
   }
   toDB() {
-    var length = this.state.importRnds.length;
-    var data = JSON.stringify({ tblData: this.state.importRnds });
+    const { importRnds } = this.state;
+
+    var data = JSON.stringify({ tblData: importRnds });
     var revise = this.revisionInput.value;
 
     if (revise.length > 0) {
@@ -250,11 +263,19 @@ export default class ExcelImport extends Component {
     this.setState({ selectedIdx: id });
   }
   loadRound() {
-    debugger;
-
     Fetch(URLS.GetRounds, this.env, options({ go: 2 }))
       .then((d) => {
         debugger;
+        let allRnds = [];
+        let tchdRnds = [];
+        if (d.length !== 0) {
+          allRnds = d;
+          tchdRnds = [];
+        }
+        this.setState({
+          allRnds,
+          tchdRnds
+        });
         // if (temp === '-1') {
         //   //allRnds = [];
         //   //tchdRnds = [];
@@ -275,6 +296,7 @@ export default class ExcelImport extends Component {
       });
   }
   render() {
+    const { alertTxt } = this.state;
     var viewStateClass = classnames({
       hidden: this.state.mainViewActive
     });
@@ -289,22 +311,18 @@ export default class ExcelImport extends Component {
 
     return (
       <div className="rdg">
-        <div id="alertBox" className={alertClass}>
-          <div className="alert alert-success">
-            <a
-              href="#"
-              className="close"
-              onClick={(e) => {
-                e.preventDefault();
-                this.setState({ alertTxt: { hidden: true } });
-              }}
-              aria-label="close">
+        <Alert bsStyle="success" onDismiss={this.handleDismiss}>
+          <p>
+            <strong>{alertTxt.bold}</strong>
+            {` -${alertTxt.normal}`}
+          </p>
+          <p>
+            <Button bsStyle="success" onClick={this.handleDismiss}>
               &times;
-            </a>
-            <strong>{this.state.alertTxt.bold}</strong> -{' '}
-            {this.state.alertTxt.normal}
-          </div>
-        </div>
+            </Button>
+          </p>
+        </Alert>
+
         <div id="divDel" className={viewStateClass}>
           Select A Round To Delete:
           <select

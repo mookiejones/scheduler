@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Route, HashRouter, Switch, NavLink as NL } from 'react-router-dom';
+import { Route, HashRouter, Switch } from 'react-router-dom';
 
 import PaintScheduleEditor from '../PaintScheduleEditor';
 import StyleCodeEditor from '../style-code-editor/StyleCodeEditor';

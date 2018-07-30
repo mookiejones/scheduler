@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
 import { ColorPropType } from '../../shared/sharedTypes';
-
+import { defaultKeys } from './RoundDataItem';
 /**
  * rules come from database
  * DB:SmallProjects
@@ -29,6 +29,7 @@ import * as Addons from 'react-data-grid-addons';
 
 const {
   Toolbar,
+  Editors: { AutoComplete: AutoCompleteEditor },
   Menu: { ContextMenu, MenuItem }
 } = Addons;
 
@@ -40,6 +41,14 @@ const SettingsContextMenu = ({ id, handleDeleteColorRule, rowIdx, idx }) => (
   </ContextMenu>
 );
 
+const elements = defaultKeys.sort().map((dk) => {
+  return {
+    id: dk,
+    title: dk
+  };
+});
+
+const ElementEditor = <AutoCompleteEditor options={elements} />;
 /**
  * @class SettingsDialog
  */
@@ -78,7 +87,8 @@ export default class SettingsDialog extends Component {
       {
         key: 'element',
         name: 'Element',
-        type: 'text',
+        editable: 'true',
+        editor: ElementEditor,
         resizable: 'true'
       },
       {
@@ -91,7 +101,6 @@ export default class SettingsDialog extends Component {
         resizable: true
       }
     ];
-    this.handleChange = this.handleChange.bind(this);
   }
   handleClose(e) {
     this.setState({ show: false });
@@ -99,13 +108,6 @@ export default class SettingsDialog extends Component {
 
   handleShow() {
     this.setState({ show: true });
-  }
-
-  handleChange(orig, item) {
-    let rule = this.state.rules.findIndex((r) => r.id === orig.id);
-    debugger;
-    const rs = update(this.state.rules[rule], { $merge: item });
-    this.setState({ rules: this.state.rules });
   }
 
   handleAddRow = ({ newRowIndex }) => {
@@ -121,17 +123,16 @@ export default class SettingsDialog extends Component {
   };
 
   handleGridRowsUpdated = ({ fromRow, toRow, updated }) => {
-    let rules = this.props.rules.slice();
+    const { rules, handleCommit } = this.props;
 
     for (let i = fromRow; i <= toRow; i++) {
-      let rowToUpdate = rules[i];
-      let updatedRow = update(rowToUpdate, { $merge: updated });
-      rules[i] = updatedRow;
+      let updatedRow = update(rules[i], { $merge: updated });
+      handleCommit(i, { rule: updatedRow });
     }
-    this.setState({ rules });
   };
 
   getRowAt = (index) => {
+    const { rules } = this.props;
     if (index < 0 || index > this.getSize()) {
       return undefined;
     }
@@ -143,14 +144,7 @@ export default class SettingsDialog extends Component {
     debugger;
   }
   render() {
-    const { show, handleSettingsClick, rules, handleAddColorRule } = this.props;
-    const popover = (
-      <Popover id="modal-popover" title="popover">
-        very popover. such engagement
-      </Popover>
-    );
-
-    const tooltip = <Tooltip id="modal-tooltip">wow.</Tooltip>;
+    const { show, handleSettingsClick, handleAddColorRule } = this.props;
 
     return (
       <div className="modal-container">

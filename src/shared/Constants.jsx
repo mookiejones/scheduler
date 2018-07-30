@@ -1,4 +1,4 @@
-export const VERSION = '1.4';
+export const VERSION = '1.4.1';
 export const DELETE = 'DELETE';
 export const UPDATE = 'UPDATE';
 export const AVAILABLE = '##AVAILABLE##';

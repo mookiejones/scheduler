@@ -7,7 +7,7 @@ import { Fetch, options as opts, URLS } from '../../shared';
 import { styles } from '../styles/program-colors';
 import { ReactiveBtn, Grids } from './Components';
 
-function transform2(pc) {
+const transform2 = (pc) => {
   var program_colors = [];
   var program_color = { program: null, colors: [] };
 
@@ -30,7 +30,7 @@ function transform2(pc) {
   }
   if (program_color['program'] != null) program_colors.push(program_color);
   return program_colors;
-}
+};
 function matchInputToProgram(item, value) {
   return item.program.toLowerCase().includes(value.toLowerCase());
 }

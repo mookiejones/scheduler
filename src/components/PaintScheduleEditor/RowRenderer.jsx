@@ -26,8 +26,6 @@ export default class RowRenderer extends Component {
     const { row, columns, getProgramColors, rules } = this.props;
 
     var id = row.id || '';
-    var color = (row.color || '').toLowerCase();
-    var notes = (row.notes || '').toLowerCase();
 
     var pgc = getProgramColors(row.style_code);
     let c = rules.map((o) => {

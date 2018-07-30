@@ -9,10 +9,10 @@ export default class LoadingIcon extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      progress: 10
+      progress: 10,
+      isMounted: false
     };
     this.updateTimer = this.updateTimer.bind(this);
-    setInterval(this.updateTimer, 1);
   }
 
   updateTimer() {
