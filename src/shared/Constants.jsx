@@ -1,4 +1,7 @@
-export const VERSION = '1.4.1';
+import * as fs from 'fs';
+const p = require('../../package.json');
+
+export const VERSION = p.version;
 export const DELETE = 'DELETE';
 export const UPDATE = 'UPDATE';
 export const AVAILABLE = '##AVAILABLE##';
