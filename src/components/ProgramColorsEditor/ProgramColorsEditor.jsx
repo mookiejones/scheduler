@@ -7,6 +7,18 @@ import { Fetch, options as opts, URLS } from '../../shared';
 import { styles } from '../styles/program-colors';
 import { ReactiveBtn, Grids } from './Components';
 
+import {
+  SplitButton,
+  MenuItem,
+  Well,
+  Form,
+  Button,
+  ListGroup,
+  ListGroupItem,
+  FormGroup,
+  ControlLabel
+} from 'react-bootstrap';
+
 const transform2 = (pc) => {
   var program_colors = [];
   var program_color = { program: null, colors: [] };
@@ -31,17 +43,19 @@ const transform2 = (pc) => {
   if (program_color['program'] != null) program_colors.push(program_color);
   return program_colors;
 };
-function matchInputToProgram(item, value) {
-  return item.program.toLowerCase().includes(value.toLowerCase());
-}
-function indexOf(propName, value, array) {
+
+const matchInputToProgram = ({ program }, value) => {
+  return program.toLowerCase().includes(value.toLowerCase());
+};
+
+const indexOf = (propName, value, array) => {
   for (var x = 0; x < array.length; x++) {
     if (array[x][propName] === value) {
       return x;
     }
   }
   return -1;
-}
+};
 
 /**
  * @class ProgramColorsEditor
@@ -85,7 +99,14 @@ export default class ProgramColorsEditor extends Component {
   }
   componentDidMount() {
     Fetch(URLS.GetProgramColors, this.env)
-      .then(this.gotProgramColors)
+      .then(transform2)
+      .then((d) =>
+        this.setState({
+          programColors: d,
+          selectedProgram: d[0].program,
+          selectedProgramIdx: 0
+        })
+      )
       .catch(console.error);
 
     Fetch(URLS.GetPaintSchedulePrograms, this.env)
@@ -177,6 +198,7 @@ export default class ProgramColorsEditor extends Component {
       colors,
       programColors,
       selected,
+      selectedProgramIdx,
       selectedColor
     } = this.state;
 
@@ -190,97 +212,88 @@ export default class ProgramColorsEditor extends Component {
 
     return (
       <div className="pcl">
-        <div className="well" style={{ marginTop: '15px' }}>
+        <Well style={{ marginTop: '15px' }}>
           <h3>Add a New Program Color: </h3>
-          <div style={{ display: 'flex' }} className="form-group">
-            <div>
-              <div>
-                <label>Program: </label>
-              </div>
-              <div style={{ marginLeft: '15px' }}>
-                <Autocomplete
-                  style={{ marginLeft: '25px' }}
-                  menuStyle={styles.menuStyle}
-                  value={selectedProgram}
-                  inputProps={{
-                    name: 'Programs',
-                    className: 'form-control',
-                    id: 'programs-autocomplete2'
-                  }}
-                  shouldItemRender={matchInputToProgram}
-                  items={programs}
-                  getItemValue={(item) => item.program}
-                  onChange={(event, value) =>
-                    this.setState({ selectedProgram: value })
-                  }
-                  onSelect={(value) =>
-                    this.setState({ selectedProgram: value })
-                  }
-                  renderItem={(item, isHighlighted) => (
-                    <div
-                      style={
-                        isHighlighted ? styles.highlightedItem : styles.item
-                      }
-                      key={item.id}>
-                      {item.program}
-                    </div>
-                  )}
-                />
-              </div>
-            </div>
-            <div>
-              <div>
-                <label>Color: </label>
-              </div>
-              <div style={{ marginLeft: '15px' }}>
-                <Autocomplete
-                  menuStyle={styles.menuStyle}
-                  value={selectedColor}
-                  inputProps={{
-                    name: 'Programs',
-                    className: 'form-control',
-                    id: 'programs-autocomplete'
-                  }}
-                  shouldItemRender={this.filterExistingCombinations}
-                  items={colors}
-                  getItemValue={(item) => item.color}
-                  onChange={(event, value) =>
-                    this.setState({ selectedColor: value })
-                  }
-                  onSelect={(value) => this.setState({ selectedColor: value })}
-                  renderItem={(item, isHighlighted) => (
-                    <div
-                      style={
-                        isHighlighted ? styles.highlightedItem : styles.item
-                      }
-                      key={item.id}>
-                      {item.color}
-                    </div>
-                  )}
-                />
-              </div>
-            </div>
-          </div>
-          <ReactiveBtn
-            style={{ marginLeft: '15px' }}
-            clickEvent={this.addNewProgramStyle}
-            text="Add"
-            className={BtnClass}
-          />
-        </div>
-        <ul className="list">
-          {programColors.map(function(program, i) {
-            return (
-              <Grids
-                key={i}
-                cb={this.callback}
-                programColors={program}
-                onRowClick={this.onRowClick}
-                selectedIndexes={selected[program.program]}
+          <Form inline>
+            <FormGroup id="programName">
+              <ControlLabel>Program:&nbsp;&nbsp;</ControlLabel>
+
+              <Autocomplete
+                style={{ marginLeft: '25px', marginRight: '25px' }}
+                menuStyle={styles.menuStyle}
+                value={selectedProgram}
+                inputProps={{
+                  name: 'Programs',
+                  className: 'form-control',
+                  id: 'programs-autocomplete2'
+                }}
+                shouldItemRender={matchInputToProgram}
+                items={programs}
+                getItemValue={(item) => item.program}
+                onChange={(event, value) =>
+                  this.setState({ selectedProgram: value })
+                }
+                onSelect={(value) => this.setState({ selectedProgram: value })}
+                renderItem={(item, isHighlighted) => (
+                  <div
+                    style={isHighlighted ? styles.highlightedItem : styles.item}
+                    key={item.id}>
+                    {item.program}
+                  </div>
+                )}
               />
-            );
-          }, this)}
-        </ul>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>&nbsp;&nbsp;Color:&nbsp;&nbsp;</ControlLabel>
+
+              <Autocomplete
+                menuStyle={styles.menuStyle}
+                value={selectedColor}
+                inputProps={{
+                  name: 'Programs',
+                  className: 'form-control',
+                  id: 'programs-autocomplete'
+                }}
+                shouldItemRender={this.filterExistingCombinations}
+                items={colors}
+                getItemValue={(item) => item.color}
+                onChange={(event, value) =>
+                  this.setState({ selectedColor: value })
+                }
+                onSelect={(value) => this.setState({ selectedColor: value })}
+                renderItem={(item, isHighlighted) => (
+                  <div
+                    style={isHighlighted ? styles.highlightedItem : styles.item}
+                    key={item.id}>
+                    {item.color}
+                  </div>
+                )}
+              />
+            </FormGroup>
+
+            <Button onClick={this.addNewProgramStyle}>Add</Button>
+          </Form>
+        </Well>
+        <SplitButton title={selectedProgram} bsSize="large">
+          {programColors.map((p, idx) => (
+            <MenuItem
+              eventKey={idx}
+              onSelect={() => this.setState({ selectedProgramIdx: idx })}>
+              {p.program}
+            </MenuItem>
+          ))}
+        </SplitButton>
+
+        {programColors.length > 0 && (
+          <Grids
+            cb={this.callback}
+            programColors={programColors[selectedProgramIdx]}
+            onRowClick={this.onRowClick}
+            selectedIndexes={
+              selected[programColors[selectedProgramIdx].program]
+            }
+          />
+        )}
       </div>
     );
   }

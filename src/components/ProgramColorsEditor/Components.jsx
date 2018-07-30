@@ -54,28 +54,24 @@ class Grids extends Component {
       selectedIndexes
     } = this.props;
     return (
-      <div className="list-item">
-        <div className="list-content">
-          <ReactDataGrid
-            rowKey="pc"
-            onRowClick={this.onRowClick}
-            columns={[
-              {
-                key: 'pc',
-                name: program,
-                editable: true
-              }
-            ]}
-            rowGetter={(rowidx) => {
-              return colors[rowidx];
-            }}
-            rowsCount={colors.length}
-            minHeight={250}
-            rowRenderer={RowRenderer}
-            selectedIndexes={selectedIndexes}
-          />
-        </div>
-      </div>
+      <ReactDataGrid
+        rowKey="pc"
+        onRowClick={this.onRowClick}
+        columns={[
+          {
+            key: 'pc',
+            name: program,
+            editable: true
+          }
+        ]}
+        rowGetter={(rowidx) => {
+          return colors[rowidx];
+        }}
+        rowsCount={colors.length}
+        minHeight={250}
+        rowRenderer={RowRenderer}
+        selectedIndexes={selectedIndexes}
+      />
     );
   }
 }
