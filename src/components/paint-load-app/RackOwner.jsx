@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { AVAILABLE } from './Constants';
+import { AVAILABLE } from '../../shared/Constants';
 
 export default class RackOwner extends Component {
   componentDidMount() {}

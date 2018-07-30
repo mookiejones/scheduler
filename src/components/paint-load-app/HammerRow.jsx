@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { AVAILABLE, ASSIST, STAGE, LOAD } from './Constants';
+import { AVAILABLE, ASSIST, STAGE, LOAD } from '../../shared/Constants';
 import Hammer from 'hammerjs';
+
+/**
+ * @class HammerRow
+ */
 export default class HammerRow extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     const { rowData } = this.props;

@@ -3,10 +3,10 @@ import ReactDataGrid from 'react-data-grid';
 import PropTypes from 'prop-types';
 
 import update from 'immutability-helper';
-import Fetch, { options } from '../../DataFetcher';
+
 import { StyleCodeEditorContextMenu } from '../menus/context';
 import RowRenderer from './RowRenderer';
-
+import { Fetch, options, URLS } from '../../shared';
 import {
   CustomerOptionsEditor,
   AssemblyFlowOptionsEditor,
@@ -107,12 +107,12 @@ export default class StyleCodeEditor extends Component {
       }
     ];
 
+    this.env = props.env;
+    // programs: [      //{ id: item.id, value: item.id, text:item.program, title:item.program }    ],
     this.state = {
       rows: [],
       originalRows: [],
-      programs: [
-        //{ id: item.id, value: item.id, text:item.program, title:item.program }
-      ],
+
       changedRows: [],
       selectedIds: [],
       programs: [{ id: '1', text: 'Service', title: 'Service', value: '1' }],
@@ -241,19 +241,19 @@ export default class StyleCodeEditor extends Component {
   }
   persistUpdatedRows() {
     debugger;
-    var changed = this.state.changedRows;
-    const { changedRows } = this.state;
-    const { env } = this.props;
+
+    const { changedRows, programs } = this.state;
+
     var valid = [],
       temp = [];
     var url = 'UpdateStyleCodes';
 
     //console.log(this.state.programs);
-    changed.forEach((row) => {
+    changedRows.forEach((row) => {
       if (!row.id.includes('TEMP')) {
-        var idx = eis(row.program, this.state.programs, 'text');
+        var idx = eis(row.program, programs, 'text');
         if (idx > -1) {
-          row.program = this.state.programs[idx]['id'];
+          row.program = programs[idx]['id'];
         } else {
           var programId = parseInt(row.program, 10);
           if (programId > -1) {
@@ -270,7 +270,7 @@ export default class StyleCodeEditor extends Component {
 
     if (valid.length > 0) {
       console.log(valid);
-      Fetch(url, env, options({ rows: valid }))
+      Fetch(url, this.env, options({ rows: valid }))
         .then((d) => {
           //persist to database
           //this.setState({rows: update(data, {$push:[]}), initialRows: update(data, {$push:[]})});
@@ -284,18 +284,12 @@ export default class StyleCodeEditor extends Component {
 
   persistNewRows() {
     debugger;
-    var allValid = true;
-    var changed = this.state.changedRows;
-    var numChanged = changed.length;
+    const { changedRows } = this.state;
+
     var valid = [],
       temp = [];
 
-    //var url = "../paint.asmx/UpdateStyleCode";
-    //if(this.state.env == "development") url = "../paint.asmx/UpdateStyleCodeTest";
-
-    //var url = this.state.env === "production" ? "../paint.asmx/UpdateStyleCode" : "../paint.asmx/UpdateStyleCodeTest";
-
-    changed.map(function(row, idx) {
+    changedRows.forEach((row) => {
       if (!row.id.includes('TEMP')) {
         valid.push(row);
       } else {
@@ -303,15 +297,9 @@ export default class StyleCodeEditor extends Component {
       }
     });
 
-    for (var x = 0; x < temp.length; x++) {
-      if (!validRow(temp[x])) {
-        allValid = false;
-        console.log('invalid');
-      }
-    }
-    var xhr = [];
-    //var url = "../paint.asmx/PersistStyleCodeRow";
-    const url = 'PersistStyleCodeRow';
+    const allValid = temp.all(validRow);
+
+    const url = URLS.PersistStyleCodeRow;
 
     if (allValid) {
       for (var x = 0; x < temp.length; x++) {
@@ -380,6 +368,7 @@ export default class StyleCodeEditor extends Component {
   }
   handleGridSort(sortColumn, sortDirection) {
     debugger;
+    const { originalRows, rows } = this.state;
     const comparer = (a, b) => {
       if (sortDirection === 'ASC') {
         if (sortColumn === 'id')
@@ -396,16 +385,13 @@ export default class StyleCodeEditor extends Component {
       }
     };
 
-    const rows =
-      sortDirection === 'NONE'
-        ? this.state.originalRows.slice(0)
-        : this.state.rows.sort(comparer);
+    const new_rows =
+      sortDirection === 'NONE' ? originalRows.slice(0) : rows.sort(comparer);
 
-    this.setState({ rows });
+    this.setState({ rows: new_rows });
   }
   render() {
-    var changes = this.state.changedRows < 1;
-    var newrows = this.state.newRows;
+    const { newRows, height, rows, programs } = this.state;
 
     return (
       <div className="rdg">
@@ -413,7 +399,7 @@ export default class StyleCodeEditor extends Component {
           ref={(grid) => (this.grid = grid)}
           contextMenu={
             <StyleCodeEditorContextMenu
-              newRows={newrows > 0}
+              newRows={newRows > 0}
               onRowDelete={this.deleteRow}
               onRowInsertBelow={this.insertRowBelow}
               onPersistNewRow={this.persistNewRows}
@@ -423,15 +409,12 @@ export default class StyleCodeEditor extends Component {
           enableCellSelect={true}
           columns={this._columns}
           rowGetter={this.rowGetter}
-          rowsCount={this.state.rows.length}
-          minHeight={this.state.height}
+          rowsCount={rows.length}
+          minHeight={height}
           onGridRowsUpdated={this.handleGridRowsUpdated}
           onGridSort={this.handleGridSort}
           rowRenderer={
-            <RowRenderer
-              programs={this.state.programs}
-              getPrograms={this.getPrograms}
-            />
+            <RowRenderer programs={programs} getPrograms={this.getPrograms} />
           }
         />
       </div>

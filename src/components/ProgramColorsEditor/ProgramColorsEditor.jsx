@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 import update from 'immutability-helper';
 import Autocomplete from 'react-autocomplete';
-import Fetch, { options as opts } from '../../DataFetcher';
+import { Fetch, options as opts, URLS } from '../../shared';
 
 import { styles } from '../styles/program-colors';
 import { ReactiveBtn, Grids } from './Components';
@@ -43,9 +43,13 @@ function indexOf(propName, value, array) {
   return -1;
 }
 
+/**
+ * @class ProgramColorsEditor
+ */
 export default class ProgramColorsEditor extends Component {
   constructor(props) {
     super(props);
+    this.env = props.env;
     var temp = {};
     this.state = {
       selectedProgram: '',
@@ -80,20 +84,15 @@ export default class ProgramColorsEditor extends Component {
     this.setState({ colors: data });
   }
   componentDidMount() {
-    const { env } = this.props;
-    var url = 'GetProgramColors';
-    var url2 = 'GetPaintSchedulePrograms';
-    var url3 = 'GetPaintScheduleColorsForScheduler';
-
-    Fetch(url, env)
+    Fetch(URLS.GetProgramColors, this.env)
       .then(this.gotProgramColors)
       .catch(console.error);
 
-    Fetch(url2, env)
+    Fetch(URLS.GetPaintSchedulePrograms, this.env)
       .then(this.gotPaintSchedulePrograms)
       .catch(console.error);
 
-    Fetch(url3, env)
+    Fetch(URLS.GetPaintScheduleColorsForScheduler, this.env)
       .then(this.gotPaintScheduleColors)
       .catch((error) => {
         debugger;

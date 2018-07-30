@@ -1,3 +1,6 @@
+/**
+ * @class RoundDataItem
+ */
 export default class RoundDataItem {
 
     constructor(item) {

@@ -1,3 +1,6 @@
+/**
+ * @class RowColorRule
+ */
 export default class RowColorRule {
 
     constructor(obj) {
@@ -6,6 +9,7 @@ export default class RowColorRule {
             this.title = null;
             this.value = null;
             this.contains = true;
+            this.element = null;
             this.color = '#FFF';
             return;
         }

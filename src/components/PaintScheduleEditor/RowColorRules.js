@@ -1,5 +1,6 @@
-const ruleTypes = ['includes', 'equals'];
-
+/**
+ * RowColorRules
+ */
 export default class RowColorRules {
 
     get default() {

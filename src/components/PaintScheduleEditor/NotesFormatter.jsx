@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
+/**
+ * @class NotesFormatter
+ */
 export default class NotesFormatter extends Component {
   render() {
     const { value } = this.props;

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import update from 'immutability-helper';
-import Fetch, { options } from '../../DataFetcher';
+import Fetch, { options } from '../../shared/DataFetcher';
 import { columns } from './PaintScheduleEditorColumns';
 import RowRenderer from './RowRenderer';
 import PaintScheduleEditorContextMenu from './PaintScheduleEditorContextMenu';
@@ -12,6 +12,9 @@ import RowColorRule from './RowColorRule';
 import { URLS, Actions } from '../../shared/Constants';
 import AddNewRoundButton from './AddNewRoundButton';
 import RoundDataItem from './RoundDataItem';
+import AlertComponent from '../AlertComponent';
+
+const debug = require('debug')('PaintScheduleEditor');
 
 const ReactDataGrid = require('react-data-grid');
 const heightOffset = 250;
@@ -25,27 +28,32 @@ class PaintScheduleEditor extends Component {
   constructor(props) {
     super(props);
     this.env = props.env;
+
     this.state = {
-      loaded: false,
-      groupBy: [],
-      expandedRows: {},
-      initialRows: [],
-      rows: [],
-      roundSummary: [],
-      queuedUpdates: {},
+      alertContent: '',
       changedRows: [],
-      selectedIds: [],
-      styleCodes: [],
-      selectedRounds: [],
-      programColors: [],
-      rules: [],
-      selectedRound: -1,
-      numSelected: 0,
-      newRows: 0,
-      height: window.innerHeight - heightOffset,
+      expandedRows: {},
       firstLoad: true,
-      showSettings: false
+      groupBy: [],
+      height: window.innerHeight - heightOffset,
+      initialRows: [],
+      loaded: false,
+      newRows: 0,
+      numSelected: 0,
+      programColors: [],
+      queuedUpdates: {},
+      roundSummary: [],
+      rows: [],
+      rules: [],
+      selectedIds: [],
+      selectedRound: -1,
+      selectedRounds: [],
+      showSettings: false,
+      showAlert: false,
+      styleCodes: []
     };
+
+    this.showAlert = this.showAlert.bind(this);
     this.handleAddColorRule = this.handleAddColorRule.bind(this);
     this.deleteRow = this.deleteRow.bind(this);
     this.addNewRound = this.addNewRound.bind(this);
@@ -54,7 +62,6 @@ class PaintScheduleEditor extends Component {
     this.onCellSelected = this.onCellSelected.bind(this);
     this.onUpdateColors = this.onUpdateColors.bind(this);
     this.rowGetter = this.rowGetter.bind(this);
-    this.onGotPaintScheduleStyles = this.onGotPaintScheduleStyles.bind(this);
     this.getProgramColors = this.getProgramColors.bind(this);
     this.onGotPaintSchedule = this.onGotPaintSchedule.bind(this);
     this.persistRow = this.persistRow.bind(this);
@@ -66,6 +73,7 @@ class PaintScheduleEditor extends Component {
     this.handleCommitRule = this.handleCommitRule.bind(this);
     this.onUpdatedRules = this.onUpdatedRules.bind(this);
     this.handleDeleteColorRule = this.handleDeleteColorRule.bind(this);
+    debug('Creating');
   }
 
   componentDidMount() {
@@ -131,10 +139,14 @@ class PaintScheduleEditor extends Component {
 
     var roundSummaryData = data[1] || [];
 
-    const selectedRound =
-      roundSummaryData.length > 0
-        ? roundSummaryData[roundSummaryData.length - 1]['round']
-        : null;
+    let selectedRound = null;
+
+    /** If Selected round is returned as a string, then convert to an integer */
+    if (roundSummaryData.length > 0) {
+      selectedRound = roundSummaryData[roundSummaryData.length - 1]['round'];
+      if (typeof selectedRound === 'string')
+        selectedRound = parseInt(selectedRound, 10);
+    }
 
     var roundSummary = {};
     if (data[1]) {
@@ -156,19 +168,14 @@ class PaintScheduleEditor extends Component {
 
   getPaintSchedule(dateStr) {
     const url = `GetPaintSchedule`;
-    const { env } = this.props;
+
     this.setState({ loaded: false });
 
-    Fetch(url, env)
+    Fetch(url, this.env)
       .then(this.onGotPaintSchedule)
       .catch(this.LogError);
-    // success: this.onUpdatePaintSchedule,
   }
-  onGetStyleCodesAndProgramColors(data) {
-    //console.log(data);
 
-    this.setState({ styleCodes: data.slice() });
-  }
   onUpdateColors(data) {
     var hash = {};
     console.time('onUpdateColors');
@@ -187,19 +194,20 @@ class PaintScheduleEditor extends Component {
 
     this.setState({ programColors: hash });
   }
-  onGotPaintScheduleStyles(data) {
-    this.setState({ styleCodes: data.slice() });
-  }
 
   onUpdateColorRules(data) {
     let rules = data.map((d) => new RowColorRule(d));
     this.setState({ rules: rules });
   }
+
+  /**
+   * get Style Codes and Program Colors
+   */
   getStyleCodesAndProgramColors() {
     const { env } = this.props;
 
     Fetch(URLS.GetPaintScheduleStyles, env)
-      .then(this.onGotPaintScheduleStyles)
+      .then((data) => this.setState({ styleCodes: data.slice() }))
       .catch(Fetch.ErrorHandler);
 
     Fetch(URLS.GetProgramColorsForScheduler, env)
@@ -472,6 +480,7 @@ class PaintScheduleEditor extends Component {
           }
         } else {
           ACTION = Actions.Update;
+          this.setState({ scrollToRowIndex: toRow });
         }
 
         const temp = update(updatedRow, { $merge: { action: ACTION } });
@@ -516,9 +525,16 @@ class PaintScheduleEditor extends Component {
     this.getPaintSchedule();
   }
 
+  showAlert(content) {
+    // debugger;
+
+    this.setState({ alertContent: content });
+
+    setTimeout(() => this.setState({ alertContent: '' }), 2000);
+  }
+
   persistRow(hash, row) {
     const { queuedUpdates } = this.state;
-    const { env } = this.props;
 
     var updateq = Object.assign({}, queuedUpdates);
 
@@ -528,16 +544,18 @@ class PaintScheduleEditor extends Component {
     this.setState({ queuedUpdates: updateq });
 
     let body = { str: JSON.stringify(row) };
-    Fetch(URLS.UpdatePaintSchedule, env, options(body))
+    Fetch(URLS.UpdatePaintSchedule, this.env, options(body))
       .then((data) => {
-        debugger;
+        this.showAlert(`Changed ${data.value} items`);
+      })
+      .catch(Fetch.ErrorHandler)
+      .finally(() => {
         var updateq2 = Object.assign({}, queuedUpdates);
         updateq2[hash] = 0;
         delete updateq2[hash];
         this.setState({ queuedUpdates: updateq2, insertingRow: false });
         this.getPaintSchedule();
-      })
-      .catch(Fetch.ErrorHandler);
+      });
   }
 
   rowPreviouslyChanged(key) {
@@ -692,24 +710,44 @@ class PaintScheduleEditor extends Component {
   }
   render() {
     const {
-      numSelected,
-      newRows,
-      loaded,
-      showSettings,
+      alertContent,
       height,
-      rules,
+      loaded,
+      newRows,
       roundSummary,
+      numSelected,
+      rows,
+      rules,
+      scrollToRowIndex,
       selectedRound,
       selectedRounds,
-      rows
+      showSettings
     } = this.state;
-    let styling = rules.map(
+
+    /**
+     * This creates styling for the rows
+     */
+    const styling = rules.map(
       ({ title, color }) =>
         `.${title}>div{ background-color:${color}!important;}`
     );
 
-    const customStyling = <style type="text/css">{styling}</style>;
-
+    const contextMenu = (
+      <PaintScheduleEditorContextMenu
+        id="paintScheduleEditor"
+        multipleSelected={numSelected > 0}
+        newRows={newRows > 0}
+        onRowDelete={this.deleteRow}
+        onRowInsertAbove={this.insertRowAbove}
+        onRowInsertBelow={this.insertRowBelow}
+        onPersistNewRow={this.persistNewRow}
+        onCopySelectedBelow={this.onCopySelectedBelow}
+        onCopyToEndOfRound={this.onCopyToEndOfRound}
+        onCopyToNewRound={this.onCopyToNewRound}
+        onDeleteSelectedRows={this.onDeleteSelectedRows}
+        onCopySelectedAbove={this.onCopySelectedAbove}
+      />
+    );
     return (
       // eslint-disable-next-line
       <div className="rdg">
@@ -737,30 +775,16 @@ class PaintScheduleEditor extends Component {
           toolbar={<Toolbar enableFilter={true} 
           */}
             <ReactDataGrid
-              onColumnResize={this.onColumnResize}
-              contextMenu={
-                <PaintScheduleEditorContextMenu
-                  id="paintScheduleEditor"
-                  multipleSelected={numSelected > 0}
-                  newRows={newRows > 0}
-                  onRowDelete={this.deleteRow}
-                  onRowInsertAbove={this.insertRowAbove}
-                  onRowInsertBelow={this.insertRowBelow}
-                  onPersistNewRow={this.persistNewRow}
-                  onCopySelectedBelow={this.onCopySelectedBelow}
-                  onCopyToEndOfRound={this.onCopyToEndOfRound}
-                  onCopyToNewRound={this.onCopyToNewRound}
-                  onDeleteSelectedRows={this.onDeleteSelectedRows}
-                  onCopySelectedAbove={this.onCopySelectedAbove}
-                />
-              }
+              minHeight={height}
+              contextMenu={contextMenu}
               enableCellSelect={true}
+              onColumnResize={this.onColumnResize}
               onGridRowsUpdated={this.handleGridRowsUpdated}
               onCellSelected={this.onCellSelected}
               columns={columns}
               rowGetter={this.rowGetter}
               rowsCount={rows.length}
-              minHeight={height}
+              scrollToRowIndex={scrollToRowIndex}
               rowRenderer={
                 <RowRenderer
                   getProgramColors={this.getProgramColors}
@@ -773,6 +797,7 @@ class PaintScheduleEditor extends Component {
               handleAddNewRound={this.addNewRound}
             />
             {selectedRounds.length > 0 && <button>Delete Rounds</button>}
+            <AlertComponent content={alertContent} />
           </div>
         )}
         {!loaded && <LoadingIcon loading={loaded} />}
@@ -780,6 +805,7 @@ class PaintScheduleEditor extends Component {
     );
   }
 }
+
 PaintScheduleEditor.defaultProps = {
   rowKey: 'id',
   ruleSet: {}

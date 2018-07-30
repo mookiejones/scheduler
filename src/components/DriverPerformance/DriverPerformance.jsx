@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import update from 'immutability-helper';
-import Fetch, { options } from '../../DataFetcher';
+import { Fetch, options, URLS } from '../../shared';
 import Charts from './Charts';
 import ChartOptions from './ChartOptions';
 import defaultChartOptions from './DefaultChartOptions';
@@ -46,7 +46,7 @@ class DriverPerformance extends Component {
     super(props);
     const now = moment();
     const then = moment().subtract(2, 'days');
-
+    this.env = props.env;
     this.state = {
       to: now,
       from: then,
@@ -74,11 +74,8 @@ class DriverPerformance extends Component {
    */
   getDriverAverages() {
     // Base URL Name
-    const url = 'GetDriverAverages';
 
     const { from, to, defaultOptions } = this.state;
-
-    const { env } = this.props;
 
     const fmt = 'YYYY-MM-DD HH:mm:ss';
 
@@ -91,7 +88,7 @@ class DriverPerformance extends Component {
 
     const format = 'MM/DD/YYYY hh:mm:ss A';
 
-    Fetch(url, env, opt)
+    Fetch(URLS.GetDriverAverages, this.env, opt)
       .then((arr) => {
         var average = {
           name: 'average',

@@ -8,6 +8,9 @@ const {
   Editors: { AutoComplete }
 } = ReactDataGridPlugins;
 
+/**
+ * @class RowRenderer
+ */
 export default class RowRenderer extends Component {
   constructor(props) {
     super(props);

@@ -16,10 +16,10 @@ import Calculator from './Calculator';
 import UndoCell from './UndoCell';
 import Description from './Description';
 import update from 'immutability-helper';
-import Fetch, { options } from '../../DataFetcher';
+import { Fetch, options, URLS, Constants } from '../../shared';
 import io from 'socket.io-client';
 
-import {
+const {
   AVAILABLE,
   ASSIST,
   PRODUCTION,
@@ -27,10 +27,8 @@ import {
   WATCH,
   LOAD,
   UNDO_KEY,
-  ROUND_KEY,
-  GET_PAINT_PICK_LIST,
-  GET_PAINT_REVISE
-} from './Constants';
+  ROUND_KEY
+} = Constants;
 /**
  * Gets Formatted Date for Queries
  * @param {Date} date
@@ -161,9 +159,14 @@ const COLUMN_DEFINITIONS = [
     key: 'grab_by'
   }
 ];
+
+/**
+ * @class PaintList
+ */
 export default class PaintList extends Component {
   constructor(props) {
     super(props);
+    this.env = props.env;
     this.state = {
       data: [],
       currentRevision: '',
@@ -208,32 +211,32 @@ export default class PaintList extends Component {
    *
    */
   componentDidMount() {
-    const { role, env } = this.props;
-    let url = 'GetPaintPickList';
+    const { role } = this.props;
+    let url = URLS.GetPaintPickList;
     switch (role) {
       case STAGE:
-        url = 'GetPaintStageList';
+        url = URLS.GetPaintStageList;
         break;
       case WATCH:
       case LOAD:
-        url = 'GetPaintLoadList';
+        url = URLS.GetPaintLoadList;
         break;
       default:
         break;
     }
 
-    Fetch(url, env)
+    Fetch(url, this.env)
       .then(this.updateData)
       .catch(Fetch.HandleError);
 
-    Fetch(GET_PAINT_REVISE, env)
+    Fetch(URLS.GetPaintRevise, this.env)
       .then(this.updatePaint)
       .catch(Fetch.HandleError);
 
     this.refresh = setTimeout(this.autoRefresh, 35 * 1000);
 
     const path =
-      env === PRODUCTION
+      this.env === PRODUCTION
         ? 'http://normagnaapps1:5555/paint-load'
         : 'http://nord:5555/paint-load';
 
@@ -272,15 +275,15 @@ export default class PaintList extends Component {
    * performHardUpdate
    */
   performHardUpdate() {
-    const { role, env } = this.props;
-    let url = 'GetPaintPickList';
+    const { role } = this.props;
+    let url = URLS.GetPaintPickList;
 
-    if (env === PRODUCTION) {
-      if (role === STAGE) url = 'GetPaintStageList';
-      if (role === LOAD || role === WATCH) url = 'GetPaintLoadList';
+    if (this.env === PRODUCTION) {
+      if (role === STAGE) url = URLS.GetPaintStageList;
+      if (role === LOAD || role === WATCH) url = URLS.GetPaintLoadList;
     }
 
-    Fetch(url, env)
+    Fetch(url, this.env)
       .then((data) => {
         const srtdData = data.sort(sortFn);
         if (Object.prototype.toString.call(srtdData) === '[object Array]') {
@@ -294,7 +297,7 @@ export default class PaintList extends Component {
       })
       .catch(Fetch.HandleError);
 
-    Fetch(GET_PAINT_REVISE, env)
+    Fetch(URLS.GetPaintRevise, this.env)
       .then((data) => {
         this.setState({ currentRevision: data[0].revision_name });
       })
@@ -320,8 +323,7 @@ export default class PaintList extends Component {
       checkoutDate: eventDate
     });
 
-    const url = 'CheckOutRow';
-    Fetch(url, env, query)
+    Fetch(URLS.CheckOutRow, this.env, query)
       .then((d) => {
         if (d.value > 0) {
           this.checkOutSuccess(newdata, rowIdx);
@@ -362,8 +364,8 @@ export default class PaintList extends Component {
       pickedBy: currentUser.id,
       checkInDate: GetFormattedDate(new Date())
     };
-    const url = 'CheckInRow';
-    Fetch(url, env, options(query))
+
+    Fetch(URLS.CheckInRow, this.env, options(query))
       .then((d) => {
         if (d.value > 0) {
           this.checkInSuccess(newdata, rowIdx);
@@ -423,9 +425,8 @@ export default class PaintList extends Component {
 
     var query = { id: data.id, pickedBy: currentUser.id };
     const o = options(query);
-    const url = 'ReleaseRow';
 
-    Fetch(url, env, o)
+    Fetch(URLS.ReleaseRow, this.env, o)
       .then((d) => {
         if (d.value > 0) {
           this.releaseSuccess(newdata, rowIdx);

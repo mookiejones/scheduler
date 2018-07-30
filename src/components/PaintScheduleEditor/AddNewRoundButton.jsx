@@ -7,6 +7,10 @@ import {
   ModalBody,
   ModalFooter
 } from 'react-bootstrap';
+
+/**
+ * @class AddNewRoundButton
+ */
 class AddNewRoundButton extends Component {
   state = {
     show: false

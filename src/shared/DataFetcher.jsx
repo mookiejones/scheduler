@@ -65,6 +65,21 @@ const Fetch = (url, env, options) => {
             .trim();
 
           const json = JSON.parse(text);
+
+          // Check to see if item is Array
+          if (Array.isArray(json)) {
+            // Item is array, but check to see if it a result element
+            let first =
+              typeof json[0] === 'string' ? JSON.parse(json[0]) : json[0];
+
+            if (
+              first['value'] !== undefined &&
+              first['numChanged'] !== undefined &&
+              first['newId'] !== undefined
+            ) {
+              return first;
+            }
+          }
           return json;
         })
         .catch(Fetch.ErrorHandler);

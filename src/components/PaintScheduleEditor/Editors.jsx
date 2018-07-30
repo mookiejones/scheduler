@@ -2,10 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FormControl, Checkbox } from 'react-bootstrap';
 import update from 'immutability-helper';
+
 const {
   editors: { EditorBase }
 } = require('react-data-grid');
 
+/**
+ * @class FormControlEditor
+ */
 export class FormControlEditor extends EditorBase {
   constructor(props, context, refs, updater) {
     super(props, context, refs, updater);
@@ -48,6 +52,9 @@ FormControlEditor.propTypes = {
   dependentValues: PropTypes.object
 };
 
+/**
+ * @class FormControlFormatter
+ */
 export class FormControlFormatter extends Component {
   constructor(props, context, refs, updater) {
     super(props, context, refs, updater);

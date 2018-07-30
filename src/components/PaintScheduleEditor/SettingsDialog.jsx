@@ -24,10 +24,13 @@ import {
 import ReactDataGrid from 'react-data-grid';
 
 import { FormControlEditor, FormControlFormatter } from './Editors';
-import { Toolbar } from 'react-data-grid-addons';
+
+import * as Addons from 'react-data-grid-addons';
+
 const {
-  Menu: { ContextMenu, MenuItem, SubMenu }
-} = require('react-data-grid-addons');
+  Toolbar,
+  Menu: { ContextMenu, MenuItem }
+} = Addons;
 
 const SettingsContextMenu = ({ id, handleDeleteColorRule, rowIdx, idx }) => (
   <ContextMenu id={id}>
@@ -37,6 +40,9 @@ const SettingsContextMenu = ({ id, handleDeleteColorRule, rowIdx, idx }) => (
   </ContextMenu>
 );
 
+/**
+ * @class SettingsDialog
+ */
 export default class SettingsDialog extends Component {
   constructor(props) {
     super(props);

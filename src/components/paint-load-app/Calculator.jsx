@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { AVAILABLE, WATCH, LOAD } from './Constants';
+import { AVAILABLE, WATCH, LOAD } from '../../shared/Constants';
+
 export default class Calculator extends Component {
   constructor(props) {
     super(props);

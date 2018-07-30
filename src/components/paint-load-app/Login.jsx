@@ -1,16 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Fetch, options, URLS } from '../../shared';
 
-import Fetch, { options } from '../../DataFetcher';
-import {
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  HelpBlock
-} from 'react-bootstrap';
+/**
+ * @class Login
+ */
 export default class Login extends Component {
   constructor(props) {
     super(props);
+    this.env = props.env;
     this.state = {
       disabled: false,
       emp: null,
@@ -32,19 +30,17 @@ export default class Login extends Component {
     e.preventDefault();
 
     var userId = this.input.value;
-    const { env } = this.props;
 
     // if (env === 'development') {
     //   this.setState({ disabled: true });
     //   this.props.setUser(userId, role);
     // }
-    Fetch('VerifyEmpID', env, options({ EmployeeID: userId }))
+    Fetch(URLS.VerifyEmpID, this.env, options({ EmployeeID: userId }))
       .then(this.updateUser)
       .catch(console.error);
   }
 
   render() {
-    const { disabled, emp, error } = this.state;
     return (
       <div className="login-wrapper" style={{ width: '250px', margin: 'auto' }}>
         <form action="" className="form-signin">

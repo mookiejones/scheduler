@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import FontAwesome from 'react-fontawesome';
-import { Grid, Row, Col, Button, Badge } from 'react-bootstrap';
+import { Grid, Row, Col, Badge } from 'react-bootstrap';
 
 const SettingsItem = ({ handleSettingsClick, ...props }) => {
   return (

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import Fetch, { options } from '../../DataFetcher';
+import { Fetch, options, URLS } from '../../shared';
 export default class ExcelImport extends Component {
   constructor(props) {
     super(props);
@@ -142,12 +142,8 @@ export default class ExcelImport extends Component {
     var data = JSON.stringify({ tblData: this.state.importRnds });
     var revise = this.revisionInput.value;
 
-    const { env } = this.props;
-    const url = 'savePntRevise';
-    const url2 = 'pntSchlImport2';
-
     if (revise.length > 0) {
-      fetch(url, env, options({ revise: revise }))
+      fetch(URLS.SavePaintRevise, this.env, options({ revise: revise }))
         .then((d) => {
           debugger;
 
@@ -165,7 +161,7 @@ export default class ExcelImport extends Component {
           debugger;
           // alert(request.responseText);
         });
-      fetch(url2, env, options(data))
+      fetch(URLS.PaintScheduleImport2, this.env, options(data))
         .then((d) => {
           debugger;
           /*
@@ -186,10 +182,9 @@ export default class ExcelImport extends Component {
   }
   deleteRound() {
     var rnd = parseInt(this.sel.options[this.state.selectedIdx].value, 10);
-    var url = 'delWholeRound';
-    const { env } = this.props;
+
     if (rnd > 0) {
-      fetch(url, env, options({ rnd: rnd }))
+      fetch(URLS.DeleteWholeRound, this.env, options({ rnd: rnd }))
         .then((d) => {
           debugger;
           var temp;
@@ -210,17 +205,15 @@ export default class ExcelImport extends Component {
     //alert(this.state.selectedRnd);
   }
   deleteAll() {
-    //var url = "../paint.asmx/delWholeRound"
-    const { env } = this.props;
-    const url = 'delWholeRound';
+    const { allRnds, tchdRnds } = this.state;
 
     var shiz = [];
-    this.state.allRnds.map((r) => {
-      var idx = this.state.tchdRnds.indexOf(r);
+    allRnds.forEach((r) => {
+      var idx = tchdRnds.indexOf(r);
       if (idx === -1) shiz.push(r);
     });
     if (shiz.length > 0) {
-      fetch(url, env, options({ rnd: shiz.join(',') }))
+      fetch(URLS.DeleteWholeRound, this.env, options({ rnd: shiz.join(',') }))
         .then((d) => {
           var temp = d.split('*');
           var retStr;
@@ -257,11 +250,9 @@ export default class ExcelImport extends Component {
     this.setState({ selectedIdx: id });
   }
   loadRound() {
-    console.log(this.state.env);
-    //var url = "../paint.asmx/getRounds"
-    const url = 'getRounds';
-    const { env } = this.props;
-    Fetch(url, env, options({ go: 2 }))
+    debugger;
+
+    Fetch(URLS.GetRounds, this.env, options({ go: 2 }))
       .then((d) => {
         debugger;
         // if (temp === '-1') {

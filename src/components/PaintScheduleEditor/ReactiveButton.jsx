@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 
+/**
+ * @class ReactiveButton
+ */
 export default class ReactiveButton extends Component {
   isActive() {
     debugger;

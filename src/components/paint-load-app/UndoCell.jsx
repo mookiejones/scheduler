@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react';
-import { AVAILABLE } from './Constants';
+import { AVAILABLE } from '../../shared/Constants';
 import PropTypes from 'prop-types';
 import FontAwesome from 'react-fontawesome';
 const styles = ['green', 'yellow', 'orange', 'red', 'purple', 'blue'];

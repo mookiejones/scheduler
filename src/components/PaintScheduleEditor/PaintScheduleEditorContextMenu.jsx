@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import '../../css/context-menu.css';
+
 const {
   Menu: { ContextMenu, MenuItem, SubMenu }
 } = require('react-data-grid-addons');
 
+/**
+ * @class PaintScheduleEditorContextMenu
+ */
 export default class PaintScheduleEditorContextMenu extends Component {
   onRowDelete(e, data) {
     debugger;
