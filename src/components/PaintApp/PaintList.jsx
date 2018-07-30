@@ -198,14 +198,6 @@ export default class PaintList extends Component {
       this.setState({ data: srtdData });
     }
   }
-  /**
-   * updatePaint
-   * @param {*} data
-   */
-  updatePaint(data) {
-    let value = data[0].revision_name;
-    this.setState({ currentRevision: data[0].revision_name });
-  }
 
   /**
    *
@@ -230,7 +222,7 @@ export default class PaintList extends Component {
       .catch(Fetch.HandleError);
 
     Fetch(URLS.GetPaintRevise, this.env)
-      .then(this.updatePaint)
+      .then((data) => this.setState({ currentRevision: data[0].revision_name }))
       .catch(Fetch.HandleError);
 
     this.refresh = setTimeout(this.autoRefresh, 35 * 1000);
@@ -312,7 +304,7 @@ export default class PaintList extends Component {
    * @param {*} rowIdx
    */
   checkOut(data, rowIdx) {
-    const { currentUser, env } = this.props;
+    const { currentUser } = this.props;
 
     var newdata = data;
     newdata.staged_by = currentUser.name;
@@ -354,10 +346,10 @@ export default class PaintList extends Component {
    * @param {Number} rowIdx
    */
   checkIn(data, rowIdx) {
-    const { env, currentUser } = this.props;
+    const { currentUser } = this.props;
 
     var newdata = data;
-    var request = new XMLHttpRequest();
+
     newdata.grab_by = currentUser.name;
     var query = {
       id: data.id,
@@ -417,7 +409,7 @@ export default class PaintList extends Component {
    */
   release(data, rowIdx) {
     var newdata = data;
-    const { currentUser, env } = this.props;
+    const { currentUser } = this.props;
 
     newdata.grab_by = AVAILABLE;
     newdata.handled_by = AVAILABLE;
@@ -845,10 +837,11 @@ export default class PaintList extends Component {
 
   render() {
     const hidden = { display: 'none' };
-    const { role, currentUser, env } = this.props;
-    const { currentRoundNumber, currentRevision, data } = this.state;
+    const { role, currentUser } = this.props;
+    const { currentRoundNumber, data } = this.state;
     const label = role === LOAD ? 'Load' : role === STAGE ? 'Staging' : 'Pick';
     const title = `Paint ${label} List`;
+
     return (
       <div>
         <div>
@@ -905,51 +898,49 @@ export default class PaintList extends Component {
             </tr>
           </thead>
           <tbody>
-            {data.map((rowData, rowIdx) => {
-              if (rowIdx < 26) {
-                return (
-                  <HammerRow
-                    role={role}
-                    key={rowData.id}
-                    rowId={rowIdx}
-                    rowData={rowData}
-                    UndoActionHandler={this.UndoActionHandler}
-                    TapActionHandler={this.TapActionHandler}
-                    SwipeActionHandler={this.SwipeActionHandler}
-                    currentUser={currentUser}>
-                    {COLUMN_DEFINITIONS.map((columnMetaData, colIdx) => {
-                      const value = rowData[columnMetaData.key];
+            {data
+              .filter((rowData, rowIdx) => rowIdx < 26)
+              .map((rowData, rowIdx) => (
+                <HammerRow
+                  role={role}
+                  key={rowData.id}
+                  rowId={rowIdx}
+                  rowData={rowData}
+                  UndoActionHandler={this.UndoActionHandler}
+                  TapActionHandler={this.TapActionHandler}
+                  SwipeActionHandler={this.SwipeActionHandler}
+                  currentUser={currentUser}>
+                  {COLUMN_DEFINITIONS.filter(
+                    (columnMetaData) => columnMetaData.visible !== false
+                  ).map((columnMetaData, colIdx) => {
+                    const value = rowData[columnMetaData.key];
 
-                      if (columnMetaData.visible !== false) {
-                        if (columnMetaData.CellRenderer)
-                          return (
-                            <columnMetaData.CellRenderer
-                              role={role}
-                              key={rowData.id + '-' + colIdx}
-                              rowData={rowData}
-                              updatePartialQty={this.updatePartialQty}
-                              currentUser={currentUser}>
-                              {value}
-                            </columnMetaData.CellRenderer>
-                          );
-                        else
-                          return (
-                            <td
-                              className={
-                                columnMetaData.className
-                                  ? columnMetaData.className
-                                  : ''
-                              }
-                              key={rowData.id + '-' + colIdx}>
-                              {value}
-                            </td>
-                          );
-                      }
-                    })}
-                  </HammerRow>
-                );
-              }
-            })}
+                    if (columnMetaData.CellRenderer)
+                      return (
+                        <columnMetaData.CellRenderer
+                          role={role}
+                          key={rowData.id + '-' + colIdx}
+                          rowData={rowData}
+                          updatePartialQty={this.updatePartialQty}
+                          currentUser={currentUser}>
+                          {value}
+                        </columnMetaData.CellRenderer>
+                      );
+                    else
+                      return (
+                        <td
+                          className={
+                            columnMetaData.className
+                              ? columnMetaData.className
+                              : ''
+                          }
+                          key={rowData.id + '-' + colIdx}>
+                          {value}
+                        </td>
+                      );
+                  })}
+                </HammerRow>
+              ))}
           </tbody>
         </table>
       </div>

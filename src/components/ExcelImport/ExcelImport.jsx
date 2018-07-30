@@ -296,15 +296,12 @@ export default class ExcelImport extends Component {
       });
   }
   render() {
-    const { alertTxt } = this.state;
+    const { alertTxt, allRnds, tchdRnds } = this.state;
     var viewStateClass = classnames({
       hidden: this.state.mainViewActive
     });
     var viewStateClass2 = classnames({
       hidden: !this.state.mainViewActive
-    });
-    var alertClass = classnames({
-      hidden: this.state.alertTxt.hidden
     });
 
     var d1 = this.state.btnAddDisabled;
@@ -330,15 +327,11 @@ export default class ExcelImport extends Component {
               this.sel = c;
             }}
             onChange={this.onSelChange}>
-            {this.state.allRnds.map((r) => {
-              var idx = this.state.tchdRnds.indexOf(r);
-              if (idx === -1)
-                return (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                );
-            })}
+            {allRnds.filter((r) => tchdRnds.indexOf(r) === -1).map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
           </select>
           <br />
           <br />

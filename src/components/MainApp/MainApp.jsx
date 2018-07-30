@@ -6,7 +6,7 @@ import StyleCodeEditor from '../style-code-editor/StyleCodeEditor';
 import ProgramColorsEditor from '../ProgramColorsEditor';
 
 import ExcelImport from '../ExcelImport';
-import PaintApp from '../paint-load-app';
+import PaintApp from '../PaintApp';
 import DriverPerformance from '../DriverPerformance/DriverPerformance';
 
 import Top from './Top';

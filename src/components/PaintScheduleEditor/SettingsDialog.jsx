@@ -16,9 +16,7 @@ import {
   ModalFooter,
   ModalTitle,
   ModalBody,
-  Button,
-  Popover,
-  Tooltip
+  Button
 } from 'react-bootstrap';
 
 import ReactDataGrid from 'react-data-grid';
@@ -136,7 +134,7 @@ export default class SettingsDialog extends Component {
     if (index < 0 || index > this.getSize()) {
       return undefined;
     }
-    return this.props.rules[index];
+    return rules[index];
   };
 
   getSize = () => this.props.rules.length;
