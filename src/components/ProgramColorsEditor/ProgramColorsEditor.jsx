@@ -5,7 +5,7 @@ import Autocomplete from 'react-autocomplete';
 import { Fetch, options as opts, URLS } from '../../shared';
 
 import { styles } from '../styles/program-colors';
-import { ReactiveBtn, Grids } from './Components';
+import { Grids } from './Components';
 
 import {
   SplitButton,
@@ -13,8 +13,6 @@ import {
   Well,
   Form,
   Button,
-  ListGroup,
-  ListGroupItem,
   FormGroup,
   ControlLabel
 } from 'react-bootstrap';
@@ -201,14 +199,6 @@ export default class ProgramColorsEditor extends Component {
       selectedProgramIdx,
       selectedColor
     } = this.state;
-
-    var BtnClass = classnames({
-      btn: true,
-      'btn-primary': true,
-      disabled:
-        this.state.selectedProgram.length < 1 ||
-        this.state.selectedColor.length < 1
-    });
 
     return (
       <div className="pcl">

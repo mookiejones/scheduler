@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import { Route, HashRouter, Switch } from 'react-router-dom';
 
 import PaintScheduleEditor from '../PaintScheduleEditor';
-import StyleCodeEditor from '../style-code-editor/StyleCodeEditor';
+import StyleCodeEditor from '../StyleCodeEditor';
 import ProgramColorsEditor from '../ProgramColorsEditor';
 
 import ExcelImport from '../ExcelImport';
 import PaintApp from '../PaintApp';
 import DriverPerformance from '../DriverPerformance/DriverPerformance';
+import LineView from '../LineView';
 
 import Top from './Top';
 
@@ -82,6 +83,14 @@ export default class MainApp extends Component {
         render: ({ ...props }) => <DriverPerformance env={env} {...props} />
       }
     ];
+    // ,
+    //   {
+    //     title: 'Line View',
+    //     key: 'line-view',
+    //     path: '/line-view',
+    //     component: LineView,
+    //     render: ({ ...props }) => <LineView env={env} {...props} />
+    //   }
     return (
       <HashRouter>
         <div>

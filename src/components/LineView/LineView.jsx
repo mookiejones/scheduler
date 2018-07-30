@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
-import Fetch from '../../DataFetcher';
+import Fetch from '../../shared/DataFetcher';
 
 // eslint-disable-next-line
 const LINE_COLUMNS = [
@@ -71,8 +71,8 @@ var SCH_COLUMNS = [
 class LineView extends Component {
   constructor(props) {
     super(props);
+    this.env = props.env;
     this.state = {
-      env: this.props.route.env,
       scheduleRows: [],
       paintLineRows: [],
       current: {}
@@ -90,10 +90,8 @@ class LineView extends Component {
     var request = new XMLHttpRequest();
     var request2 = new XMLHttpRequest();
     const url = 'GetPaintSchSnapshot';
-    const {
-      route: { env }
-    } = this.props;
-    Fetch(url, env)
+
+    Fetch(url, this.env)
       .then((data) => {
         debugger;
         var arr = JSON.parse(data.d);
@@ -107,7 +105,7 @@ class LineView extends Component {
         debugger;
       });
 
-    Fetch('GetPaintLineSnapshot', env)
+    Fetch('GetPaintLineSnapshot', this.env)
       .then((data) => {
         this.setState({ scheduleRows: data });
       })
