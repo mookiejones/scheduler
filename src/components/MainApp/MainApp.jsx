@@ -8,7 +8,7 @@ import ProgramColorsEditor from '../ProgramColorsEditor';
 import ExcelImport from '../ExcelImport';
 import PaintApp from '../PaintApp';
 import DriverPerformance from '../DriverPerformance/DriverPerformance';
-import LineView from '../LineView';
+// import LineView from '../LineView';
 
 import Top from './Top';
 

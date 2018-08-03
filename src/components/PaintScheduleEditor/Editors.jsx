@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FormControl, Checkbox } from 'react-bootstrap';
 import update from 'immutability-helper';
@@ -55,7 +55,7 @@ FormControlEditor.propTypes = {
 /**
  * @class FormControlFormatter
  */
-export class FormControlFormatter extends Component {
+export class FormControlFormatter extends PureComponent {
   constructor(props, context, refs, updater) {
     super(props, context, refs, updater);
 

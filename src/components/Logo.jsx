@@ -30,7 +30,8 @@ const headerData = [
 
 const Logo = () => (
   <svg
-    height="36"
+    style={{ marginTop: '5px' }}
+    height="30"
     role="img"
     viewBox="0 0 720 145"
     width="177"

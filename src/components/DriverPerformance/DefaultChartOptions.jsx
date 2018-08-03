@@ -28,7 +28,7 @@ const defaultChartOptions = {
     }
   },
   legend: {
-    enabled: false,
+    enabled: true,
     layout: 'horizontal',
     backgroundColor:
       (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'

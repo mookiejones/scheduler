@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+ 
 const p = require('../../package.json');
 
 export const VERSION = p.version;

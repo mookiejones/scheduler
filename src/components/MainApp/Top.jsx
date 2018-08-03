@@ -13,34 +13,37 @@ const Top = ({ routes, env, handleActive, ...props }) => {
     fontWeight: 'bold'
   };
   return (
-    <Navbar>
-      <Navbar.Header>
-        <Navbar.Brand>
-          <Logo />
-        </Navbar.Brand>
-      </Navbar.Header>
-      <Nav activeKey={1}>
-        {routes.map((route, idx) => (
-          <NavItem
-            eventKey={idx}
-            key={route.path}
-            title={route.title}
-            componentClass="p">
-            <NavLink
-              to={route.path}
-              others={props}
-              {...props}
-              activeStyle={activeStyle}
-              isActive={handleActive}>
-              {route.title}
-            </NavLink>
-          </NavItem>
-        ))}
-      </Nav>
-      <Navbar.Text>
-        {status} <Badge>{VERSION}</Badge>
-      </Navbar.Text>
-    </Navbar>
+    <div>
+      <Navbar fixedTop inverse fluid>
+        <Navbar.Header>
+          <Navbar.Brand>
+            <Logo />
+          </Navbar.Brand>
+        </Navbar.Header>
+        <Nav activeKey={1}>
+          {routes.map((route, idx) => (
+            <NavItem
+              eventKey={idx}
+              key={route.path}
+              title={route.title}
+              componentClass="p">
+              <NavLink
+                to={route.path}
+                others={props}
+                {...props}
+                activeStyle={activeStyle}
+                isActive={handleActive}>
+                {route.title}
+              </NavLink>
+            </NavItem>
+          ))}
+        </Nav>
+        <Navbar.Text>
+          {status} <Badge>{VERSION}</Badge>
+        </Navbar.Text>
+      </Navbar>
+      <div style={{ marginTop: '40px' }} />
+    </div>
   );
 };
 

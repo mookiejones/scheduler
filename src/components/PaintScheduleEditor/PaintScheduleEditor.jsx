@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import update from 'immutability-helper';
 import Fetch, { options } from '../../shared/DataFetcher';
-import { columns } from './PaintScheduleEditorColumns';
+import columns from './PaintScheduleEditorColumns';
 import RowRenderer from './RowRenderer';
 import PaintScheduleEditorContextMenu from './PaintScheduleEditorContextMenu';
 import LoadingIcon from './LoadingIcon';

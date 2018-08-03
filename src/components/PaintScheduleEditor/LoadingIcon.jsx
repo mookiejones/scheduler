@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { ProgressBar } from 'react-bootstrap';
 
 /**
  * @class LoadingIcon
  */
-export default class LoadingIcon extends Component {
+export default class LoadingIcon extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {

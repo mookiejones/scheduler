@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import ReactDataGrid from 'react-data-grid';
@@ -11,7 +11,7 @@ const {
 /**
  * @class RowRenderer
  */
-export default class RowRenderer extends Component {
+export default class RowRenderer extends PureComponent {
   constructor(props) {
     super(props);
     this.setRef = (element) => {

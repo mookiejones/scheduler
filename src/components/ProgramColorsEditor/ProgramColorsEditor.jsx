@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import classnames from 'classnames';
 import update from 'immutability-helper';
 import Autocomplete from 'react-autocomplete';
 import { Fetch, options as opts, URLS } from '../../shared';
@@ -59,10 +58,12 @@ const indexOf = (propName, value, array) => {
  * @class ProgramColorsEditor
  */
 export default class ProgramColorsEditor extends Component {
+
+
   constructor(props) {
     super(props);
     this.env = props.env;
-    var temp = {};
+   
     this.state = {
       selectedProgram: '',
       selectedColor: '',
@@ -71,7 +72,7 @@ export default class ProgramColorsEditor extends Component {
       programColors: [],
       programs: [],
       colors: [],
-      selected: temp
+      selected: {}
     };
     this.onRowClick = this.onRowClick.bind(this);
     this.gotPaintSchedulePrograms = this.gotPaintSchedulePrograms.bind(this);

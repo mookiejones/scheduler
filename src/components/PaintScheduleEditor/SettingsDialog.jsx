@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import update from 'immutability-helper';
 import { ColorPropType } from '../../shared/sharedTypes';
 import { defaultKeys } from './RoundDataItem';
+
 /**
  * rules come from database
  * DB:SmallProjects
@@ -47,6 +48,7 @@ const elements = defaultKeys.sort().map((dk) => {
 });
 
 const ElementEditor = <AutoCompleteEditor options={elements} />;
+
 /**
  * @class SettingsDialog
  */
@@ -55,6 +57,7 @@ export default class SettingsDialog extends Component {
     super(props);
     this.handleShow = this.handleShow.bind(this);
     this.handleClose = this.handleClose.bind(this);
+    this.state = { show: false };
 
     this._columns = [
       {

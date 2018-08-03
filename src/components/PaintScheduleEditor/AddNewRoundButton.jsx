@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import {
   Button,
@@ -11,7 +11,7 @@ import {
 /**
  * @class AddNewRoundButton
  */
-class AddNewRoundButton extends Component {
+class AddNewRoundButton extends PureComponent {
   state = {
     show: false
   };

@@ -8,7 +8,10 @@ const columns = [
     width: 65,
     editable: false,
     resizable: true,
-    filterable: true
+    filterable: true,
+    onClick: (e) => {
+      debugger;
+    }
   },
   {
     key: 'style_code',
@@ -16,7 +19,8 @@ const columns = [
     width: 90,
     editable: true,
     resizable: true,
-    filterable: true
+    filterable: true,
+    visible: false
   },
   {
     key: 'pieces',
@@ -141,4 +145,4 @@ const columns = [
   }
 ];
 
-export { columns };
+export default columns;

@@ -58,6 +58,7 @@ class DriverPerformance extends Component {
 
     this.handleFromChange = this.handleFromChange.bind(this);
     this.handleToChange = this.handleToChange.bind(this);
+    this.handleOptionsChange = this.handleOptionsChange.bind(this);
   }
 
   componentDidMount() {
@@ -127,6 +128,14 @@ class DriverPerformance extends Component {
     this.setState({ to: value });
   }
 
+  handleOptionsChange(value, event) {
+    debugger;
+
+    let options = update(this.state.options, { $merge: {} });
+    options[value] = event;
+    this.setState({ options: options });
+  }
+
   render() {
     const { to, from, options, worsePerformers, underTen } = this.state;
 
@@ -191,11 +200,12 @@ class DriverPerformance extends Component {
         from={from}
         handleToChange={this.handleToChange}
         handleFromChange={this.handleFromChange}
+        handleOptionsChange={this.handleOptionsChange}
       />
     );
 
     return (
-      <div>
+      <div className="bgc-gray">
         {chartOptions}
         {options.series && getChart()}
       </div>

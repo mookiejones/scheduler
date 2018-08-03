@@ -62,6 +62,7 @@ const TopSection = ({ round, roundSummary, rows, handleSettingsClick }) => {
     );
   }
 };
+
 TopSection.propTypes = {
   rows: PropTypes.number,
   roundSummary: PropTypes.any,

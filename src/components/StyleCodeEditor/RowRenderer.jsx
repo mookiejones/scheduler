@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Row } from 'react-data-grid';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
@@ -6,7 +6,8 @@ import PropTypes from 'prop-types';
 import { Editors, Formatters } from 'react-data-grid-addons';
 const { DropDownFormatter } = Formatters;
 const { DropDownEditor } = Editors;
-export default class RowRenderer extends Component {
+
+export default class RowRenderer extends PureComponent {
   constructor(props) {
     super(props);
     this.setRef = (element) => {
