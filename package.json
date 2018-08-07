@@ -10,8 +10,8 @@
     "start-js": "react-scripts start",
     "start": "npm-run-all -p watch-css start-js",
     "build-js": "react-scripts build",
-    "bump": "npm version patch",
-    "build": "npm-run-all build-css build-js bump",
+
+    "build": "npm-run-all build-css build-js ",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },

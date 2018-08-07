@@ -7,9 +7,8 @@ export default class Description extends Component {
     const { rowData, children } = this.props;
     const row = rowData.program;
 
-      if (row !== '') {
-          debugger;
-      var style = classnames({
+    if (row !== '') {
+      const style = classnames({
         tap: true,
         label: true,
         'label-danger': row === 'Do Not Ship' || row === 'Red Hot !!',

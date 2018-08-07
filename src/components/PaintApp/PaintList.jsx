@@ -45,6 +45,14 @@ import {
 } from '../../shared';
 import io from 'socket.io-client';
 
+const IsAvailable = ({ ...items }) => items.every((item) => item === AVAILABLE);
+
+const IsSame = (a, b) => {
+  const keys = Object.keys(a).concat(Object.keys(b));
+  const same = keys.every((key) => a[key] === b[key]);
+
+  return same;
+};
 /**
  * Gets Formatted Date for Queries
  * @param {Date} date
@@ -359,7 +367,7 @@ export default class PaintList extends PureComponent {
     let data = update(this.state.data, {});
     data[rowIdx] = newData;
     this.setState(data);
-    this.socket.emit(SocketActions.RowUpdate, newData);
+    this.socket.emit(SocketActions.RowUpdate, data[rowIdx]);
   }
 
   /**
@@ -635,144 +643,52 @@ export default class PaintList extends PureComponent {
   }
 
   updateRow(newData) {
-    let rowUpdated = false;
     const { role } = this.props;
-    const { data } = this.state;
-    // Get Index of Item
-    const idx = data.findIndex((o) => o.id === newData.id);
 
-    if (idx === -1) throw new Error('Item Doesnt Exist');
-    let d = [],
-      temp = [];
+    let data = update(this.state.data, { $push: [] });
+
+    const idx = data.findIndex(
+      (o) => o.id == newData.id && o.master_id === newData.master_id
+    );
+
+    if (idx === -1) {
+      debugger;
+      //TODO Need to check to see if this is a new item
+      throw new Error('Item Doesnt Exist');
+    }
+
+    data[idx] = newData;
+    const rowUpdated = IsSame(newData, data[idx]);
+    if (!rowUpdated) {
+      debugger;
+    } else {
+      let items = update(data, { $push: [] });
+      items[idx] = newData;
+      this.setState({ data: items });
+      return;
+    }
 
     switch (role) {
       case LOAD:
         debugger;
         // Test this
-        d = update(data, { $push: [] }).map((rowData) => {
-          if (rowData[0] === newData[0]) {
-            rowUpdated = true;
-            return newData;
-          } else {
-            return rowData;
-          }
-        });
 
-        d = update(data, { $push: [] });
-        temp = data.map(function(rowData) {
-          if (rowData[0] === newData[0]) {
-            rowUpdated = true;
-            return newData;
-          } else {
-            return rowData;
-          }
-        });
-
-        d = temp;
-        if (rowUpdated) this.setState({ data: d });
+        if (rowUpdated) this.setState({ data: data });
         break;
       case STAGE:
         break;
       default:
-        if (
-          newData.staged_by !== AVAILABLE &&
-          newData[newData.handled_by] !== AVAILABLE
-        ) {
+        const { staged_by, handled_by } = newData;
+        if (IsAvailable([staged_by, handled_by])) {
           this.removeRow(newData);
         } else {
-          d = update(data, { $push: [] });
-          temp = d.map((rowData) => {
-            if (rowData[0] === newData[0]) {
-              rowUpdated = true;
-              return newData;
-            } else {
-              return rowData;
-            }
-          });
-          d = temp;
           if (rowUpdated) {
-            this.setState({ data: d });
+            this.setState({ data: data });
           } else {
             this.newRow(newData);
           }
         }
         break;
-    }
-    if (role === LOAD) {
-      debugger;
-      // Test this
-      d = update(data, { $push: [] }).map((rowData) => {
-        if (rowData[0] === newData[0]) {
-          rowUpdated = true;
-          return newData;
-        } else {
-          return rowData;
-        }
-      });
-
-      d = update(data, { $push: [] });
-      temp = data.map(function(rowData) {
-        if (rowData[0] === newData[0]) {
-          rowUpdated = true;
-          return newData;
-        } else {
-          return rowData;
-        }
-      });
-
-      d = temp;
-      if (rowUpdated) this.setState({ data: d });
-    } else {
-      debugger;
-
-      if (role === STAGE) {
-        if (
-          newData.staged_by !== AVAILABLE &&
-          newData[newData.length - 2] !== AVAILABLE &&
-          newData[newData.length - 3] !== AVAILABLE
-        ) {
-          this.removeRow(newData);
-        } else {
-          d = update(data, { $push: [] });
-          temp = d.map((rowData) => {
-            if (rowData[0] === newData[0]) {
-              rowUpdated = true;
-              return newData;
-            } else {
-              return rowData;
-            }
-          });
-          d = temp;
-          if (rowUpdated) {
-            this.setState({ data: d });
-          } else {
-            this.newRow(newData);
-          }
-        }
-      } else {
-        if (
-          newData.staged_by !== AVAILABLE &&
-          newData[newData.length - 2] !== AVAILABLE
-        ) {
-          this.removeRow(newData);
-        } else {
-          d = update(data, { $push: [] });
-          temp = d.map((rowData) => {
-            if (rowData[0] === newData[0]) {
-              rowUpdated = true;
-              return newData;
-            } else {
-              return rowData;
-            }
-          });
-          d = temp;
-          if (rowUpdated) {
-            this.setState({ data: d });
-          } else {
-            this.newRow(newData);
-          }
-        }
-      }
     }
   }
 

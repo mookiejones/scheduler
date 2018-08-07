@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { NavLink } from 'react-router-dom';
 
 import { VERSION } from '../../shared/Constants/';
@@ -13,11 +13,11 @@ const Top = ({ routes, env, handleActive, ...props }) => {
     fontWeight: 'bold'
   };
   return (
-    <div>
+    <Fragment>
       <Navbar
         fixedTop
         style={{
-          backgroundColor: '#e6e6e6',
+          backgroundColor: '#FFF',
           backgroundImage: 'none',
           border: '1px solid transparent'
         }}
@@ -51,7 +51,7 @@ const Top = ({ routes, env, handleActive, ...props }) => {
         </Nav>
       </Navbar>
       <div style={{ marginTop: '40px' }} />
-    </div>
+    </Fragment>
   );
 };
 

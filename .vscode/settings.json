@@ -5,7 +5,9 @@
         "**/.hg": true,
         "**/CVS": true,
         "**/.DS_Store": true,
-        "**/**/*.css": true
+        "**/**/*.css": true,
+        "**/*.test.*": true,
+        "**/*.js": true
 
     }
 }
