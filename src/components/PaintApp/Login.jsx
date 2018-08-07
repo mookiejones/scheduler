@@ -1,13 +1,16 @@
+// ReSharper disable InconsistentNaming
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Fetch, options, URLS } from '../../shared';
 import {  Modal, Button,  Form, ControlLabel,FormGroup, HelpBlock, FormControl} from 'react-bootstrap';
 
 const IsNumeric = (value) => value.length === 0 ? true : /[0-9]+/i.test(value);
+// ReSharper restore InconsistentNaming
 
 /**
  * @class Login
  */
+// ReSharper disable once InconsistentNaming
 export default class Login extends Component {
     constructor(props) {
         super(props);
@@ -71,7 +74,7 @@ export default class Login extends Component {
         
         if (isNumeric) {
             if(empHelpText&& empHelpText.length>0)
-            this.setState({ empHelpText: null,disableSubmit:false });
+                this.setState({ empHelpText: null,disableSubmit:false });
             return empId.length > 2 ? 'success' : null;
         }
 
@@ -79,18 +82,15 @@ export default class Login extends Component {
             this.setState({ disableSubmit: true });
         return 'warning';
     }
-
-    handleRoleChange(event) {
-        debugger;
-    }
+     
     render() {
         const { show, empId, role, empHelpText, disableSubmit } = this.state;
         return (
             <Modal show={show} onHide={() => this.setState({ show: false })}
-                backdrop='static'
-                keyboard={false}
-                autoFocus={true}
-                enforceFocus={true}
+                   backdrop="static"
+                   keyboard={false}
+                   autoFocus={true}
+                   enforceFocus={true}
 
             >
                 <Modal.Header>
@@ -98,23 +98,23 @@ export default class Login extends Component {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <FormGroup controlId='inputId' validationState={this.getIdValidationState()}>
+                        <FormGroup controlId="inputId" validationState={this.getIdValidationState()}>
                             <ControlLabel>Employee ID</ControlLabel>
-                            <FormControl type='text'
-                                value={empId}
-                                onChange={this.handleEmployeeIdChange}
+                            <FormControl type="text"
+                                         value={empId}
+                                         onChange={this.handleEmployeeIdChange}
                                          disabled={this.state.disabled}
-                                placeholder='Employee ID' />
+                                         placeholder="Employee ID" />
                             <FormControl.Feedback />
                             <HelpBlock>{empHelpText}</HelpBlock>
                         </FormGroup>
 
 
-                        <FormGroup controlId='selectRole'>
+                        <FormGroup controlId="selectRole">
                             <ControlLabel>Role</ControlLabel>
                             <FormControl componentClass="select" placeholder="Role"
-                                value={role}
-                                onChange={(e)=>this.setState({role:e.target.value})}
+                                         value={role}
+                                         onChange={(e)=>this.setState({role:e.target.value})}
                                          disabled={this.state.disabled}
                                          id="selectRole"
 
@@ -123,21 +123,21 @@ export default class Login extends Component {
                                 <option value="assist">Load Assist</option>
                                 <option value="stage">Staging</option>
                                 <option value="load">Load</option>
-                                </FormControl>
-                            </FormGroup>
+                            </FormControl>
+                        </FormGroup>
                   
                   
                    
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button type='submit' bsStyle='primary' bsSize='large' onClick={this.loginUser} block disabled={disableSubmit}>Sign In</Button>
-                    </Modal.Footer>
-                </Modal>
-            );
+                    <Button type="submit" bsStyle="primary" bsSize="large" onClick={this.loginUser} block disabled={disableSubmit}>Sign In</Button>
+                </Modal.Footer>
+            </Modal>
+        );
     }
 }
  
 Login.propTypes = {
-  setUser: PropTypes.func.isRequired
+    setUser: PropTypes.func.isRequired
 };
