@@ -8,16 +8,20 @@
  * @class PaintApp
  */
 
+// ReSharper disable InconsistentNaming
 import React, { Component } from 'react';
-import Login from './Login';
+import Login  from './Login';
 import PaintList from './PaintList';
-import { Alert } from 'react-bootstrap';
+import { Alert  } from 'react-bootstrap';
+// ReSharper restore InconsistentNaming
+
+
 
 /**
  * Gets OS Version Type
  * @param {String} version
  */
-const GetOs = (version) => {
+const getOs = (version) => {
   let result = 'Unknown OS';
   if (/Win/.test(version)) return 'Windows';
   if (/Mac/.test(version)) return 'MacOS';
@@ -25,28 +29,29 @@ const GetOs = (version) => {
   if (/Linux/.test(version)) return 'Linux';
   return result;
 };
+ 
 
-const user = {
-  id: -1,
-  name: '',
-  imgPath: '',
-  img: ''
-};
 /**
  * @class PaintApp
  */
+// ReSharper disable once InconsistentNaming
 class PaintApp extends Component {
   constructor(props) {
     super(props);
 
-    const OSName = GetOs(navigator.appVersion);
+    const osName = getOs(navigator.appVersion);
 
-    let currentUser = user;
+      const currentUser = {
+          id: -1,
+          name: '',
+          imgPath: '',
+          img: ''
+      };
 
     this.state = {
       currentUser: currentUser,
       role: '',
-      OSName: OSName,
+      osName: osName,
       showAlert: false
     };
     this.setUser = this.setUser.bind(this);
@@ -61,7 +66,7 @@ class PaintApp extends Component {
   }
 
   render() {
-    const { currentUser, role, OSName, showAlert } = this.state;
+    const { currentUser, role, osName, showAlert } = this.state;
 
     if (currentUser.id !== -1) {
       return (
@@ -72,7 +77,7 @@ class PaintApp extends Component {
           {!showAlert && (
             <PaintList
               role={role}
-              OSName={OSName}
+              OSName={osName}
               currentUser={currentUser}
               {...this.props}
             />
@@ -80,7 +85,7 @@ class PaintApp extends Component {
         </div>
       );
     } else {
-      return <Login setUser={this.setUser} {...this.props} />;
+        return <Login setUser={this.setUser} {...this.props}/>;
     }
   }
 }
