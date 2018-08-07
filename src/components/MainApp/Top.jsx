@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
-import { VERSION } from '../../shared/Constants';
+import { VERSION } from '../../shared/Constants/';
 
 import { Badge, Nav, Navbar, NavItem } from 'react-bootstrap';
 import Logo from '../Logo';
@@ -14,13 +14,24 @@ const Top = ({ routes, env, handleActive, ...props }) => {
   };
   return (
     <div>
-      <Navbar fixedTop inverse fluid>
+      <Navbar
+        fixedTop
+        style={{
+          backgroundColor: '#e6e6e6',
+          backgroundImage: 'none',
+          border: '1px solid transparent'
+        }}
+        fluid
+        bsStyle="default">
         <Navbar.Header>
           <Navbar.Brand>
             <Logo />
           </Navbar.Brand>
         </Navbar.Header>
-        <Nav activeKey={1}>
+        <Navbar.Text className="pull-right">
+          {status} <Badge>{VERSION}</Badge>
+        </Navbar.Text>
+        <Nav activeKey={1} className="pull-right">
           {routes.map((route, idx) => (
             <NavItem
               eventKey={idx}
@@ -38,9 +49,6 @@ const Top = ({ routes, env, handleActive, ...props }) => {
             </NavItem>
           ))}
         </Nav>
-        <Navbar.Text>
-          {status} <Badge>{VERSION}</Badge>
-        </Navbar.Text>
       </Navbar>
       <div style={{ marginTop: '40px' }} />
     </div>
