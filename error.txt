@@ -1,0 +1,51 @@
+Download the React DevTools for a better development experience: https://fb.me/react-devtools
+Download the React DevTools for a better development experience: https://fb.me/react-devtools
+TypeError: Cannot read property 'offsetWidth' of null
+    at ReactDataGrid.gridWidth (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-data-grid\dist\react-data-grid.js:11227:1)
+    at ReactDataGrid.render (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-data-grid\dist\react-data-grid.js:11066:1)
+    at finishClassComponent (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:13193:1)
+    at updateClassComponent (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:13155:1)
+    at beginWork (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:13824:1)
+    at performUnitOfWork (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:15863:1)
+    at workLoop (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:15902:1)
+    at HTMLUnknownElement.callCallback (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:100:1)
+    at Object.invokeGuardedCallbackDev (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:138:1)
+    at invokeGuardedCallback (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:187:1)
+    at replayUnitOfWork (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:15310:1)
+    at renderRoot (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:15962:1)
+    at performWorkOnRoot (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:16560:1)
+    at performWork (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:16482:1)
+    at performSyncWork (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:16454:1)
+    at interactiveUpdates$1 (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:16719:1)
+    at interactiveUpdates (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:2150:1)
+    at dispatchInteractiveEvent (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:4532:1)
+The above error occurred in the <ReactDataGrid> component:
+    in ReactDataGrid (at PaintScheduleEditor.jsx:792)
+    in div (at PaintScheduleEditor.jsx:770)
+    in div (at PaintScheduleEditor.jsx:821)
+    in PaintScheduleEditor (at MainApp.jsx:48)
+    in Route (at MainApp.jsx:100)
+    in Switch (at MainApp.jsx:99)
+    in div (at MainApp.jsx:96)
+    in Router (created by HashRouter)
+    in HashRouter (at MainApp.jsx:95)
+    in MainApp (at index.js:10)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://fb.me/react-error-boundaries to learn more about error boundaries.
+TypeError: Cannot read property 'offsetWidth' of null
+    at ReactDataGrid.gridWidth (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-data-grid\dist\react-data-grid.js:11227:1)
+    at ReactDataGrid.render (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-data-grid\dist\react-data-grid.js:11066:1)
+    at finishClassComponent (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:13193:1)
+    at updateClassComponent (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:13155:1)
+    at beginWork (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:13824:1)
+    at performUnitOfWork (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:15863:1)
+    at workLoop (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:15902:1)
+    at renderRoot (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:15942:1)
+    at performWorkOnRoot (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:16560:1)
+    at performWork (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:16482:1)
+    at performSyncWork (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:16454:1)
+    at interactiveUpdates$1 (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:16719:1)
+    at interactiveUpdates (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:2150:1)
+    at dispatchInteractiveEvent (c:\Users\Charles.Berman\source_temp\paint_scheduler\node_modules\react-dom\cjs\react-dom.development.js:4532:1)
+Download the React DevTools for a better development experience: https://fb.me/react-devtools
