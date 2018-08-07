@@ -1,6 +1,6 @@
 {
   "name": "scheduler-test",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "private": true,
   "homepage": ".",
   "scripts": {
@@ -10,7 +10,6 @@
     "start-js": "react-scripts start",
     "start": "npm-run-all -p watch-css start-js",
     "build-js": "react-scripts build",
-
     "build": "npm-run-all build-css build-js ",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
