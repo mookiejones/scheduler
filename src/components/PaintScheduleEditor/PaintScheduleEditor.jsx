@@ -9,14 +9,19 @@ import TopSection from './TopSection';
 import PropTypes from 'prop-types';
 import SettingsDialog from './SettingsDialog';
 import RowColorRule from './RowColorRule';
-import { URLS, Actions } from '../../shared/Constants';
+
+import { URLS, Actions } from '../../shared';
 import AddNewRoundButton from './AddNewRoundButton';
+
 import RoundDataItem from './RoundDataItem';
 import AlertComponent from '../AlertComponent';
 
 const debug = require('debug')('PaintScheduleEditor');
 
 const ReactDataGrid = require('react-data-grid');
+
+const { Toolbar } = require('react-data-grid-addons');
+
 const heightOffset = 250;
 
 const convertItems = (items) =>
@@ -179,7 +184,7 @@ class PaintScheduleEditor extends Component {
 
   onUpdateColors(data) {
     var hash = {};
-    console.time('onUpdateColors');
+
     for (let item of data) {
       const style_code = item.style_code;
       if (style_code === null) continue;
@@ -191,7 +196,6 @@ class PaintScheduleEditor extends Component {
         title: item.color_desc
       });
     }
-    console.timeEnd('onUpdateColors');
 
     this.setState({ programColors: hash });
   }
@@ -754,6 +758,14 @@ class PaintScheduleEditor extends Component {
       />
     );
 
+    const ToolBar = (
+      <Toolbar>
+        <AddNewRoundButton
+          newRows={newRows}
+          handleAddNewRound={this.addNewRound}
+        />
+      </Toolbar>
+    );
     const DataGrid = (
       <div>
         <style type="text/css">{styling}</style>
@@ -788,6 +800,7 @@ class PaintScheduleEditor extends Component {
           rowGetter={this.rowGetter}
           rowsCount={rows.length}
           scrollToRowIndex={scrollToRowIndex}
+          toolbar={ToolBar}
           rowRenderer={
             <RowRenderer
               getProgramColors={this.getProgramColors}
@@ -795,10 +808,7 @@ class PaintScheduleEditor extends Component {
             />
           }
         />
-        <AddNewRoundButton
-          newRows={newRows}
-          handleAddNewRound={this.addNewRound}
-        />
+
         {selectedRounds.length > 0 && <button>Delete Rounds</button>}
         <AlertComponent content={alertContent} />
       </div>

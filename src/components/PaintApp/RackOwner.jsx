@@ -2,13 +2,9 @@ import React, { Component } from 'react';
 
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { AVAILABLE } from '../../shared/Constants';
+import { AVAILABLE } from '../../shared';
 
 export default class RackOwner extends Component {
-  componentDidMount() {}
-  componentDidUpdate(prevProps, prevState) {
-    debugger;
-  }
   render() {
     const { children, currentUser } = this.props;
     if (children !== AVAILABLE) {

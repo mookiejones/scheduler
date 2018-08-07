@@ -1,5 +1,4 @@
 import fetch from 'node-fetch';
-import DefaultUser from './DefaultUser';
 
 const IsTest = /(?:localhost|test)/.test(window.location.hostname);
 const WEB = 'http://norweb/reporting/scheduling.asmx/';
@@ -31,14 +30,8 @@ const formatUrl = (url, env) => {
 };
 
 const Fetch = (url, env, options) => {
-  console.log(url);
-  if (
-    (/Employee/i.test(url) || /VerifyEmpID/i.test(url)) &&
-    env === 'development'
-  )
-    return new Promise((resolve, reject) => {
-      resolve(DefaultUser);
-    });
+  // console.log(url);
+
   if (options) {
     if (typeof options === 'object' && Object.keys(options).length !== 3) {
       options = _options(options);

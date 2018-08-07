@@ -8,7 +8,7 @@
  * @class PaintList
  */
 
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import HammerRow from './HammerRow';
 import RackOwner from './RackOwner';
@@ -16,10 +16,12 @@ import Calculator from './Calculator';
 import UndoCell from './UndoCell';
 import Description from './Description';
 import update from 'immutability-helper';
-import { Fetch, options, URLS, Constants } from '../../shared';
-import io from 'socket.io-client';
 
-const {
+import {
+  Fetch,
+  options,
+  URLS,
+  SocketActions,
   AVAILABLE,
   ASSIST,
   PRODUCTION,
@@ -28,7 +30,9 @@ const {
   LOAD,
   UNDO_KEY,
   ROUND_KEY
-} = Constants;
+} from '../../shared';
+import io from 'socket.io-client';
+
 /**
  * Gets Formatted Date for Queries
  * @param {Date} date
@@ -163,7 +167,7 @@ const COLUMN_DEFINITIONS = [
 /**
  * @class PaintList
  */
-export default class PaintList extends Component {
+export default class PaintList extends PureComponent {
   constructor(props) {
     super(props);
     this.env = props.env;
@@ -174,12 +178,13 @@ export default class PaintList extends Component {
     };
     this.onRelease = this.onRelease.bind(this);
     this.updateData = this.updateData.bind(this);
-    this.updatePaint = this.updatePaint.bind(this);
+
     this.performHardUpdate = this.performHardUpdate.bind(this);
     this.TapActionHandler = this.TapActionHandler.bind(this);
     this.SwipeActionHandler = this.SwipeActionHandler.bind(this);
     this.UndoActionHandler = this.UndoActionHandler.bind(this);
     this.autoRefresh = this.autoRefresh.bind(this);
+    this.updateRow = this.updateRow.bind(this);
   }
 
   /**
@@ -233,19 +238,22 @@ export default class PaintList extends Component {
         : 'http://nord:5555/paint-load';
 
     this.socket = io(path);
-    this.socket
-      .on('rowupdate', this.updateRow)
-      .on('rowdelete', this.removeRow)
-      .on('newrow', this.newRow)
-      .on('update-notify', () => {
-        setTimeout(this.performHardUpdate(), 0);
-      })
-      .on('disconnect', () => {
-        console.warn('disconnected');
-      })
-      .on('reconnect', () => {
-        console.warn('connected');
-      });
+    this.socket.on('connected', (client) => {
+      debugger;
+    });
+
+    this.socket.on(SocketActions.RowUpdate, this.updateRow);
+    this.socket.on(SocketActions.RowDelete, this.removeRow);
+    this.socket.on(SocketActions.NewRow, this.newRow);
+    this.socket.on(SocketActions.UpdateNotify, () => {
+      setTimeout(this.performHardUpdate(), 0);
+    });
+    this.socket.on(SocketActions.Disconnect, () => {
+      console.warn('disconnected');
+    });
+    this.socket.on(SocketActions.Reconnect, () => {
+      console.warn('connected');
+    });
   }
 
   /**
@@ -306,10 +314,10 @@ export default class PaintList extends Component {
   checkOut(data, rowIdx) {
     const { currentUser } = this.props;
 
-    var newdata = data;
-    newdata.staged_by = currentUser.name;
+    let newdata = data;
+    newdata.grab_by = currentUser.name;
     const eventDate = GetFormattedDate(new Date());
-    var query = options({
+    let query = options({
       id: parseInt(data.id, 10),
       pickedBy: currentUser.id,
       checkoutDate: eventDate
@@ -332,12 +340,10 @@ export default class PaintList extends Component {
    * @param {Number} rowIdx
    */
   checkOutSuccess(newData, rowIdx) {
-    var data = update(this.state.data, {});
+    let data = update(this.state.data, {});
     data[rowIdx] = newData;
-    this.setState({
-      data: data
-    });
-    this.socket.emit('rowupdate', newData);
+    this.setState(data);
+    this.socket.emit(SocketActions.RowUpdate, newData);
   }
 
   /**
@@ -348,10 +354,10 @@ export default class PaintList extends Component {
   checkIn(data, rowIdx) {
     const { currentUser } = this.props;
 
-    var newdata = data;
+    let newdata = data;
 
     newdata.grab_by = currentUser.name;
-    var query = {
+    let query = {
       id: data.id,
       pickedBy: currentUser.id,
       checkInDate: GetFormattedDate(new Date())
@@ -371,7 +377,7 @@ export default class PaintList extends Component {
   }
 
   checkInSuccess(newData, rowIdx) {
-    var dd = update(this.state.data, { $splice: [[rowIdx, 1]] });
+    let dd = update(this.state.data, { $splice: [[rowIdx, 1]] });
 
     if (
       Object.prototype.toString.call(dd) === '[object Array]' &&
@@ -385,7 +391,7 @@ export default class PaintList extends Component {
     } else {
       this.setState({ data: dd });
     }
-    this.socket.emit('rowupdate', newData);
+    this.emit(SocketActions.RowUpdate, newData);
   }
 
   /**
@@ -407,21 +413,24 @@ export default class PaintList extends Component {
    * @param {PaintRowItem} data
    * @param {Number} rowIdx
    */
-  release(data, rowIdx) {
-    var newdata = data;
+  handleRelease(data, rowIdx) {
     const { currentUser } = this.props;
 
-    newdata.grab_by = AVAILABLE;
-    newdata.handled_by = AVAILABLE;
-    newdata.staged_by = AVAILABLE;
+    let available = {
+      grab_by: AVAILABLE,
+      handled_by: AVAILABLE,
+      staged_by: AVAILABLE
+    };
 
-    var query = { id: data.id, pickedBy: currentUser.id };
+    data = update(data, { $merge: available });
+
+    let query = { id: data.id, pickedBy: currentUser.id };
     const o = options(query);
 
     Fetch(URLS.ReleaseRow, this.env, o)
       .then((d) => {
         if (d.value > 0) {
-          this.releaseSuccess(newdata, rowIdx);
+          this.releaseSuccess(data, rowIdx);
         } else {
           this.performHardUpdate();
         }
@@ -431,41 +440,38 @@ export default class PaintList extends Component {
 
   /**
    *
-   * @param {*} newData
+   * @param {*} item
    * @param {*} rowIdx
    */
-  releaseSuccess(newData, rowIdx) {
-    var data = update(this.state.data, { $push: [] });
-    data[rowIdx] = newData;
-    this.setState({
-      data: data
-    });
-    this.socket.emit('rowupdate', newData);
-  }
+  releaseSuccess(item, rowIdx) {
+    let data = update(this.state.data, { $push: [] });
 
+    data[rowIdx] = item;
+
+    this.setState({ data });
+
+    this.emit(SocketActions.RowUpdate, item);
+  }
+  emit(action, data) {
+    this.socket.emit(action, data);
+  }
   stage(data, rowIdx) {
     debugger;
-    var url;
-    var newdata = data;
-    var request = new XMLHttpRequest();
+
+    let newdata = data;
+    let request = new XMLHttpRequest();
 
     //set Staged-By to current User
     newdata[newdata.length - 3] = this.state.currentUser.name;
 
-    var query = { id: data[0], pickedBy: this.state.currentUser.id };
-
-    if (this.props.environment === PRODUCTION) {
-      url = '../paint.asmx/StageRow';
-    } else {
-      url = '../paint.asmx/StageRowTest';
-    }
-
-    request.open('POST', url, true);
+    let query = { id: data[0], pickedBy: this.state.currentUser.id };
+    debugger;
+    request.open('POST', URLS.StageRow, true);
     request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
-        var res = JSON.parse(request.response);
-        var responseData = JSON.parse(res.d);
+        let res = JSON.parse(request.response);
+        let responseData = JSON.parse(res.d);
         if (responseData.value > 0) {
           this.stageSuccess(newdata, rowIdx);
         } else {
@@ -478,16 +484,16 @@ export default class PaintList extends Component {
   }
 
   stageSuccess(newData, rowIdx) {
-    var data = update(this.state.data, { $splice: [[rowIdx, 1]] });
+    let data = update(this.state.data, { $splice: [[rowIdx, 1]] });
     this.setState({
       data: data
     });
-    this.socket.emit('rowupdate', newData);
+    this.emit(SocketActions.RowUpdate, newData);
   }
 
   finalize(data) {
-    var query = { id: data[0], pickedBy: this.state.currentUser.id };
-    var url = 'FinalizeRow';
+    let query = { id: data[0], pickedBy: this.state.currentUser.id };
+    let url = 'FinalizeRow';
 
     Fetch(url, options(query))
       .then((data) => {
@@ -496,7 +502,7 @@ export default class PaintList extends Component {
       .catch((error) => {
         debugger;
       });
-    // var request = new XMLHttpRequest();
+    // let request = new XMLHttpRequest();
 
     // if (this.props.environment == PRODUCTION) {
     //   url = '../paint.asmx/FinalizeRow';
@@ -508,8 +514,8 @@ export default class PaintList extends Component {
     // request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     // request.onload = () => {
     //   if (request.status >= 200 && request.status < 400) {
-    //     var res = JSON.parse(request.response);
-    //     var responseData = JSON.parse(res.d);
+    //     let res = JSON.parse(request.response);
+    //     let responseData = JSON.parse(res.d);
     //     if (responseData.value > 0) {
     //       this.finalizeSuccess(newdata, rowIdx);
     //     } else {
@@ -523,8 +529,8 @@ export default class PaintList extends Component {
 
   finalizeSuccess(data) {
     this.removeRow(data);
-    this.socket.emit('rowdelete', data);
-    var dd = this.state.data.slice();
+    this.emit(SocketActions.RowDelete, data);
+    let dd = this.state.data.slice();
     if (
       Object.prototype.toString.call(dd) === '[object Array]' &&
       Object.prototype.toString.call(dd[0]) === '[object Array]' &&
@@ -536,14 +542,14 @@ export default class PaintList extends Component {
 
   updatePartialQty(amnt, data) {
     debugger;
-    var url;
-    var currentRowData = data.slice();
-    var updatedRowData = data.slice();
-    var newRowData = data.slice();
+    let url;
+    let currentRowData = data.slice();
+    let updatedRowData = data.slice();
+    let newRowData = data.slice();
     newRowData[0] = '0';
 
-    var newQty = 0;
-    var updateAmt = parseInt(amnt, 10);
+    let newQty = 0;
+    let updateAmt = parseInt(amnt, 10);
     newQty = currentRowData[9] - updateAmt;
 
     if (newQty < 0) newQty = 0;
@@ -552,7 +558,7 @@ export default class PaintList extends Component {
     newRowData[9] = newQty.toString();
     newRowData[newRowData.length - 1] = AVAILABLE;
 
-    var query = {
+    let query = {
       id: currentRowData[0],
       master_id: currentRowData[1],
       pickedBy: this.state.currentUser.id,
@@ -561,14 +567,14 @@ export default class PaintList extends Component {
     };
     url = 'updatePartialQty';
 
-    var request = new XMLHttpRequest();
+    let request = new XMLHttpRequest();
 
     request.open('POST', url, true);
     request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
-        var res = JSON.parse(request.response);
-        var responseData = JSON.parse(res.d);
+        let res = JSON.parse(request.response);
+        let responseData = JSON.parse(res.d);
         console.log(responseData);
         if (responseData.numChanged > 0) {
           this.updatePartialQtySuccess(
@@ -591,7 +597,7 @@ export default class PaintList extends Component {
           contentType: "application/json; charest=utf-8",
           dataType: "json",
           success (msg) {
-              var res = JSON.parse(msg.d);
+              let res = JSON.parse(msg.d);
               if (res.numChanged > 0) { this.updatePartialQtySuccess(updatedRowData, newRowData, res); }
               else { performHardUpdate(); }
           }.bind(this),
@@ -604,20 +610,78 @@ export default class PaintList extends Component {
   updatePartialQtySuccess(updatedRowData, newRowData, res) {
     debugger;
     this.updateRow(updatedRowData);
-    this.socket.emit('rowupdate', updatedRowData);
+    this.socket.emit(SocketActions.RowUpdate, updatedRowData);
     if (parseInt(res.newId, 10) > 1 && parseInt(newRowData[9], 10) > 0) {
       newRowData[0] = res.newId.toString();
       this.newRow(newRowData);
-      this.socket.emit('newrow', newRowData);
+      this.emit(SocketActions.NewRow, newRowData);
     }
   }
+
   updateRow(newData) {
-    debugger;
-    var rowUpdated = false;
+    let rowUpdated = false;
     const { role } = this.props;
     const { data } = this.state;
-    let d;
-    let temp;
+    // Get Index of Item
+    const idx = data.findIndex((o) => o.id === newData.id);
+
+    if (idx === -1) throw new Error('Item Doesnt Exist');
+    let d = [],
+      temp = [];
+
+    switch (role) {
+      case LOAD:
+        debugger;
+        // Test this
+        d = update(data, { $push: [] }).map((rowData) => {
+          if (rowData[0] === newData[0]) {
+            rowUpdated = true;
+            return newData;
+          } else {
+            return rowData;
+          }
+        });
+
+        d = update(data, { $push: [] });
+        temp = data.map(function(rowData) {
+          if (rowData[0] === newData[0]) {
+            rowUpdated = true;
+            return newData;
+          } else {
+            return rowData;
+          }
+        });
+
+        d = temp;
+        if (rowUpdated) this.setState({ data: d });
+        break;
+      case STAGE:
+        break;
+      default:
+        if (
+          newData.staged_by !== AVAILABLE &&
+          newData[newData.handled_by] !== AVAILABLE
+        ) {
+          this.removeRow(newData);
+        } else {
+          d = update(data, { $push: [] });
+          temp = d.map((rowData) => {
+            if (rowData[0] === newData[0]) {
+              rowUpdated = true;
+              return newData;
+            } else {
+              return rowData;
+            }
+          });
+          d = temp;
+          if (rowUpdated) {
+            this.setState({ data: d });
+          } else {
+            this.newRow(newData);
+          }
+        }
+        break;
+    }
     if (role === LOAD) {
       debugger;
       // Test this
@@ -644,9 +708,8 @@ export default class PaintList extends Component {
       if (rowUpdated) this.setState({ data: d });
     } else {
       debugger;
+
       if (role === STAGE) {
-      }
-      if (this.props.role === STAGE) {
         if (
           newData.staged_by !== AVAILABLE &&
           newData[newData.length - 2] !== AVAILABLE &&
@@ -698,9 +761,9 @@ export default class PaintList extends Component {
   }
 
   removeRow(row) {
-    var idx = -1;
+    let idx = -1;
     debugger;
-    var data = update(this.state.data, { $push: [] });
+    let data = update(this.state.data, { $push: [] });
     // eslint-disable-next-line
     data.map(function(rowData, rowIdx) {
       if (rowData[0] === row[0]) idx = rowIdx;
@@ -717,7 +780,7 @@ export default class PaintList extends Component {
    * @param {*} newData
    */
   newRow(newData) {
-    var exists = false;
+    let exists = false;
     const { data } = this.state;
     let d = update(this.state.data, { $push: [] });
     exists = d.some((rowData) => rowData[0] === newData[0]);
@@ -736,24 +799,22 @@ export default class PaintList extends Component {
     let row = update(data[rowIdx], { $merge: {} });
 
     const { role } = this.props;
+    let canRelease = false;
     switch (role) {
       case ASSIST:
-        if (row.grab_by === currentUser.name) {
-          this.release(row, rowIdx);
-        }
+        canRelease = row.grab_by === currentUser.name;
         break;
       case STAGE:
-        if (row.staged_by !== AVAILABLE && row.handled_by !== AVAILABLE) {
-          this.release(row, rowIdx);
-        }
-        break;
       case LOAD:
-        if (row.staged_by !== AVAILABLE && row.handled_by !== AVAILABLE) {
-          this.release(row, rowIdx);
-        }
+        canRelease =
+          row.staged_by !== AVAILABLE && row.handled_by !== AVAILABLE;
         break;
 
       default:
+    }
+
+    if (canRelease) {
+      this.handleRelease(row, rowIdx);
     }
   }
 
@@ -765,14 +826,14 @@ export default class PaintList extends Component {
     } = this.props;
     const { data } = this.state;
 
-    var row = update(data[rowIdx], {});
+    let row = update(data[rowIdx], {});
     switch (role) {
       case ASSIST:
-        if (row.staged_by === AVAILABLE) {
+        if (row.grab_by === AVAILABLE) {
           this.checkOut(row, rowIdx);
         } else {
           if (
-            row.staged_by === name &&
+            row.grab_by === name &&
             role === ASSIST &&
             OSName === 'Windows' &&
             tapTarget.classList.contains('label')
@@ -813,7 +874,7 @@ export default class PaintList extends Component {
       role,
       currentUser: { name }
     } = this.props;
-    var row = update(data[rowIdx], {});
+    let row = update(data[rowIdx], {});
 
     switch (role) {
       case ASSIST:

@@ -35,7 +35,7 @@ export default class Login extends Component {
     //   this.setState({ disabled: true });
     //   this.props.setUser(userId, role);
     // }
-    Fetch(URLS.VerifyEmpID, this.env, options({ EmployeeID: userId }))
+    Fetch(URLS.GetEmployee, this.env, options({ EmployeeID: userId }))
       .then(this.updateUser)
       .catch(console.error);
   }

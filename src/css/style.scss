@@ -452,7 +452,7 @@ td i {
 //   color: black;
 // }
 .rdg {
-  overflow: hidden;
+  // overflow: hidden;
   padding-top: 1em;
 }
 
@@ -1784,10 +1784,19 @@ textarea.react-autocomplete-Autocomplete__search {
   display: none;
 }
 
-@media (min-width: 768px) {
-  padding-top: 15px;
-  padding-bottom: 15px;
+@media only screen and (max-width: 768px) {
+  .navbar-nav {
+    font-size: 11px;
+  }
+  .navbar-text {
+    font-size: 11px;
+  }
+  .rdg {
+    padding-top: 1em;
+  }
 }
+
+@media (min-width: 768px) {}
 
 .nav>li>p {
   position: relative;

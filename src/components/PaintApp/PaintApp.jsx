@@ -11,6 +11,7 @@
 import React, { Component } from 'react';
 import Login from './Login';
 import PaintList from './PaintList';
+import { Alert } from 'react-bootstrap';
 
 /**
  * Gets OS Version Type
@@ -25,6 +26,12 @@ const GetOs = (version) => {
   return result;
 };
 
+const user = {
+  id: -1,
+  name: '',
+  imgPath: '',
+  img: ''
+};
 /**
  * @class PaintApp
  */
@@ -34,33 +41,43 @@ class PaintApp extends Component {
 
     const OSName = GetOs(navigator.appVersion);
 
+    let currentUser = user;
+
     this.state = {
-      currentUser: {
-        id: -1,
-        name: '',
-        imgPath: '',
-        img: ''
-      },
+      currentUser: currentUser,
       role: '',
-      OSName: OSName
+      OSName: OSName,
+      showAlert: false
     };
     this.setUser = this.setUser.bind(this);
   }
 
   setUser(userId, user, role) {
-    this.setState({ currentUser: user, role: role });
+    this.setState({ currentUser: user, role: role, showAlert: true });
+
+    localStorage.setItem('currentUser', JSON.stringify(user));
+
+    setTimeout(() => this.setState({ showAlert: false }), 3000);
   }
 
   render() {
-    const { currentUser, role, OSName } = this.state;
-    if (this.state.currentUser.id !== -1) {
+    const { currentUser, role, OSName, showAlert } = this.state;
+
+    if (currentUser.id !== -1) {
       return (
-        <PaintList
-          role={role}
-          OSName={OSName}
-          currentUser={currentUser}
-          {...this.props}
-        />
+        <div>
+          {showAlert && (
+            <Alert bsStyle="success">Hello {currentUser.name}</Alert>
+          )}
+          {!showAlert && (
+            <PaintList
+              role={role}
+              OSName={OSName}
+              currentUser={currentUser}
+              {...this.props}
+            />
+          )}
+        </div>
       );
     } else {
       return <Login setUser={this.setUser} {...this.props} />;

@@ -41,7 +41,7 @@ class AddNewRoundButton extends PureComponent {
               Ok
             </Button>
             <Button onClick={() => this.setState({ show: false })}>
-              Close
+              Cancel
             </Button>
           </ModalFooter>
         </Modal>

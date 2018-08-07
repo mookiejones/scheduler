@@ -1,52 +1,31 @@
- 
-const p = require('../../package.json');
-
-export const VERSION = p.version;
-export const DELETE = 'DELETE';
-export const UPDATE = 'UPDATE';
-export const AVAILABLE = '##AVAILABLE##';
-export const ASSIST = 'assist';
-
-export const PRODUCTION = 'production';
-export const STAGE = 'stage';
-export const WATCH = 'watch';
-export const LOAD = 'load';
-export const UNDO_KEY = 'undo';
-export const ROUND_KEY = 'round';
-export const GET_DRIVER_AVERAGES = 'GetDriverAverages';
-export const INSERT = 'INSERT';
-export const CHECK_OUT_ROW = 'CheckOutRow';
-export const CHECK_IN_ROW = 'CheckInRow';
-export const RELEASE_ROW = 'ReleaseRow';
 export const STAGE_ROW = 'StageRow';
 export const GET_PAINT_REVISE = 'GetPaintRevise';
 export const GET_PAINT_PICK_LIST = 'GetPaintPickList';
 export const GET_PAINT_STAGE_LIST = 'GetPaintStageList';
 export const GET_PAINT_LOAD_LIST = 'GetPaintLoadList';
-export const GET_ROUNDS = 'getRounds';
-export const VERIFY_EMP_ID = 'VerifyEmpID';
 export const DELETE_WHOLE_ROUND = 'delWholeRound';
 export const GET_PROGRAM_COLORS = 'GetProgramColors';
 export const GET_PAINT_SCHEDULE_PROGRAMS = 'GetPaintSchedulePrograms';
 export const GET_PAINT_SCHEDULE_COLORS_FOR_SCHEDULER =
   'GetPaintScheduleColorsForScheduler';
+export const CHECK_OUT_ROW = 'CheckOutRow';
+export const CHECK_IN_ROW = 'CheckInRow';
+export const RELEASE_ROW = 'ReleaseRow';
+
+export const GET_ROUNDS = 'getRounds';
+export const VERIFY_EMP_ID = 'VerifyEmpID';
 export const PNT_SCHL_IMPORT_2 = 'pntSchlImport2';
 export const SAVE_PNT_REVISE = 'savePntRevise';
 export const PERSIST_STYLE_CODE_ROW = 'PersistStyleCodeRow';
-const SCHEDULE_NEW_ROUND = 'ScheduleNewRound';
-export class Actions {
-  static get Insert() {
-    return INSERT;
-  }
-  static get Delete() {
-    return DELETE;
-  }
+export const GET_DRIVER_AVERAGES = 'GetDriverAverages';
+export const GET_EMPLOYEE = 'GetEmployee';
 
-  static get Update() {
-    return UPDATE;
+const SCHEDULE_NEW_ROUND = 'ScheduleNewRound';
+
+export default class URLS {
+  static get GetEmployee() {
+    return GET_EMPLOYEE;
   }
-}
-export class URLS {
   static get GetDriverAverages() {
     return GET_DRIVER_AVERAGES;
   }

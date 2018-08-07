@@ -9,37 +9,43 @@
  */
 
 import React, { Component } from 'react';
-import { AVAILABLE } from '../../shared/Constants';
+import { AVAILABLE } from '../../shared';
 import PropTypes from 'prop-types';
 import FontAwesome from 'react-fontawesome';
+import { RowPropType } from './PaintPropTypes';
 const styles = ['green', 'yellow', 'orange', 'red', 'purple', 'blue'];
 
 export default class UndoCell extends Component {
-  shouldComponentUpdate(nextProps, nextState) {
-    const { rowData } = this.props;
-    const keys = Object.keys(nextProps.rowData);
-    const result = keys.some((key) => rowData[key] !== nextProps.rowData[key]);
-    return result;
-  }
   render() {
     const { role, rowData, currentUser } = this.props;
     const styleNum = parseInt(rowData.round_position, 10) % styles.length;
     const cn = `undo rack-group-${styles[styleNum]}`;
+
+    const fawe = <FontAwesome name="undo" size="2x" />;
+    let el = (
+      <td style={{ fontSize: '45px' }} className={cn}>
+        {fawe}
+      </td>
+    );
+
     switch (role) {
       case 'load':
-        if (rowData.staged_by !== AVAILABLE && rowData.handled_by !== AVAILABLE)
-          return (
-            <td style={{ fontSize: '45px' }} className={cn}>
-              <FontAwesome name="undo" size="xs" />
-            </td>
-          );
-        return <td className={'tap ' + cn}>{rowData.loc}</td>;
+        if (
+          rowData.staged_by !== AVAILABLE &&
+          rowData.handled_by !== AVAILABLE
+        ) {
+          debugger;
+          return el;
+        } else {
+          el = <td className={'tap ' + cn}>{rowData.loc}</td>;
+        }
+        return el;
 
       case 'stage':
         if (rowData.staged_by !== AVAILABLE)
           return (
             <td style={{ fontSize: '45px' }} className={cn}>
-              <FontAwesome name="undo" />
+              {fawe}
               <FontAwesome name="undo" size="xs" />
             </td>
           );
@@ -50,12 +56,8 @@ export default class UndoCell extends Component {
         );
 
       case 'assist':
-        if (rowData.staged_by === currentUser.name)
-          return (
-            <td className={cn}>
-              <FontAwesome name="undo" size="2x" />
-            </td>
-          );
+        if (rowData.grab_by === currentUser.name)
+          return <td className={cn}>{fawe}</td>;
         return <td className={'tap ' + cn}>{rowData.loc}</td>;
 
       default:
@@ -72,5 +74,5 @@ UndoCell.propTypes = {
     name: PropTypes.string
   }),
   role: PropTypes.string,
-  rowData: PropTypes.any
+  rowData: RowPropType
 };
