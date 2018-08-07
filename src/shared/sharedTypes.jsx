@@ -10,4 +10,10 @@ const ColorPropType = PropTypes.arrayOf(
   })
 );
 
-export { ColorPropType };
+const UserPropType = PropTypes.shape({
+  id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  img: PropTypes.string.isRequired,
+  imgPath: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired
+});
+export { ColorPropType, UserPropType };

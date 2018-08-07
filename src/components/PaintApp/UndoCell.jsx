@@ -25,7 +25,7 @@ export default class UndoCell extends Component {
     const styleNum = parseInt(rowData.round_position, 10) % styles.length;
     const cn = `undo rack-group-${styles[styleNum]}`;
 
-    const fawe = <FontAwesome name="undo" size="2x" />;
+    const fawe = <FontAwesome name="undo" size="lg" />;
     let el = (
       <td style={{ fontSize: '45px' }} className={cn}>
         {fawe}
@@ -38,23 +38,36 @@ export default class UndoCell extends Component {
           rowData.staged_by !== AVAILABLE &&
           rowData.handled_by !== AVAILABLE
         ) {
-          
           return el;
         } else {
-            el = <td className={`tap ${cn}`}>{rowData.loc}</td>;
+          el = (
+            <td
+              className={`tap ${cn}`}
+              style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+              {rowData.loc}
+            </td>
+          );
         }
         return el;
 
       case 'stage':
         if (rowData.staged_by !== AVAILABLE)
           return (
-            <td style={{ fontSize: '45px' }} className={cn}>
+            <td
+              style={{
+                fontSize: '45px',
+                textAlign: 'center',
+                verticalAlign: 'middle'
+              }}
+              className={cn}>
               {fawe}
               <FontAwesome name="undo" size="xs" />
             </td>
           );
         return (
-          <td className={`tap rack-group-${styles[styleNum]}`}>
+          <td
+            className={`tap rack-group-${styles[styleNum]}`}
+            style={{ textAlign: 'center', verticalAlign: 'middle' }}>
             {rowData.loc}
           </td>
         );
@@ -62,7 +75,13 @@ export default class UndoCell extends Component {
       case 'assist':
         if (rowData.grab_by === currentUser.name)
           return <td className={cn}>{fawe}</td>;
-        return <td className={`tap ${cn}`}>{rowData.loc}</td>;
+        return (
+          <td
+            className={`tap ${cn}`}
+            style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+            {rowData.loc}
+          </td>
+        );
 
       default:
         return <td />;

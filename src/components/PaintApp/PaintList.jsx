@@ -18,6 +18,7 @@ import UndoCell from './UndoCell';
 import Description from './Description';
 import update from 'immutability-helper';
 import UserIcon from '../UserIcon';
+import { UserPropType } from '../../shared/sharedTypes';
 import {
   Badge,
   Image,
@@ -25,7 +26,9 @@ import {
   OverlayTrigger,
   Grid,
   Row,
-  Col
+  Col,
+  ToolTip,
+  Table
 } from 'react-bootstrap';
 // ReSharper restore InconsistentNaming
 
@@ -44,6 +47,7 @@ import {
   ROUND_KEY
 } from '../../shared';
 import io from 'socket.io-client';
+const ReactDataGrid = require('react-data-grid');
 
 const IsAvailable = ({ ...items }) => items.every((item) => item === AVAILABLE);
 
@@ -95,6 +99,7 @@ const COLUMN_DEFINITIONS = [
     data: 0,
     className: UNDO_KEY,
     orderable: false,
+    visible: true,
     CellRenderer: UndoCell
   },
   {
@@ -124,30 +129,41 @@ const COLUMN_DEFINITIONS = [
     data: 4,
     className: 'tap',
     orderable: false,
+    visible: true,
     CellRenderer: Description
   },
   { title: 'notes', key: 'notes', data: 5, visible: false, orderable: false },
-  { title: 'Color', key: 'color', data: 6, className: 'tap', orderable: false },
+  {
+    title: 'Color',
+    key: 'color',
+    data: 6,
+    className: 'tap',
+    orderable: false,
+    visible: true
+  },
   {
     title: 'Mold Skin Style',
     key: 'mold_skin_style',
     data: 7,
     className: 'tap',
-    orderable: false
+    orderable: false,
+    visible: true
   },
   {
     title: 'Rework Color Chart',
     key: 'rework_color_chart',
     data: 8,
     className: 'tap',
-    orderable: false
+    orderable: false,
+    visible: true
   },
   {
     title: 'Quantity',
     key: 'quantity',
     data: 9,
     className: 'tap',
-    orderable: false
+    orderable: false,
+    visible: true
   },
   {
     title: '',
@@ -836,46 +852,44 @@ export default class PaintList extends PureComponent {
     const title = `Paint ${label} List`;
 
     return (
-      <div>
-        <div>
-          <ul className="nav nav-pills" role="tablist">
-            <li role="presentation">
-              <h1>{title}</h1>
-            </li>
-            <li role="presentation" style={{ margin: '30px 15px 0px 15px' }}>
-              Current Round <span className="badge">{currentRoundNumber}</span>
-            </li>
-            <li role="presentation" style={{ margin: '30px 15px 0px 15px' }}>
-              Schedule Revision <Badge>{currentRoundNumber}</Badge>
-            </li>
-            <li style={{ margin: '23px 15px 0px 15px' }}>
-              <div className="form-group">
-                <input
-                  type="checkbox"
-                  name="rework-checkbox"
-                  id="rework-checkbox"
-                  autoComplete="off"
-                />
-                <div className="btn-group">
-                  <label htmlFor="rework-checkbox" className="btn btn-default">
-                    <span className="glyphicon glyphicon-ok" />
-                    <span>{''}</span>
-                  </label>
-                  <label
-                    htmlFor="rework-checkbox"
-                    className="btn btn-default active">
-                    Rework Driver
-                  </label>
-                </div>
+      <Fragment>
+        <ul className="nav nav-pills" role="tablist" style={{ padding: 10 }}>
+          <li role="presentation">
+            <h1>{title}</h1>
+          </li>
+          <li role="presentation" style={{ margin: '30px 15px 0px 15px' }}>
+            Current Round <span className="badge">{currentRoundNumber}</span>
+          </li>
+          <li role="presentation" style={{ margin: '30px 15px 0px 15px' }}>
+            Schedule Revision <Badge>{currentRoundNumber}</Badge>
+          </li>
+          <li style={{ margin: '23px 15px 0px 15px' }}>
+            <div className="form-group">
+              <input
+                type="checkbox"
+                name="rework-checkbox"
+                id="rework-checkbox"
+                autoComplete="off"
+              />
+              <div className="btn-group">
+                <label htmlFor="rework-checkbox" className="btn btn-default">
+                  <span className="glyphicon glyphicon-ok" />
+                  <span>{''}</span>
+                </label>
+                <label
+                  htmlFor="rework-checkbox"
+                  className="btn btn-default active">
+                  Rework Driver
+                </label>
               </div>
-            </li>
-            <li role="presentation" className="pull-right">
-              <UserIcon user={currentUser} />
-            </li>
-          </ul>
-        </div>
+            </div>
+          </li>
+          <li role="presentation" className="pull-right">
+            <UserIcon user={currentUser} />
+          </li>
+        </ul>
 
-        <table className="table table-bordered">
+        <Table striped bordered condensed hover>
           <thead>
             <tr>
               <th className="undo" />
@@ -937,8 +951,8 @@ export default class PaintList extends PureComponent {
                 </HammerRow>
               ))}
           </tbody>
-        </table>
-      </div>
+        </Table>
+      </Fragment>
     );
   }
 }
@@ -946,12 +960,7 @@ export default class PaintList extends PureComponent {
 PaintList.propTypes = {
   OSName: PropTypes.string.isRequired,
   role: PropTypes.string.isRequired,
-  currentUser: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    img: PropTypes.string,
-    imgPath: PropTypes.string,
-    name: PropTypes.string
-  }),
+  currentUser: UserPropType,
   route: PropTypes.shape({
     env: PropTypes.string,
     path: PropTypes.string,

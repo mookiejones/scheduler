@@ -1,5 +1,4 @@
 import Fetch, { options } from './DataFetcher';
-import DefaultUser from './DefaultUser';
 import { ColorPropType } from './sharedTypes';
 import * as Constants from './Constants/';
 
@@ -24,7 +23,6 @@ const {
 export {
   Fetch,
   options,
-  DefaultUser,
   Constants,
   ColorPropType,
   VERSION,
