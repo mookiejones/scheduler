@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import update from 'immutability-helper';
 import Fetch, { options } from '../../shared/DataFetcher';
 import columns from './PaintScheduleEditorColumns';
@@ -14,7 +14,8 @@ import { URLS, Actions } from '../../shared';
 import AddNewRoundButton from './AddNewRoundButton';
 
 import RoundDataItem from './RoundDataItem';
-import AlertComponent from '../AlertComponent';
+
+import { withAlert } from 'react-alert';
 
 const debug = require('debug')('PaintScheduleEditor');
 
@@ -32,11 +33,12 @@ const convertItems = (items) =>
 class PaintScheduleEditor extends Component {
   constructor(props) {
     super(props);
+
     this.env = props.env;
 
     this.state = {
       isMounted: false,
-      alertContent: '',
+
       changedRows: [],
       expandedRows: {},
       firstLoad: true,
@@ -55,11 +57,9 @@ class PaintScheduleEditor extends Component {
       selectedRound: -1,
       selectedRounds: [],
       showSettings: false,
-      showAlert: false,
       styleCodes: []
     };
 
-    this.showAlert = this.showAlert.bind(this);
     this.handleAddColorRule = this.handleAddColorRule.bind(this);
     this.deleteRow = this.deleteRow.bind(this);
     this.addNewRound = this.addNewRound.bind(this);
@@ -530,15 +530,8 @@ class PaintScheduleEditor extends Component {
     this.getPaintSchedule();
   }
 
-  showAlert(content) {
-    // debugger;
-
-    this.setState({ alertContent: content });
-
-    setTimeout(() => this.setState({ alertContent: '' }), 2000);
-  }
-
   persistRow(hash, row) {
+    const { alert } = this.props;
     const { queuedUpdates } = this.state;
 
     var updateq = Object.assign({}, queuedUpdates);
@@ -551,7 +544,7 @@ class PaintScheduleEditor extends Component {
     let body = { str: JSON.stringify(row) };
     Fetch(URLS.UpdatePaintSchedule, this.env, options(body))
       .then((data) => {
-        this.showAlert(`Changed ${data.value} items`);
+        alert.show(`Changed ${data.value} items`);
       })
       .catch(Fetch.ErrorHandler)
       .finally(() => {
@@ -680,7 +673,8 @@ class PaintScheduleEditor extends Component {
       o.contains = o.contains === 1;
       return o;
     });
-    this.showAlert(`Changed ${result.result.value} rules`);
+    this.props.alert.show(`Changed ${result.result.value} rules`);
+
     this.setState({ rules: rules });
   }
 
@@ -719,7 +713,6 @@ class PaintScheduleEditor extends Component {
   }
   render() {
     const {
-      alertContent,
       height,
       loaded,
       newRows,
@@ -810,7 +803,6 @@ class PaintScheduleEditor extends Component {
         />
 
         {selectedRounds.length > 0 && <button>Delete Rounds</button>}
-        <AlertComponent content={alertContent} />
       </div>
     );
 
@@ -836,4 +828,4 @@ PaintScheduleEditor.propTypes = {
   env: PropTypes.string,
   ruleSet: PropTypes.any
 };
-export default PaintScheduleEditor;
+export default withAlert(PaintScheduleEditor);

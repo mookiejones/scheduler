@@ -12,6 +12,10 @@ import DriverPerformance from '../DriverPerformance/DriverPerformance';
 
 import Top from './Top';
 
+const options = {
+  timeout: 5000,
+  position: 'bottom center'
+};
 export default class MainApp extends Component {
   constructor(props) {
     super(props);
@@ -45,35 +49,35 @@ export default class MainApp extends Component {
         key: 'edit',
         path: '/edit',
         component: PaintScheduleEditor,
-        render: () => <PaintScheduleEditor env={env} />
+        render: () => <PaintScheduleEditor env={env} {...this.props} />
       },
       {
         title: 'Style Codes',
         key: 'style-codes',
         path: '/style-codes',
         component: StyleCodeEditor,
-        render: () => <StyleCodeEditor env={env} />
+        render: () => <StyleCodeEditor env={env} {...this.props} />
       },
       {
         title: 'Program Colors',
         key: 'program-colors',
         path: '/program-colors',
         component: ProgramColorsEditor,
-        render: () => <ProgramColorsEditor env={env} />
+        render: () => <ProgramColorsEditor env={env} {...this.props} />
       },
       {
         title: 'Excel Import',
         key: 'excel-import',
         path: '/excel-import',
         component: ExcelImport,
-        render: () => <ExcelImport env={env} />
+        render: () => <ExcelImport env={env} {...this.props} />
       },
       {
         title: 'Paint App',
         key: 'paint-app',
         path: '/paint-app',
         component: PaintApp,
-        render: () => <PaintApp env={env} />
+        render: () => <PaintApp env={env} {...this.props} />
       },
       {
         title: 'Driver Performance',

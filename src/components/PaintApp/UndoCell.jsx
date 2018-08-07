@@ -8,13 +8,17 @@
  * @class UndoCell
  */
 
+// ReSharper disable InconsistentNaming
 import React, { Component } from 'react';
+
 import { AVAILABLE } from '../../shared';
 import PropTypes from 'prop-types';
 import FontAwesome from 'react-fontawesome';
+// ReSharper restore InconsistentNaming
 import { RowPropType } from './PaintPropTypes';
 const styles = ['green', 'yellow', 'orange', 'red', 'purple', 'blue'];
 
+// ReSharper disable once InconsistentNaming
 export default class UndoCell extends Component {
   render() {
     const { role, rowData, currentUser } = this.props;
@@ -34,10 +38,10 @@ export default class UndoCell extends Component {
           rowData.staged_by !== AVAILABLE &&
           rowData.handled_by !== AVAILABLE
         ) {
-          debugger;
+          
           return el;
         } else {
-          el = <td className={'tap ' + cn}>{rowData.loc}</td>;
+            el = <td className={`tap ${cn}`}>{rowData.loc}</td>;
         }
         return el;
 
@@ -50,7 +54,7 @@ export default class UndoCell extends Component {
             </td>
           );
         return (
-          <td className={'tap rack-group-' + styles[styleNum]}>
+          <td className={`tap rack-group-${styles[styleNum]}`}>
             {rowData.loc}
           </td>
         );
@@ -58,7 +62,7 @@ export default class UndoCell extends Component {
       case 'assist':
         if (rowData.grab_by === currentUser.name)
           return <td className={cn}>{fawe}</td>;
-        return <td className={'tap ' + cn}>{rowData.loc}</td>;
+        return <td className={`tap ${cn}`}>{rowData.loc}</td>;
 
       default:
         return <td />;

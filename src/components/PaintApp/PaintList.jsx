@@ -8,7 +8,8 @@
  * @class PaintList
  */
 
-import React, { PureComponent } from 'react';
+// ReSharper disable InconsistentNaming
+import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import HammerRow from './HammerRow';
 import RackOwner from './RackOwner';
@@ -16,6 +17,17 @@ import Calculator from './Calculator';
 import UndoCell from './UndoCell';
 import Description from './Description';
 import update from 'immutability-helper';
+import UserIcon from '../UserIcon';
+import {
+  Badge,
+  Image,
+  Tooltip,
+  OverlayTrigger,
+  Grid,
+  Row,
+  Col
+} from 'react-bootstrap';
+// ReSharper restore InconsistentNaming
 
 import {
   Fetch,
@@ -38,21 +50,21 @@ import io from 'socket.io-client';
  * @param {Date} date
  */
 const GetFormattedDate = (date) => {
-  let year = date.getFullYear();
-  let month = date.getMonth() + 1;
-  let day = date.getDate();
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
 
   const result = `${year}-${month}-${day}`;
   return result;
 };
 
 const sortFn = (a, b) => {
-  let roundA = parseInt(a.round, 10);
-  let posA = parseInt(a.round_position, 10);
-  let roundB = parseInt(b.round, 10);
-  let posB = parseInt(b.round_position, 10);
-  let qtyA = parseInt(a.quantity, 10);
-  let qtyB = parseInt(b.quantity, 10);
+  const roundA = parseInt(a.round, 10);
+  const posA = parseInt(a.round_position, 10);
+  const roundB = parseInt(b.round, 10);
+  const posB = parseInt(b.round_position, 10);
+  const qtyA = parseInt(a.quantity, 10);
+  const qtyB = parseInt(b.quantity, 10);
 
   if (roundA === roundB) {
     //if round is the same, sort by round_position
@@ -67,6 +79,7 @@ const sortFn = (a, b) => {
   }
 };
 
+// ReSharper disable once InconsistentNaming
 const COLUMN_DEFINITIONS = [
   {
     title: '',
@@ -167,6 +180,7 @@ const COLUMN_DEFINITIONS = [
 /**
  * @class PaintList
  */
+// ReSharper disable once InconsistentNaming
 export default class PaintList extends PureComponent {
   constructor(props) {
     super(props);
@@ -208,7 +222,7 @@ export default class PaintList extends PureComponent {
    *
    */
   componentDidMount() {
-    const { role } = this.props;
+    const { role, currentUser } = this.props;
     let url = URLS.GetPaintPickList;
     switch (role) {
       case STAGE:
@@ -238,9 +252,6 @@ export default class PaintList extends PureComponent {
         : 'http://nord:5555/paint-load';
 
     this.socket = io(path);
-    this.socket.on('connected', (client) => {
-      debugger;
-    });
 
     this.socket.on(SocketActions.RowUpdate, this.updateRow);
     this.socket.on(SocketActions.RowDelete, this.removeRow);
@@ -254,6 +265,13 @@ export default class PaintList extends PureComponent {
     this.socket.on(SocketActions.Reconnect, () => {
       console.warn('connected');
     });
+
+    this.socket.on(SocketActions.Login, (msg) => {
+      const alert = <UserIcon user={msg} forAlert={true} />;
+      this.props.alert.show(alert);
+    });
+
+    this.socket.emit(SocketActions.Login, currentUser);
   }
 
   /**
@@ -301,9 +319,7 @@ export default class PaintList extends PureComponent {
       .then((data) => {
         this.setState({ currentRevision: data[0].revision_name });
       })
-      .catch((error) => {
-        debugger;
-      });
+      .catch(Fetch.ErrorHandler);
   }
 
   /**
@@ -464,14 +480,14 @@ export default class PaintList extends PureComponent {
     //set Staged-By to current User
     newdata[newdata.length - 3] = this.state.currentUser.name;
 
-    let query = { id: data[0], pickedBy: this.state.currentUser.id };
+    const query = { id: data[0], pickedBy: this.state.currentUser.id };
     debugger;
     request.open('POST', URLS.StageRow, true);
     request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
-        let res = JSON.parse(request.response);
-        let responseData = JSON.parse(res.d);
+        const res = JSON.parse(request.response);
+        const responseData = JSON.parse(res.d);
         if (responseData.value > 0) {
           this.stageSuccess(newdata, rowIdx);
         } else {
@@ -484,7 +500,7 @@ export default class PaintList extends PureComponent {
   }
 
   stageSuccess(newData, rowIdx) {
-    let data = update(this.state.data, { $splice: [[rowIdx, 1]] });
+    const data = update(this.state.data, { $splice: [[rowIdx, 1]] });
     this.setState({
       data: data
     });
@@ -492,9 +508,9 @@ export default class PaintList extends PureComponent {
   }
 
   finalize(data) {
-    let query = { id: data[0], pickedBy: this.state.currentUser.id };
-    let url = 'FinalizeRow';
-
+    const query = { id: data[0], pickedBy: this.state.currentUser.id };
+    const url = 'FinalizeRow';
+    debugger;
     Fetch(url, options(query))
       .then((data) => {
         debugger;
@@ -914,8 +930,7 @@ export default class PaintList extends PureComponent {
               Current Round <span className="badge">{currentRoundNumber}</span>
             </li>
             <li role="presentation" style={{ margin: '30px 15px 0px 15px' }}>
-              Schedule Revision{' '}
-              <span className="badge">{currentRoundNumber}</span>
+              Schedule Revision <Badge>{currentRoundNumber}</Badge>
             </li>
             <li style={{ margin: '23px 15px 0px 15px' }}>
               <div className="form-group">
@@ -937,6 +952,9 @@ export default class PaintList extends PureComponent {
                   </label>
                 </div>
               </div>
+            </li>
+            <li role="presentation" className="pull-right">
+              <UserIcon user={currentUser} />
             </li>
           </ul>
         </div>
