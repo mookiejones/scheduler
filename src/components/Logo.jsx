@@ -1,20 +1,22 @@
 import React from 'react';
+// const FONT_COLOR='#dedede';
+const FONT_COLOR = '#FFF';
 
 const headerData = [
   {
     d:
       'M181.1,42.6h38l14,53h0.9c0.7-4.4,1.3-9.1,2.6-13.4l11.5-39.6h37.6l16.7,100.8h-35.7l-5-55.2h-0.7 c-0.7,3.3-1.3,6.8-2.4,10l-14.7,45.2h-21.6l-13.2-42.7c-1.1-4.3-2-8.3-2.3-12.6h-1.2c-0.3,4-0.5,8.2-0.9,12.2l-4.3,43.1h-35.7 L181.1,42.6z',
-    color: '#dedede'
+    color: FONT_COLOR
   },
   {
     d:
       'M332.7 143.4h-39.1L329 42.6h40.9l36.3 100.8H367l-3.4-12.6h-27.9L332.7 143.4zM357.1 106.9l-4.3-17.8c-1.1-4.3-1.8-8.7-2.4-13h-1.3l-6.7 30.8H357.1zM506.5 84c-.3 16.5-.3 30.2-12.3 43.1-10.8 11.6-27.4 17.9-43.2 17.9-31 0-56.1-19-56.1-51.4 0-32.9 24.4-52.7 56.4-52.7 17.7 0 41.9 8.7 49.9 25.9l-34.5 12.6c-2.8-5.1-8.1-7.8-14-7.8-13.2 0-20.5 11.2-20.5 23.4 0 11.1 7 21.5 19 21.5 5.8 0 13.2-2.7 15-8.8h-16.7V84H506.5zM509.3 42.6h35.5l33.2 55.9h1.1c-1.5-8.4-3.1-17.1-3.1-25.7V42.6h35.3v100.8h-35.3l-32.5-53h-1.1c1.2 7 2.3 13.5 2.3 20.2v32.8h-35.3V42.6z',
-    color: '#dedede'
+    color: FONT_COLOR
   },
   {
     d:
       'M646.7,143.4h-39.1l35.3-100.8h40.9L720,143.4h-39.1l-3.4-12.6h-27.9L646.7,143.4z M671.1,106.9l-4.3-17.8 c-1.1-4.3-1.7-8.7-2.4-13H663l-6.7,30.8H671.1z',
-    color: '#dedede'
+    color: FONT_COLOR
   },
   {
     d:
@@ -28,19 +30,23 @@ const headerData = [
   }
 ];
 
-const Logo = () => (
-  <svg
-    style={{ marginTop: '5px' }}
-    height="30"
-    role="img"
-    viewBox="0 0 720 145"
-    width="177"
-    xmlns="http://www.w3.org/2000/svg">
-    <title>Magna International</title>
-    {headerData.map(({ d, color }, idx) => (
-      <path key={idx} d={d} fill={color} />
-    ))}
-  </svg>
-);
+const Logo = () => {
+  const width = window.innerWidth === 768 ? 20 : 145;
+  const viewBox = window.innerWidth === 768 ? `0 0 150 145` : '0 0 720 145';
+  return (
+    <svg
+      style={{ marginTop: '5px' }}
+      height="30"
+      role="img"
+      viewBox={viewBox}
+      width={width}
+      xmlns="http://www.w3.org/2000/svg">
+      <title>Magna International</title>
+      {headerData.map(({ d, color }, idx) => (
+        <path key={idx} d={d} fill={color} />
+      ))}
+    </svg>
+  );
+};
 
 export default Logo;
