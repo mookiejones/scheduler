@@ -1,7 +1,7 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import { Label, Badge } from 'react-bootstrap';
+import { Label } from 'react-bootstrap';
 export default class Description extends Component {
   render() {
     const { rowData, children } = this.props;
@@ -31,7 +31,7 @@ export default class Description extends Component {
       <td className="tap">
         <p>
           {children}
-          {bsStyle != 'default' && <Label bsStyle={bsStyle}>{row}</Label>}
+          {bsStyle !== 'default' && <Label bsStyle={bsStyle}>{row}</Label>}
         </p>
       </td>
     );

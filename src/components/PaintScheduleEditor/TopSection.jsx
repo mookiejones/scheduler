@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import FontAwesome from 'react-fontawesome';
-import { Grid, Row, Col, Badge } from 'react-bootstrap';
 
+import { Grid, Row, Col, Badge } from 'react-bootstrap';
+import { SlidersIcon } from '../Icons';
 const SettingsItem = ({ handleSettingsClick, ...props }) => {
   return (
     <Grid fluid style={{ marginRight: '0' }}>
       <Col className="pull-right">
         <a onClick={handleSettingsClick}>
-          <FontAwesome name="sliders" size="lg" />
+          <SlidersIcon size="lg" />
         </a>
       </Col>
     </Grid>

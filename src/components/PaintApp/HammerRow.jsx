@@ -5,6 +5,7 @@ import { AVAILABLE, ASSIST, STAGE, LOAD } from '../../shared';
 // import Hammer from 'hammerjs';
 import { RowPropType } from './PaintPropTypes';
 import Hammer from 'react-hammerjs';
+const hammer = require('debug')('HammerRow');
 
 const hammerOptions = {
   touchAction: 'compute',
@@ -29,15 +30,16 @@ export default class HammerRow extends Component {
   }
 
   handleTap(event) {
-    const { TapActionHandler, UndoActionHandler, rowId } = this.props;
-
+    event.preventDefault();
+    const { TapActionHandler, UndoActionHandler, rowId, rowData } = this.props;
+    hammer('handleTap');
     const list = event.target.classList;
     if (/tap/.test(list)) {
       TapActionHandler(rowId, event.target);
     }
 
     if (/undo/.test(list)) {
-      UndoActionHandler(rowId);
+      UndoActionHandler(rowId, rowData);
     }
   }
 

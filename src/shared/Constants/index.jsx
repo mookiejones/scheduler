@@ -2,6 +2,7 @@ import SocketActions from './SocketActions';
 import URLS from './Urls';
 
 import Actions from './Actions';
+import OsOptions from './OsOptions';
 const { version } = require('../../../package.json');
 const DELETE = 'DELETE';
 const UPDATE = 'UPDATE';
@@ -30,5 +31,6 @@ export {
   LOAD,
   UNDO_KEY,
   ROUND_KEY,
-  INSERT
+  INSERT,
+  OsOptions
 };

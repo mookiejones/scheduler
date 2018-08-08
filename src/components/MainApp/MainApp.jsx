@@ -12,10 +12,6 @@ import DriverPerformance from '../DriverPerformance/DriverPerformance';
 
 import Top from './Top';
 
-const options = {
-  timeout: 5000,
-  position: 'bottom center'
-};
 export default class MainApp extends Component {
   constructor(props) {
     super(props);

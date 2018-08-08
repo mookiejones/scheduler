@@ -12,24 +12,12 @@
 import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import HammerRow from './HammerRow';
-import RackOwner from './RackOwner';
-import Calculator from './Calculator';
-import UndoCell from './UndoCell';
-import Description from './Description';
 import update from 'immutability-helper';
 import UserIcon from '../UserIcon';
 import { UserPropType } from '../../shared/sharedTypes';
-import {
-  Badge,
-  Image,
-  Tooltip,
-  OverlayTrigger,
-  Grid,
-  Row,
-  Col,
-  ToolTip,
-  Table
-} from 'react-bootstrap';
+import PaintColumns from './PaintColumns';
+import PaintListTop from './PaintListTop';
+import { Table } from 'react-bootstrap';
 // ReSharper restore InconsistentNaming
 
 import {
@@ -39,6 +27,7 @@ import {
   SocketActions,
   AVAILABLE,
   ASSIST,
+  OsOptions,
   PRODUCTION,
   STAGE,
   WATCH,
@@ -47,9 +36,8 @@ import {
   ROUND_KEY
 } from '../../shared';
 import io from 'socket.io-client';
-const ReactDataGrid = require('react-data-grid');
 
-const IsAvailable = ({ ...items }) => items.every((item) => item === AVAILABLE);
+const IsAvailable = (items) => items.every((item) => item === AVAILABLE);
 
 const IsSame = (a, b) => {
   const keys = Object.keys(a).concat(Object.keys(b));
@@ -90,116 +78,6 @@ const sortFn = (a, b) => {
     return roundA < roundB ? -1 : 1;
   }
 };
-
-// ReSharper disable once InconsistentNaming
-const COLUMN_DEFINITIONS = [
-  {
-    title: '',
-    key: 'id',
-    data: 0,
-    className: UNDO_KEY,
-    orderable: false,
-    visible: true,
-    CellRenderer: UndoCell
-  },
-  {
-    key: 'master_id',
-    title: 'master_id',
-    data: 1,
-    visible: false,
-    orderable: false
-  },
-  {
-    key: ROUND_KEY,
-    title: ROUND_KEY,
-    data: 2,
-    visible: false,
-    orderable: true
-  },
-  {
-    key: 'round_position',
-    title: 'round pos',
-    data: 3,
-    visible: false,
-    orderable: true
-  },
-  {
-    key: 'program',
-    title: 'Description',
-    data: 4,
-    className: 'tap',
-    orderable: false,
-    visible: true,
-    CellRenderer: Description
-  },
-  { title: 'notes', key: 'notes', data: 5, visible: false, orderable: false },
-  {
-    title: 'Color',
-    key: 'color',
-    data: 6,
-    className: 'tap',
-    orderable: false,
-    visible: true
-  },
-  {
-    title: 'Mold Skin Style',
-    key: 'mold_skin_style',
-    data: 7,
-    className: 'tap',
-    orderable: false,
-    visible: true
-  },
-  {
-    title: 'Rework Color Chart',
-    key: 'rework_color_chart',
-    data: 8,
-    className: 'tap',
-    orderable: false,
-    visible: true
-  },
-  {
-    title: 'Quantity',
-    key: 'quantity',
-    data: 9,
-    className: 'tap',
-    orderable: false,
-    visible: true
-  },
-  {
-    title: '',
-    data: null,
-    className: 'action',
-    orderable: false,
-    visible: true,
-    CellRenderer: Calculator
-  },
-  { data: 10, visible: false, key: 'loc' },
-  {
-    title: 'StagedBy',
-    data: 11,
-    visible: false,
-    className: 'tap',
-    orderable: false,
-    key: 'staged_by'
-  },
-  {
-    title: 'handledBy',
-    data: 12,
-    visible: false,
-    className: 'tap',
-    orderable: false,
-    key: 'handled_by'
-  },
-  {
-    title: 'Picked By',
-    data: 13,
-    className: 'pickedBy tap',
-    orderable: false,
-    visible: true,
-    CellRenderer: RackOwner,
-    key: 'grab_by'
-  }
-];
 
 /**
  * @class PaintList
@@ -450,10 +328,10 @@ export default class PaintList extends PureComponent {
 
   /**
    * Release Item
-   * @param {PaintRowItem} data
+   * @param {PaintRowItem} item
    * @param {Number} rowIdx
    */
-  handleRelease(data, rowIdx) {
+  handleRelease(item, rowIdx) {
     const { currentUser } = this.props;
 
     let available = {
@@ -462,15 +340,15 @@ export default class PaintList extends PureComponent {
       staged_by: AVAILABLE
     };
 
-    data = update(data, { $merge: available });
+    item = update(item, { $merge: available });
 
-    let query = { id: data.id, pickedBy: currentUser.id };
+    let query = { id: item.id, pickedBy: currentUser.id };
     const o = options(query);
 
     Fetch(URLS.ReleaseRow, this.env, o)
       .then((d) => {
         if (d.value > 0) {
-          this.releaseSuccess(data, rowIdx);
+          this.releaseSuccess(item, rowIdx);
         } else {
           this.performHardUpdate();
         }
@@ -479,48 +357,53 @@ export default class PaintList extends PureComponent {
   }
 
   /**
+   * Updates State data
+   * @param {Number} index
+   * @param {Object} item
+   */
+  updateItems(index, item) {
+    let data = update(this.state.data, { [index]: { $merge: item } });
+    this.setState({ data: data });
+  }
+
+  /**
    *
    * @param {*} item
    * @param {*} rowIdx
    */
   releaseSuccess(item, rowIdx) {
-    let data = update(this.state.data, { $push: [] });
-
-    data[rowIdx] = item;
-
-    this.setState({ data });
-
     this.emit(SocketActions.RowUpdate, item);
+    this.updateItems(rowIdx, item);
   }
   emit(action, data) {
     this.socket.emit(action, data);
   }
   stage(data, rowIdx) {
-    debugger;
+    const { currentUser } = this.props;
 
     let newdata = data;
-    let request = new XMLHttpRequest();
+    let newData = update(data, { $merge: { staged_by: currentUser.id } });
+    this.updateItems(rowIdx, { staged_by: currentUser.id });
 
-    //set Staged-By to current User
-    newdata[newdata.length - 3] = this.state.currentUser.name;
+    const eventDate = GetFormattedDate(new Date());
+    const req = {
+      id: data.id,
+      pickedBy: currentUser.id,
 
-    const query = { id: data[0], pickedBy: this.state.currentUser.id };
-    debugger;
-    request.open('POST', URLS.StageRow, true);
-    request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-    request.onload = () => {
-      if (request.status >= 200 && request.status < 400) {
-        const res = JSON.parse(request.response);
-        const responseData = JSON.parse(res.d);
-        if (responseData.value > 0) {
+      itemDate: eventDate
+    };
+    const d = options(req);
+    Fetch(URLS.StageRow, this.env, d)
+      .then((o) => {
+        if (o.value > 0) {
           this.stageSuccess(newdata, rowIdx);
         } else {
           this.performHardUpdate();
         }
-      } else {
-      }
-    };
-    request.send(JSON.stringify(query));
+      })
+      .catch((o) => {
+        debugger;
+      });
   }
 
   stageSuccess(newData, rowIdx) {
@@ -664,7 +547,7 @@ export default class PaintList extends PureComponent {
     let data = update(this.state.data, { $push: [] });
 
     const idx = data.findIndex(
-      (o) => o.id == newData.id && o.master_id === newData.master_id
+      (o) => o.id === newData.id && o.master_id === newData.master_id
     );
 
     if (idx === -1) {
@@ -673,14 +556,12 @@ export default class PaintList extends PureComponent {
       throw new Error('Item Doesnt Exist');
     }
 
-    data[idx] = newData;
-    const rowUpdated = IsSame(newData, data[idx]);
+    const rowUpdated = !IsSame(newData, data[idx]);
     if (!rowUpdated) {
       debugger;
     } else {
-      let items = update(data, { $push: [] });
-      items[idx] = newData;
-      this.setState({ data: items });
+      this.updateItems(idx, newData);
+
       return;
     }
 
@@ -695,7 +576,7 @@ export default class PaintList extends PureComponent {
         break;
       default:
         const { staged_by, handled_by } = newData;
-        if (IsAvailable([staged_by, handled_by])) {
+        if (!IsAvailable([staged_by, handled_by])) {
           this.removeRow(newData);
         } else {
           if (rowUpdated) {
@@ -740,13 +621,13 @@ export default class PaintList extends PureComponent {
     }
   }
 
-  UndoActionHandler(rowIdx) {
+  UndoActionHandler(rowIdx, item) {
     const { data } = this.state;
-    const { currentUser } = this.props;
+    const { currentUser, role } = this.props;
+    // let data=update(this.props.data,{$push:[]});
 
-    let row = update(data[rowIdx], { $merge: {} });
+    let row = update(data[rowIdx], { $merge: item });
 
-    const { role } = this.props;
     let canRelease = false;
     switch (role) {
       case ASSIST:
@@ -775,38 +656,37 @@ export default class PaintList extends PureComponent {
     const { data } = this.state;
 
     let row = update(data[rowIdx], {});
+
+    const { staged_by, handled_by, grab_by } = row;
+
+    // Check to see if its my row
+
+    const IsWindowsLabel =
+      OSName === OsOptions.Windows && tapTarget.classList.contains('label');
+    const isMine = row.grab_by === AVAILABLE;
     switch (role) {
       case ASSIST:
-        if (row.grab_by === AVAILABLE) {
+        if (isMine) {
           this.checkOut(row, rowIdx);
         } else {
-          if (
-            row.grab_by === name &&
-            role === ASSIST &&
-            OSName === 'Windows' &&
-            tapTarget.classList.contains('label')
-          ) {
+          if (isMine && IsWindowsLabel) {
             this.checkIn(row, rowIdx);
           }
         }
         break;
       case STAGE:
         if (
-          row.staged_by !== AVAILABLE &&
-          row.handled_by !== AVAILABLE &&
-          row.grabbed_by !== AVAILABLE &&
-          OSName === 'Windows' &&
-          tapTarget.classList.contains('label')
+          ![staged_by, handled_by, grab_by].every((o) => o === AVAILABLE) &&
+          IsWindowsLabel
         ) {
-          this.stage(row);
+          this.stage(row, rowIdx);
         }
         break;
       case LOAD:
         if (
           row.staged_by !== AVAILABLE &&
           row.handled_by !== AVAILABLE &&
-          OSName === 'Windows' &&
-          tapTarget.classList.contains('label')
+          IsWindowsLabel
         ) {
           this.finalize(row);
         }
@@ -843,113 +723,72 @@ export default class PaintList extends PureComponent {
       default:
     }
   }
-
   render() {
     const hidden = { display: 'none' };
     const { role, currentUser } = this.props;
-    const { currentRoundNumber, data } = this.state;
+    const { currentRoundNumber, data, currentRevision } = this.state;
     const label = role === LOAD ? 'Load' : role === STAGE ? 'Staging' : 'Pick';
     const title = `Paint ${label} List`;
 
+    const visibleColumns = PaintColumns.filter((o) => o.visible);
     return (
       <Fragment>
-        <ul className="nav nav-pills" role="tablist" style={{ padding: 10 }}>
-          <li role="presentation">
-            <h1>{title}</h1>
-          </li>
-          <li role="presentation" style={{ margin: '30px 15px 0px 15px' }}>
-            Current Round <span className="badge">{currentRoundNumber}</span>
-          </li>
-          <li role="presentation" style={{ margin: '30px 15px 0px 15px' }}>
-            Schedule Revision <Badge>{currentRoundNumber}</Badge>
-          </li>
-          <li style={{ margin: '23px 15px 0px 15px' }}>
-            <div className="form-group">
-              <input
-                type="checkbox"
-                name="rework-checkbox"
-                id="rework-checkbox"
-                autoComplete="off"
-              />
-              <div className="btn-group">
-                <label htmlFor="rework-checkbox" className="btn btn-default">
-                  <span className="glyphicon glyphicon-ok" />
-                  <span>{''}</span>
-                </label>
-                <label
-                  htmlFor="rework-checkbox"
-                  className="btn btn-default active">
-                  Rework Driver
-                </label>
-              </div>
-            </div>
-          </li>
-          <li role="presentation" className="pull-right">
-            <UserIcon user={currentUser} />
-          </li>
-        </ul>
-
-        <Table striped bordered condensed hover>
+        <PaintListTop
+          title={title}
+          currentRoundNumber={currentRoundNumber}
+          currentRevision={currentRevision}
+          currentUser={currentUser}
+        />
+        <Table striped condensed hover>
           <thead>
             <tr>
-              <th className="undo" />
-              <th style={hidden}>master_id </th>
-              <th style={hidden}>round</th>
-              <th style={hidden}>round_position</th>
-              <th>Description</th>
-              <th>Color</th>
-              <th>Mold Skin Style</th>
-              <th>Rework Color Chart</th>
-              <th>Quantity</th>
-              <th className="action" style={{ width: '70px' }} />
-              <th style={hidden}>Handled By</th>
-              <th>Picked By</th>
+              {visibleColumns.map((o) => (
+                <th key={`th-${o.key}`} style={o.style} className={o.className}>
+                  {o.title}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {data
-              .filter((rowData, rowIdx) => rowIdx < 26)
-              .map((rowData, rowIdx) => (
-                <HammerRow
-                  role={role}
-                  key={rowData.id}
-                  rowId={rowIdx}
-                  rowData={rowData}
-                  UndoActionHandler={this.UndoActionHandler}
-                  TapActionHandler={this.TapActionHandler}
-                  SwipeActionHandler={this.SwipeActionHandler}
-                  currentUser={currentUser}>
-                  {COLUMN_DEFINITIONS.filter(
-                    (columnMetaData) => columnMetaData.visible !== false
-                  ).map((columnMetaData, colIdx) => {
-                    const value = rowData[columnMetaData.key];
+            {data.map((rowData, rowIdx) => (
+              <HammerRow
+                role={role}
+                key={rowData.id}
+                rowId={rowIdx}
+                rowData={rowData}
+                UndoActionHandler={this.UndoActionHandler}
+                TapActionHandler={this.TapActionHandler}
+                SwipeActionHandler={this.SwipeActionHandler}
+                currentUser={currentUser}>
+                {visibleColumns.map((columnMetaData, colIdx) => {
+                  const value = rowData[columnMetaData.key];
 
-                    if (columnMetaData.CellRenderer)
-                      return (
-                        <columnMetaData.CellRenderer
-                          role={role}
-                          key={rowData.id + '-' + colIdx}
-                          rowData={rowData}
-                          updatePartialQty={this.updatePartialQty}
-                          currentUser={currentUser}>
-                          {value}
-                        </columnMetaData.CellRenderer>
-                      );
-                    else
-                      return (
-                        <td
-                          className={
-                            columnMetaData.className
-                              ? columnMetaData.className
-                              : ''
-                          }
-                          key={rowData.id + '-' + colIdx}>
-                          {value}
-                        </td>
-                      );
-                  })}
-                </HammerRow>
-              ))}
+                  if (columnMetaData.CellRenderer)
+                    return (
+                      <columnMetaData.CellRenderer
+                        role={role}
+                        key={rowData.id + '-' + colIdx}
+                        rowData={rowData}
+                        updatePartialQty={this.updatePartialQty}
+                        currentUser={currentUser}>
+                        {value}
+                      </columnMetaData.CellRenderer>
+                    );
+                  else
+                    return (
+                      <td
+                        className={
+                          columnMetaData.className
+                            ? columnMetaData.className
+                            : ''
+                        }
+                        key={rowData.id + '-' + colIdx}>
+                        {value}
+                      </td>
+                    );
+                })}
+              </HammerRow>
+            ))}
           </tbody>
         </Table>
       </Fragment>

@@ -1,5 +1,9 @@
 import Fetch, { options } from './DataFetcher';
-import { ColorPropType } from './sharedTypes';
+
+/**
+ * Property Types for react.propTypes
+ */
+import { ColorPropType, UserPropType, RowPropType } from './sharedTypes';
 import * as Constants from './Constants/';
 
 const {
@@ -17,10 +21,12 @@ const {
   LOAD,
   UNDO_KEY,
   ROUND_KEY,
-  INSERT
+  INSERT,
+  OsOptions
 } = Constants;
 
 export {
+  OsOptions,
   Fetch,
   options,
   Constants,
@@ -39,5 +45,7 @@ export {
   LOAD,
   UNDO_KEY,
   ROUND_KEY,
-  INSERT
+  INSERT,
+  UserPropType,
+  RowPropType
 };

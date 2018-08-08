@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import update from 'immutability-helper';
 import Fetch, { options } from '../../shared/DataFetcher';
 import columns from './PaintScheduleEditorColumns';

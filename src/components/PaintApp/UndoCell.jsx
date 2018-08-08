@@ -13,9 +13,10 @@ import React, { Component } from 'react';
 
 import { AVAILABLE } from '../../shared';
 import PropTypes from 'prop-types';
-import FontAwesome from 'react-fontawesome';
+
 // ReSharper restore InconsistentNaming
 import { RowPropType } from './PaintPropTypes';
+import { UndoIcon } from '../Icons';
 const styles = ['green', 'yellow', 'orange', 'red', 'purple', 'blue'];
 
 // ReSharper disable once InconsistentNaming
@@ -23,9 +24,10 @@ export default class UndoCell extends Component {
   render() {
     const { role, rowData, currentUser } = this.props;
     const styleNum = parseInt(rowData.round_position, 10) % styles.length;
-    const cn = `undo rack-group-${styles[styleNum]}`;
+    const rackGroup = `rack-group-${styles[styleNum]}`;
+    const cn = `undo ${rackGroup}}`;
 
-    const fawe = <FontAwesome name="undo" size="lg" />;
+    const fawe = <UndoIcon />;
     let el = (
       <td style={{ fontSize: '45px' }} className={cn}>
         {fawe}
@@ -40,13 +42,7 @@ export default class UndoCell extends Component {
         ) {
           return el;
         } else {
-          el = (
-            <td
-              className={`tap ${cn}`}
-              style={{ textAlign: 'center', verticalAlign: 'middle' }}>
-              {rowData.loc}
-            </td>
-          );
+          el = <td className={`tap ${cn}`}>{rowData.loc}</td>;
         }
         return el;
 
@@ -61,7 +57,7 @@ export default class UndoCell extends Component {
               }}
               className={cn}>
               {fawe}
-              <FontAwesome name="undo" size="xs" />
+              <UndoIcon />
             </td>
           );
         return (
@@ -77,7 +73,7 @@ export default class UndoCell extends Component {
           return <td className={cn}>{fawe}</td>;
         return (
           <td
-            className={`tap ${cn}`}
+            className={`tap ${rackGroup}`}
             style={{ textAlign: 'center', verticalAlign: 'middle' }}>
             {rowData.loc}
           </td>

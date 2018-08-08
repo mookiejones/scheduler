@@ -7,6 +7,7 @@ $donotship-color: #ff1744;
 $schedule-bg: #f9f9f9;
 $ready-color:#00ff00;
 $white-color:#fff;
+$blue-color:#0079BF;
 $intransit-color:#ffff00;
 $grey-color:rgba(255, 255, 255, .5);
 $rackyellow-color:#F2D600;
@@ -203,20 +204,6 @@ td {
   margin-left: 0px;
 }
 
-.rack-group-purple:before {
-  padding: 0px !important;
-  content: '';
-  background-color: #C377E0;
-  background-image: linear-gradient(to bottom right, $grey-color 25%, transparent 25%, transparent 50%, $grey-color 50%, $grey-color 75%, transparent 75%, transparent);
-  background-size: 1pc 1pc;
-  position: relative;
-  display: inline-block;
-  vertical-align: top;
-  width: 15px;
-  height: 100%;
-  margin-left: 0px;
-}
-
 %rgb-shared {
   padding: 0px !important;
   content: '';
@@ -227,7 +214,27 @@ td {
   height: 100%;
 }
 
-$blue-color:#0079BF;
+@mixin rackGroup($color) {
+  @extend %rgb-shared;
+  background-color: $color !important;
+  margin-left: 0px;
+}
+
+.table-bordered>thead>tr>th,
+.table-bordered>tbody>tr>th,
+.table-bordered>tfoot>tr>th,
+.table-bordered>thead>tr>td,
+.table-bordered>tbody>tr>td,
+.table-bordered>tfoot>tr>td {
+  >.rack-group-purple:before {
+    @include rackGroup(#C377E0);
+  }
+}
+
+.rack-group-purple:before {
+  @include rackGroup(#C377E0);
+}
+
 .rack-group-blue:before {
   @extend %rgb-shared;
   background-color: $blue-color;

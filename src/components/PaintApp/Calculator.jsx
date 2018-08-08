@@ -1,7 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { AVAILABLE, WATCH, LOAD } from '../../shared';
+
+import { CheckIcon, TruckIcon } from '../Icons';
+
+import {
+  AVAILABLE,
+  WATCH,
+  LOAD,
+  UserPropType,
+  RowPropType
+} from '../../shared';
 
 export default class Calculator extends Component {
   constructor(props) {
@@ -10,18 +19,14 @@ export default class Calculator extends Component {
       editing: false
     };
   }
-  getInitialState() {
-    return {
-      editing: false
-    };
-  }
+
   calcClick() {
     const { rowData, currentUser, updatePartialQty } = this.props;
     const { editing } = this.state;
     if (editing) {
       var newQty = this.input.value;
 
-      if (rowData[rowData.length - 1] === currentUser.name) {
+      if (rowData.staged_by === currentUser.name) {
         if (parseInt(newQty, 10) < rowData[9]) {
           updatePartialQty(parseInt(newQty, 10), rowData);
         } else {
@@ -46,21 +51,19 @@ export default class Calculator extends Component {
   }
   render() {
     const { role, rowData, currentUser } = this.props;
+
     if (role === LOAD || role === WATCH) {
-      if (rowData[rowData.length - 1] !== AVAILABLE) {
-        if (rowData[rowData.length - 2] !== AVAILABLE) {
+      if (rowData.staged_by !== AVAILABLE) {
+        if (rowData.handled_by !== AVAILABLE) {
           return (
             <td>
-              <i
-                style={{ fontSize: '50px' }}
-                className="fa fa-check-square-o"
-                aria-hidden="true"
-              />
+              <CheckIcon />
             </td>
           );
         } else {
           return (
             <td>
+              <TruckIcon />
               <i
                 style={{ fontSize: '50px' }}
                 className="fa fa-truck animate-flicker"
@@ -87,7 +90,7 @@ export default class Calculator extends Component {
         hidden: !this.state.editing
       });
 
-      if (rowData[rowData.length - 1] === currentUser.name) {
+      if (rowData.staged_by === currentUser.name) {
         return (
           <td className="action">
             <input
@@ -113,11 +116,6 @@ export default class Calculator extends Component {
 Calculator.propTypes = {
   updatePartialQty: PropTypes.func,
   role: PropTypes.string,
-  rowData: PropTypes.any,
-  currentUser: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    img: PropTypes.string,
-    imgPath: PropTypes.string,
-    name: PropTypes.string
-  })
+  rowData: RowPropType.isRequired,
+  currentUser: UserPropType.isRequired
 };

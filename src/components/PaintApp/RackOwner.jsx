@@ -2,16 +2,19 @@ import React, { Component } from 'react';
 
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { AVAILABLE } from '../../shared';
+import { Popover, OverlayTrigger, Image } from 'react-bootstrap';
+import { AVAILABLE, UserPropType } from '../../shared';
 
+const getName = (name) => {
+  if (name === AVAILABLE) return name;
+  let items = name.split(' ');
+  return `${items[0]} ${items[1][0]}`;
+};
 export default class RackOwner extends Component {
   render() {
     const { children, currentUser } = this.props;
-    if (children !== AVAILABLE) {
-      var name = children.split(' ');
-      var display = `${name[0]} ${name[1][0]}`;
-    }
 
+    const name = getName(children);
     const styles = classnames({
       tap: true,
       label: true,
@@ -19,6 +22,7 @@ export default class RackOwner extends Component {
       'label-info': children === currentUser.name,
       'label-primary': children !== AVAILABLE && children !== currentUser.name
     });
+
     return (
       <td
         className="tap"
@@ -27,14 +31,19 @@ export default class RackOwner extends Component {
           paddingTop: '25px',
           paddingBottom: '25px'
         }}>
-        <span className={styles}>
-          {children === AVAILABLE ? 'AVAILABLE' : display}
-        </span>
+        <OverlayTrigger
+          placement="left"
+          trigger={['hover', 'focus']}
+          overlay={<Popover id="popover-basic" title={name} />}>
+          <span className={styles}>
+            {children === AVAILABLE ? 'AVAILABLE' : name}
+          </span>
+        </OverlayTrigger>
       </td>
     );
   }
 }
 RackOwner.propTypes = {
-  currentUser: PropTypes.object,
+  currentUser: UserPropType.isRequired,
   children: PropTypes.any
 };

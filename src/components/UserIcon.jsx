@@ -1,10 +1,16 @@
-import React, { PureComponent, Fragment } from 'react';
+import React, { PureComponent } from 'react';
 import { OverlayTrigger, Image, Tooltip } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
+const getUserName = (name) => {
+  let split = name.split(' ');
+  if (split.length === 0) return name;
+  return `${split[0]} ${split[1][0]}`;
+};
 class UserIcon extends PureComponent {
   render() {
     const { user, forAlert } = this.props;
+    let imgSize = forAlert ? '-webkit-fill-available' : '65px';
 
     const overlay = (
       <OverlayTrigger
@@ -13,16 +19,22 @@ class UserIcon extends PureComponent {
         <Image
           src={`data:image/png;base64,${user.img}`}
           circle
-          style={{ height: '65px' }}
+          style={{ height: imgSize }}
         />
       </OverlayTrigger>
     );
 
     return forAlert ? (
-      <Fragment>
-        <h4>{`${user.name} just logged in`}</h4>
-        {overlay}
-      </Fragment>
+      <p className="row" style={{ border: 'none', alignItems: 'center' }}>
+        <div className="col-sm-10">
+          <span style={{ fontSize: 'x-small' }}>{`${getUserName(
+            user.name
+          )} just logged in`}</span>
+        </div>
+        <div className="col-sm-2" style={{ marginRight: '10px' }}>
+          {overlay}
+        </div>
+      </p>
     ) : (
       overlay
     );
