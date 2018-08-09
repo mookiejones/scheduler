@@ -37,14 +37,6 @@ const PaintListTop = ({
             id="rework-checkbox"
             autoComplete="off"
           />
-          <ButtonGroup>
-            <label htmlFor="rework-checkbox" className="btn btn-default">
-              <span className="glyphicon glyphicon-ok" />
-            </label>
-            <label htmlFor="rework-checkbox" className="btn btn-default active">
-              Rework Driver
-            </label>
-          </ButtonGroup>
         </div>
       </li>
       <li role="presentation" className="pull-right">

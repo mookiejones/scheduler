@@ -31,12 +31,31 @@ import {
   PRODUCTION,
   STAGE,
   WATCH,
-  LOAD,
-  UNDO_KEY,
-  ROUND_KEY
+  LOAD
 } from '../../shared';
 import io from 'socket.io-client';
 
+const convertDataItem = (item) => {
+  return {
+    id: item[0],
+    master_id: item[1],
+    round: item[2],
+    round_position: item[3],
+    program: item[4],
+    notes: item[5],
+    color: item[6],
+    mold_skin_style: item[7],
+    rework_color_chart: item[8],
+    quantity: item[9],
+    loc: item[10],
+    staged_by: item[11],
+    handled_by: item[12],
+    grab_by: item[13],
+    date_staged: item[14],
+    date_handled: item[15],
+    date_grabbed: item[16]
+  };
+};
 const IsAvailable = (items) => items.every((item) => item === AVAILABLE);
 
 const IsSame = (a, b) => {
@@ -105,23 +124,6 @@ export default class PaintList extends PureComponent {
 
   /**
    *
-   * @param {*} result
-   */
-  updateData(result) {
-    const srtdData = result.sort(sortFn);
-
-    if (Object.prototype.toString.call(srtdData) === '[object Array]') {
-      this.setState({
-        data: srtdData,
-        currentRoundNumber: srtdData[0].round
-      });
-    } else {
-      this.setState({ data: srtdData });
-    }
-  }
-
-  /**
-   *
    */
   componentDidMount() {
     const { role, currentUser } = this.props;
@@ -148,10 +150,9 @@ export default class PaintList extends PureComponent {
 
     this.refresh = setTimeout(this.autoRefresh, 35 * 1000);
 
-    const path =
-      this.env === PRODUCTION
-        ? 'http://normagnaapps1:5555/paint-load'
-        : 'http://nord:5555/paint-load';
+    const DEV = 'http://nord:5555/paint-load';
+    const PRO = 'http://normagnaapps1:5555/paint-load';
+    const path = this.env === PRODUCTION ? DEV : PRO;
 
     this.socket = io(path);
 
@@ -192,35 +193,37 @@ export default class PaintList extends PureComponent {
   }
 
   /**
+   *
+   * @param {*} result
+   */
+  updateData(result) {
+    const srtdData = result.sort(sortFn);
+
+    if (Object.prototype.toString.call(srtdData) === '[object Array]') {
+      this.setState({
+        data: srtdData,
+        currentRoundNumber: srtdData[0].round
+      });
+    } else {
+      this.setState({ data: srtdData });
+    }
+  }
+  /**
    * performHardUpdate
    */
   performHardUpdate() {
     const { role } = this.props;
     let url = URLS.GetPaintPickList;
 
-    if (this.env === PRODUCTION) {
-      if (role === STAGE) url = URLS.GetPaintStageList;
-      if (role === LOAD || role === WATCH) url = URLS.GetPaintLoadList;
-    }
+    if (role === STAGE) url = URLS.GetPaintStageList;
+    if (role === LOAD || role === WATCH) url = URLS.GetPaintLoadList;
 
     Fetch(url, this.env)
-      .then((data) => {
-        const srtdData = data.sort(sortFn);
-        if (Object.prototype.toString.call(srtdData) === '[object Array]') {
-          this.setState({
-            data: srtdData,
-            currentRoundNumber: srtdData[0].round
-          });
-        } else {
-          this.setState({ data: srtdData });
-        }
-      })
+      .then(this.updateData)
       .catch(Fetch.HandleError);
 
     Fetch(URLS.GetPaintRevise, this.env)
-      .then((data) => {
-        this.setState({ currentRevision: data[0].revision_name });
-      })
+      .then((data) => this.setState({ currentRevision: data[0].revision_name }))
       .catch(Fetch.ErrorHandler);
   }
 
@@ -382,7 +385,7 @@ export default class PaintList extends PureComponent {
     const { currentUser } = this.props;
 
     let newdata = data;
-    let newData = update(data, { $merge: { staged_by: currentUser.id } });
+
     this.updateItems(rowIdx, { staged_by: currentUser.id });
 
     const eventDate = GetFormattedDate(new Date());
@@ -544,6 +547,10 @@ export default class PaintList extends PureComponent {
   updateRow(newData) {
     const { role } = this.props;
 
+    // Check to see if item needs to be converted
+    if (Array.isArray(newData)) {
+      newData = convertDataItem(newData);
+    }
     let data = update(this.state.data, { $push: [] });
 
     const idx = data.findIndex(
@@ -551,7 +558,8 @@ export default class PaintList extends PureComponent {
     );
 
     if (idx === -1) {
-      debugger;
+      this.removeRow(newData);
+      return;
       //TODO Need to check to see if this is a new item
       throw new Error('Item Doesnt Exist');
     }
@@ -590,15 +598,10 @@ export default class PaintList extends PureComponent {
   }
 
   removeRow(row) {
-    let idx = -1;
-    debugger;
     let data = update(this.state.data, { $push: [] });
-    // eslint-disable-next-line
-    data.map(function(rowData, rowIdx) {
-      if (rowData[0] === row[0]) idx = rowIdx;
-    });
+    let idx = data.findIndex((o) => o.id === row.id);
 
-    if (idx > -1) {
+    if (idx == -1) {
       data = update(this.state.data, { $splice: [[idx, 1]] });
       this.setState({ data: data });
     }
@@ -739,7 +742,7 @@ export default class PaintList extends PureComponent {
           currentRevision={currentRevision}
           currentUser={currentUser}
         />
-        <Table striped condensed hover>
+        <table className="table    table-hover  fixed-header">
           <thead>
             <tr>
               {visibleColumns.map((o) => (
@@ -790,7 +793,7 @@ export default class PaintList extends PureComponent {
               </HammerRow>
             ))}
           </tbody>
-        </Table>
+        </table>
       </Fragment>
     );
   }

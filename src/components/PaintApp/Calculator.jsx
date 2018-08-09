@@ -51,19 +51,19 @@ export default class Calculator extends Component {
   }
   render() {
     const { role, rowData, currentUser } = this.props;
-
+    let style = { textAlign: 'center', verticalAlign: 'middle' };
     if (role === LOAD || role === WATCH) {
       if (rowData.staged_by !== AVAILABLE) {
         if (rowData.handled_by !== AVAILABLE) {
           return (
             <td>
-              <CheckIcon />
+              <CheckIcon style={style} size="lg" />
             </td>
           );
         } else {
           return (
             <td>
-              <TruckIcon />
+              <TruckIcon style={style} />
               <i
                 style={{ fontSize: '50px' }}
                 className="fa fa-truck animate-flicker"

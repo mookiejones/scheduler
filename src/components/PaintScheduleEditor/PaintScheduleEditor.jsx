@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import update from 'immutability-helper';
 import Fetch, { options } from '../../shared/DataFetcher';
 import columns from './PaintScheduleEditorColumns';
@@ -23,13 +23,14 @@ const ReactDataGrid = require('react-data-grid');
 
 const { Toolbar } = require('react-data-grid-addons');
 
-const heightOffset = 250;
+const heightOffset = 190;
 
 const convertItems = (items) =>
   items.map((o) => {
     o.contains = o.contains === 1;
     return o;
   });
+
 class PaintScheduleEditor extends Component {
   constructor(props) {
     super(props);
@@ -760,9 +761,7 @@ class PaintScheduleEditor extends Component {
       </Toolbar>
     );
     const DataGrid = (
-      <div>
-        <style type="text/css">{styling}</style>
-
+      <Fragment>
         <SettingsDialog
           rules={rules}
           show={showSettings}
@@ -779,9 +778,6 @@ class PaintScheduleEditor extends Component {
           handleSettingsClick={this.handleSettingsClick}
         />
 
-        {/* rowHeight={50} 
-      toolbar={<Toolbar enableFilter={true} 
-      */}
         <ReactDataGrid
           minHeight={height}
           contextMenu={contextMenu}
@@ -803,17 +799,18 @@ class PaintScheduleEditor extends Component {
         />
 
         {selectedRounds.length > 0 && <button>Delete Rounds</button>}
-      </div>
+      </Fragment>
     );
 
     const Loader = <LoadingIcon loading={loaded} />;
 
     return (
       // eslint-disable-next-line
-      <div className="rdg">
+      <Fragment>
+        <style type="text/css">{styling}</style>
         {loaded && DataGrid}
         {!loaded && Loader}
-      </div>
+      </Fragment>
     );
   }
 }

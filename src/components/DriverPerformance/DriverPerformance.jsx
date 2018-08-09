@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import moment from 'moment';
 import update from 'immutability-helper';
 import { Fetch, options, URLS } from '../../shared';
@@ -6,33 +6,78 @@ import Charts from './Charts';
 import ChartOptions from './ChartOptions';
 import defaultChartOptions from './DefaultChartOptions';
 import 'react-datepicker/dist/react-datepicker.css';
-const breakIntoSeries = (arr, format) => {
-  var series = [];
-  var s = {};
-  arr.forEach((el) => {
-    if (!s.name) {
-      s.name = el.full_name;
-      s.data = [];
+import { Grid, Row, Col, Table } from 'react-bootstrap';
+
+/**
+ * Sets Option value via path
+ * @param {object} obj
+ * @param {object} value
+ * @param {string} path
+ */
+const setToValue = (obj, value, path) => {
+  var a = path.split('.');
+  let keys = Object.keys(obj);
+  var o = obj;
+  for (var i = 0; i < a.length - 1; i++) {
+    var n = a[i];
+    if (n in o) {
+      o = o[n];
     } else {
-      if (s.name === el.full_name) {
-        s.data.push([
-          new moment.utc(el.date_handled, format).valueOf(),
-          Math.round((parseInt(el.seconds, 10) / 60) * 100) / 100
-        ]);
-      } else {
-        series.push(update(s, { $merge: {} }));
-        s.name = el.full_name;
-        s.data = [];
-        s.data.push([
-          new moment.utc(el.date_handled, format).valueOf(),
-          Math.round((parseInt(el.seconds, 10) / 60) * 100) / 100
-        ]);
-      }
+      o[n] = {};
+      o = o[n];
     }
+  }
+  o[a[a.length - 1]] = value;
+  return obj;
+};
+
+const groupBy = (xs, key) => {
+  return xs.reduce(function(rv, x) {
+    (rv[x[key]] = rv[x[key]] || []).push(x);
+    return rv;
+  }, {});
+};
+
+/**
+ *
+ * @param {Array} items
+ */
+const getValues = (items) => {
+  const format = 'MM/DD/YYYY hh:mm:ss A';
+  let result = items.map((item) => [
+    new moment.utc(item.date_handled, format).valueOf(),
+    Math.round((parseInt(item.seconds, 10) / 60) * 100) / 100
+  ]);
+  return result;
+};
+
+const breakIntoSeries = (arr, format) => {
+  let items = arr.map((o) => new DriverItem(o));
+  let groups = groupBy(items, 'full_name');
+
+  const series = Object.keys(groups).map((key) => {
+    return { name: key, data: getValues(groups[key]) };
   });
+
   return series;
 };
 
+class DriverItem {
+  constructor(item) {
+    this.date_handled = item.date_handled;
+    this.full_name = item.full_name;
+    this.seconds = item.seconds;
+  }
+
+  toSeriesValue() {
+    const format = 'MM/DD/YYYY hh:mm:ss A';
+
+    return [
+      new moment.utc(this.date_handled, format).valueOf(),
+      Math.round((parseInt(this.seconds, 10) / 60) * 100) / 100
+    ];
+  }
+}
 /**
  * @class DriverPerformance
  * @description Tracks Performance of drivers
@@ -45,7 +90,7 @@ class DriverPerformance extends Component {
   constructor(props) {
     super(props);
     const now = moment();
-    const then = moment().subtract(2, 'days');
+    const then = moment().subtract(2, 'hours');
     this.env = props.env;
     this.state = {
       to: now,
@@ -70,6 +115,7 @@ class DriverPerformance extends Component {
       this.getDriverAverages();
     }
   }
+
   /**
    * Gets Driver Averages from SQL *
    */
@@ -99,13 +145,10 @@ class DriverPerformance extends Component {
 
         var options = update(defaultOptions, { $merge: {} });
         options.series = breakIntoSeries(arr[0], format);
-
-        for (var i = 0; i < arr[2].length; i++) {
-          average.data.push([
-            new moment(arr[2][i].date_handled, format).valueOf(),
-            parseInt(arr[2][i].avg_seconds, 10)
-          ]);
-        }
+        options.data = arr[2].map((o) => [
+          new moment(o.date_handled, format).valueOf(),
+          parseInt(o.avg_seconds, 10)
+        ]);
 
         //options.series.push(average);
         options.generated = new moment().format('MM/DD/YYYY hh:mm:ss');
@@ -128,11 +171,12 @@ class DriverPerformance extends Component {
     this.setState({ to: value });
   }
 
-  handleOptionsChange(value, event) {
-    debugger;
-
+  handleOptionsChange(path, value) {
     let options = update(this.state.options, { $merge: {} });
-    options[value] = event;
+    options = setToValue(options, value, path);
+
+    options = update(this.state.options, { $merge: options });
+
     this.setState({ options: options });
   }
 
@@ -140,17 +184,27 @@ class DriverPerformance extends Component {
     const { to, from, options, worsePerformers, underTen } = this.state;
 
     const getChart = () => (
-      <div>
-        <div>
-          <Charts container="chart" key={options.generated} options={options} />
-        </div>
-        <div style={{ display: 'flex' }}>
-          <div>
+      <Grid fluid>
+        <Row>
+          <ChartOptions
+            className="pull-right"
+            to={to}
+            from={from}
+            handleToChange={this.handleToChange}
+            handleFromChange={this.handleFromChange}
+            handleOptionsChange={this.handleOptionsChange}
+            options={options}
+          />
+        </Row>
+
+        <Charts container="chart" key={options.generated} options={options} />
+
+        <Row>
+          <Col xs={6}>
             <h2>Slowest Picks</h2>
-            <table
-              className="table table-bordered table-hover"
-              style={{ width: 'auto', margin: '10px' }}>
-              <thead>
+
+            <table className="table table-striped table-bordered table-hover table-condensed fixed-header">
+              <thead className="thead-light">
                 <tr>
                   <th>Driver</th>
                   <th>Length (seconds)</th>
@@ -169,12 +223,10 @@ class DriverPerformance extends Component {
                 ))}
               </tbody>
             </table>
-          </div>
-          <div>
+          </Col>
+          <Col xs={6}>
             <h2>Picks under 10 Seconds</h2>
-            <table
-              className="table table-bordered table-hover"
-              style={{ width: 'auto' }}>
+            <table className="table    table-hover  fixed-header">
               <thead>
                 <tr>
                   <th>Driver</th>
@@ -190,25 +242,26 @@ class DriverPerformance extends Component {
                 ))}
               </tbody>
             </table>
-          </div>
-        </div>
-      </div>
-    );
-    const chartOptions = (
-      <ChartOptions
-        to={to}
-        from={from}
-        handleToChange={this.handleToChange}
-        handleFromChange={this.handleFromChange}
-        handleOptionsChange={this.handleOptionsChange}
-      />
+          </Col>
+        </Row>
+      </Grid>
     );
 
     return (
-      <div className="bgc-gray">
-        {chartOptions}
+      <Fragment>
+        {!options.series && (
+          <ChartOptions
+            className="pull-right"
+            to={to}
+            from={from}
+            handleToChange={this.handleToChange}
+            handleFromChange={this.handleFromChange}
+            handleOptionsChange={this.handleOptionsChange}
+            options={options}
+          />
+        )}
         {options.series && getChart()}
-      </div>
+      </Fragment>
     );
   }
 }

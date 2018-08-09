@@ -1,4 +1,33 @@
 import * as Highcharts from 'highcharts';
+
+export const chartOptions = {
+  chart: {
+    types: [
+      { name: 'line', enabled: true },
+      { name: 'spline', enabled: true },
+      { name: 'column', enabled: true },
+      { name: 'bar', enabled: true },
+      { name: 'area', enabled: true },
+      { name: 'areaspline', enabled: true },
+      { name: 'pie', enabled: true },
+      { name: 'arearange', enabled: true },
+      { name: 'areasplinerange', enabled: true },
+      { name: 'boxplot', enabled: true },
+      { name: 'bubble', enabled: true },
+      { name: 'columnrange', enabled: true },
+      { name: 'errorbar', enabled: true },
+      { name: 'funnel', enabled: true },
+      { name: 'gauge', enabled: true },
+      { name: 'heatmap', enabled: true },
+      { name: 'polygon', enabled: true },
+      { name: 'pyramid', enabled: true },
+      { name: 'scatter', enabled: true },
+      { name: 'solidgauge', enabled: true },
+      { name: 'treemap', enabled: true },
+      { name: 'waterfall', enabled: true }
+    ]
+  }
+};
 const defaultChartOptions = {
   chart: {
     type: 'scatter',
@@ -28,7 +57,7 @@ const defaultChartOptions = {
     }
   },
   legend: {
-    enabled: true,
+    enabled: false,
     layout: 'horizontal',
     backgroundColor:
       (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'

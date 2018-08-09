@@ -25,7 +25,7 @@ class UserIcon extends PureComponent {
     );
 
     return forAlert ? (
-      <p className="row" style={{ border: 'none', alignItems: 'center' }}>
+      <div className="row" style={{ border: 'none', alignItems: 'center' }}>
         <div className="col-sm-10">
           <span style={{ fontSize: 'x-small' }}>{`${getUserName(
             user.name
@@ -34,7 +34,7 @@ class UserIcon extends PureComponent {
         <div className="col-sm-2" style={{ marginRight: '10px' }}>
           {overlay}
         </div>
-      </p>
+      </div>
     ) : (
       overlay
     );

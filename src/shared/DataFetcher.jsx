@@ -1,8 +1,9 @@
 import fetch from 'node-fetch';
+const debug = require('debug')('fetch');
 
 const IsTest = /(?:localhost|test)/.test(window.location.hostname);
+const TEST_REAL = true;
 const WEB = 'http://norweb/reporting/scheduling.asmx/';
-
 const _options = (body = {}, method = 'POST') => {
   const keys = Object.keys(body);
   let values = keys.map((key) => `${key}=${body[key]}`);
@@ -23,15 +24,15 @@ const regex = new RegExp(WEB, 'ig');
 
 const formatUrl = (url, env) => {
   if (!regex.test(url)) url = `${WEB}${url}`;
-
-  if (IsTest) url += 'Test';
+  if (TEST_REAL) console.warn('Testing real');
+  if (IsTest && !TEST_REAL) url += 'Test';
 
   return url;
 };
 
 const Fetch = (url, env, options) => {
-  // console.log(url);
-
+  console.log(url);
+  debug('fetch', url);
   if (options) {
     if (typeof options === 'object' && Object.keys(options).length !== 3) {
       options = _options(options);
@@ -43,6 +44,7 @@ const Fetch = (url, env, options) => {
 
   return fetch(url, options).then((response) => {
     if (!response.ok) {
+      console.error(`There was an error trying to get ${response.url}`);
       throw new Error(JSON.stringify(response));
     }
     if (response.ok && response.status >= 200) {

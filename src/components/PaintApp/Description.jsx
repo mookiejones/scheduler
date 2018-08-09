@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import { Label } from 'react-bootstrap';
 export default class Description extends Component {
   render() {
     const { rowData, children } = this.props;
@@ -10,29 +9,22 @@ export default class Description extends Component {
       tap: true,
       label: true,
       'label-danger': /(?:Do Not Ship|Red Hot !!)$/.test(row),
-      'label-info': row === 'Ship If Good',
-      'label-warning': row === 'Build'
+      'label-info': /Ship If Good/i.test(row),
+      'label-warning': /build/i.test(row)
     });
-
-    let bsStyle = 'default';
-    switch (row) {
-      case 'Ship If Good':
-        bsStyle = 'info';
-        break;
-      case 'Build':
-        bsStyle = 'warning';
-        break;
-      default:
-        if (/(?:Do Not Ship|Red Hot !!)$/.test(row)) bsStyle = 'danger';
-        break;
-    }
 
     return (
       <td className="tap">
-        <p>
-          {children}
-          {bsStyle !== 'default' && <Label bsStyle={bsStyle}>{row}</Label>}
-        </p>
+        {children}
+        {rowData.notes && rowData.notes.length > 0 && <br />}
+        {rowData.notes &&
+          rowData.notes.length > 0 && (
+            <div
+              className="tap"
+              style={{ marginBottom: '10px', marginTop: '10px' }}>
+              <span className={style}>{rowData.notes}</span>
+            </div>
+          )}
       </td>
     );
   }

@@ -6,6 +6,9 @@ import { Popover, OverlayTrigger, Image } from 'react-bootstrap';
 import { AVAILABLE, UserPropType } from '../../shared';
 
 const getName = (name) => {
+  if (name == undefined) {
+    debugger;
+  }
   if (name === AVAILABLE) return name;
   let items = name.split(' ');
   return `${items[0]} ${items[1][0]}`;
@@ -14,6 +17,7 @@ export default class RackOwner extends Component {
   render() {
     const { children, currentUser } = this.props;
 
+    if (children === undefined) return;
     const name = getName(children);
     const styles = classnames({
       tap: true,

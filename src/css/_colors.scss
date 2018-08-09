@@ -1,0 +1,21 @@
+$white-color: #fff;
+$shipifgood-color: #81c784;
+$service-color: #eceff1;
+$build-color: FFF176;
+$redhot-color: #ff1744;
+$donotship-color: #ff1744;
+$schedule-bg: #f9f9f9;
+$ready-color:#00ff00;
+$border-color:#e7eaec;
+$blue-color:#0079BF;
+$intransit-color:#ffff00;
+$grey-color:rgba(255, 255, 255, .5);
+$rackyellow-color:#F2D600;
+$rackgreen-color:#61BD4F;
+$link-color:#777;
+$main-bg:$white-color;
+// $main-bg:#e6e6e6;
+$grey-bg:linear-gradient(to bottom left, $grey-color 25%, transparent 25%, transparent 50%, $grey-color 50%, $grey-color 75%, transparent 75%, transparent);
+@function backgroundGradient($to, $color) {
+    @return linear-gradient($to, $color 25%, transparent 25%, transparent 50%, $color 50%, $color 75%, transparent 75%, transparent);
+}

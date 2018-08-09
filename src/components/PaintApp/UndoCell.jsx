@@ -25,12 +25,12 @@ export default class UndoCell extends Component {
     const { role, rowData, currentUser } = this.props;
     const styleNum = parseInt(rowData.round_position, 10) % styles.length;
     const rackGroup = `rack-group-${styles[styleNum]}`;
-    const cn = `undo ${rackGroup}}`;
+    const cn = `undo ${rackGroup}`;
 
-    const fawe = <UndoIcon />;
+    const fawe = <UndoIcon size="2x" />;
     let el = (
-      <td style={{ fontSize: '45px' }} className={cn}>
-        {fawe}
+      <td className={cn}>
+        <UndoIcon size="2x" />
       </td>
     );
 
@@ -47,7 +47,7 @@ export default class UndoCell extends Component {
         return el;
 
       case 'stage':
-        if (rowData.staged_by !== AVAILABLE)
+        if (rowData.handled_by !== AVAILABLE)
           return (
             <td
               style={{
@@ -56,8 +56,7 @@ export default class UndoCell extends Component {
                 verticalAlign: 'middle'
               }}
               className={cn}>
-              {fawe}
-              <UndoIcon />
+              <UndoIcon size="2x" />
             </td>
           );
         return (

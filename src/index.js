@@ -1,20 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './css/style.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap/dist/css/bootstrap-theme.css';
 import 'font-awesome/css/font-awesome.min.css';
+
 
 import {
   Provider
 } from 'react-alert';
 import AlertTemplate from 'react-alert-template-basic';
 import './Extensions';
-import MainApp from './components/MainApp';
 
+import {
+  MainApp
+} from './components';
 
-/** Options for React-Alert 
- * 
+import './css/style.css';
+/** Options for React-Alert
+ *
  * offset:string - The margin of each alert
  * position:[
  * top left,
@@ -24,7 +27,7 @@ import MainApp from './components/MainApp';
  * bottom right
  * bottom center
  * ]
- * 
+ *
  * timeout:number - timout to alert removitself, if set to 0 it never goes away
  * type:[info,success,error]
  * transition:[fade,scale]

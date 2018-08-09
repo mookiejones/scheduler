@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import { Route, HashRouter, Switch } from 'react-router-dom';
 
-import PaintScheduleEditor from '../PaintScheduleEditor';
-import StyleCodeEditor from '../StyleCodeEditor';
-import ProgramColorsEditor from '../ProgramColorsEditor';
-
-import ExcelImport from '../ExcelImport';
-import PaintApp from '../PaintApp';
-import DriverPerformance from '../DriverPerformance/DriverPerformance';
+import {
+  PaintScheduleEditor,
+  StyleCodeEditor,
+  ProgramColorsEditor,
+  ExcelImport,
+  PaintApp,
+  DriverPerformance
+} from '../';
+import { Grid, Row } from 'react-bootstrap';
 // import LineView from '../LineView';
 
 import Top from './Top';
@@ -93,21 +95,24 @@ export default class MainApp extends Component {
     //   }
     return (
       <HashRouter>
-        <div>
-          <Top routes={routes} env={env} {...this.props} />
-
-          <Switch>
-            <Route exact path="/" render={routes[0].render} env={env} />
-            {routes.map((route) => (
-              <Route
-                key={route.key}
-                path={route.path}
-                render={route.render}
-                env={env}
-              />
-            ))}
-          </Switch>
-        </div>
+        <Grid>
+          <Row>
+            <Top routes={routes} env={env} {...this.props} />
+          </Row>
+          <Row style={{ paddingTop: '20px' }}>
+            <Switch>
+              <Route exact path="/" render={routes[0].render} env={env} />
+              {routes.map((route) => (
+                <Route
+                  key={route.key}
+                  path={route.path}
+                  render={route.render}
+                  env={env}
+                />
+              ))}
+            </Switch>
+          </Row>
+        </Grid>
       </HashRouter>
     );
   }

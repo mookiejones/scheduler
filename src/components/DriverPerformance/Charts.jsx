@@ -27,6 +27,6 @@ export default class Charts extends Component {
 
   //Create the div which the chart will be rendered to.
   render() {
-    return <div id={this.props.container} />;
+    return <div {...this.props} id={this.props.container} />;
   }
 }

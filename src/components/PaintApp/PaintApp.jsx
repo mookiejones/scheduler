@@ -9,15 +9,13 @@
  */
 
 // ReSharper disable InconsistentNaming
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import Login from './Login';
 import PaintList from './PaintList';
 import { OsOptions } from '../../shared';
-import { FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 import { withAlert } from 'react-alert';
 // ReSharper restore InconsistentNaming
 
-const isAdmin = (id) => id == 3038;
 /**
  * @class PaintApp
  */
