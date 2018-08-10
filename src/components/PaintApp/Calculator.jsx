@@ -57,13 +57,13 @@ export default class Calculator extends Component {
         if (rowData.handled_by !== AVAILABLE) {
           return (
             <td>
-              <CheckIcon style={style} size="lg" />
+              <CheckIcon style={style} size="2x" />
             </td>
           );
         } else {
           return (
             <td>
-              <TruckIcon style={style} />
+              <TruckIcon style={style} className="animate-flicker" />
               <i
                 style={{ fontSize: '50px' }}
                 className="fa fa-truck animate-flicker"
