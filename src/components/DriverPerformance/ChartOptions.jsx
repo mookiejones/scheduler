@@ -33,7 +33,7 @@ export default class ChartOptions extends PureComponent {
       options
     } = this.props;
     const isChecked =
-      options.legend == undefined ? false : options.legend.enabled;
+      options.legend === undefined ? false : options.legend.enabled;
 
     return (
       <Fragment>
