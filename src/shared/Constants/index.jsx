@@ -15,6 +15,7 @@ const LOAD = 'load';
 const UNDO_KEY = 'undo';
 const ROUND_KEY = 'round';
 const INSERT = 'INSERT';
+const TEST_REAL = true;
 
 export {
   SocketActions,
@@ -32,5 +33,6 @@ export {
   UNDO_KEY,
   ROUND_KEY,
   INSERT,
-  OsOptions
+  OsOptions,
+  TEST_REAL
 };

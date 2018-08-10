@@ -4,25 +4,25 @@ import PropTypes from 'prop-types';
 export default class Description extends Component {
   render() {
     const { rowData, children } = this.props;
-    const row = rowData.program;
+    const { program, notes } = rowData;
     const style = classnames({
       tap: true,
       label: true,
-      'label-danger': /(?:Do Not Ship|Red Hot !!)$/.test(row),
-      'label-info': /Ship If Good/i.test(row),
-      'label-warning': /build/i.test(row)
+      'label-danger': /(?:Do Not Ship|Red Hot !!)$/.test(notes),
+      'label-info': /Ship If Good/i.test(notes),
+      'label-warning': /build/i.test(notes)
     });
 
     return (
       <td className="tap">
         {children}
-        {rowData.notes && rowData.notes.length > 0 && <br />}
-        {rowData.notes &&
-          rowData.notes.length > 0 && (
+        {notes && notes.length > 0 && <br />}
+        {notes &&
+          notes.length > 0 && (
             <div
               className="tap"
               style={{ marginBottom: '10px', marginTop: '10px' }}>
-              <span className={style}>{rowData.notes}</span>
+              <span className={style}>{notes}</span>
             </div>
           )}
       </td>

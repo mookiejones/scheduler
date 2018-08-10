@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { AVAILABLE, ASSIST, STAGE, LOAD } from '../../shared';
+import { AVAILABLE, ASSIST, STAGE, LOAD, TEST_REAL } from '../../shared';
 // import Hammer from 'hammerjs';
 import { RowPropType } from './PaintPropTypes';
 import Hammer from 'react-hammerjs';
@@ -30,6 +30,7 @@ export default class HammerRow extends Component {
   }
 
   handleTap(event) {
+    if (TEST_REAL) return;
     event.preventDefault();
     const { TapActionHandler, UndoActionHandler, rowId, rowData } = this.props;
     hammer('handleTap');

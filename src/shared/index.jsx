@@ -22,10 +22,12 @@ const {
   UNDO_KEY,
   ROUND_KEY,
   INSERT,
-  OsOptions
+  OsOptions,
+  TEST_REAL
 } = Constants;
 
 export {
+  TEST_REAL,
   OsOptions,
   Fetch,
   options,

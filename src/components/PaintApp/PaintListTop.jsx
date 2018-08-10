@@ -2,7 +2,7 @@ import React from 'react';
 import UserIcon from '../UserIcon';
 import PropTypes from 'prop-types';
 import { UserPropType } from '../../shared';
-import { Badge, Label, ButtonGroup } from 'react-bootstrap';
+import { Badge } from 'react-bootstrap';
 const PaintListTop = ({
   title,
   currentRoundNumber,

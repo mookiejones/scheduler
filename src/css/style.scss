@@ -136,8 +136,7 @@ td {
   content: '';
   position: relative;
   display: inline-block;
-  vertical-align: top;
-  width: 15px;
+  vertical-align: top; // width: 15px;
   height: 100%;
 }
 
@@ -154,12 +153,44 @@ td {
 .table-bordered>tbody>tr>td,
 .table-bordered>tfoot>tr>td {
   >.rack-group-purple:before {
-    @include rackGroup(#C377E0);
+    @include rackGroup($rackpurple-color);
+  }
+  >.paint-color-red:before {
+    @extend %rgb-shared;
+    background-color: $rackred-color;
+  }
+  >.paint-color-yellow:before {
+    @extend %rgb-shared;
+    background-color: $rackyellow-color;
+  }
+  >.paint-color-orange:before {
+    @extend %rgb-shared;
+    background-color: $rackorange-color;
+  }
+  >.paint-color-black:before {
+    @extend %rgb-shared;
+    background-color: $black;
+  }
+  >.paint-color-grey:before {
+    @extend %rgb-shared;
+    background-color: $grey;
+  }
+  >.paint-color-white:before {
+    @extend %rgb-shared;
+    background-color: $white-color;
+  }
+  >.paint-color-green:before {
+    @extend %rgb-shared;
+    background-color: $rackgreen-color;
+  }
+  >.paint-color-purple:before {
+    @extend %rgb-shared;
+    background-color: $rackpurple-color;
   }
 }
 
 .rack-group-purple:before {
-  @include rackGroup(#C377E0);
+  @include rackGroup($rackpurple-color);
 }
 
 .rack-group-blue:before {
@@ -174,23 +205,23 @@ td {
   }
   >.paint-color-red:before {
     @extend %rgb-shared;
-    background-color: #EB5A46;
+    background-color: $rackred-color;
   }
   >.paint-color-yellow:before {
     @extend %rgb-shared;
-    background-color: #F2D600;
+    background-color: $rackyellow-color;
   }
   >.paint-color-orange:before {
     @extend %rgb-shared;
-    background-color: #FFAB4A;
+    background-color: $rackorange-color;
   }
   >.paint-color-black:before {
     @extend %rgb-shared;
-    background-color: black;
+    background-color: $black;
   }
   >.paint-color-grey:before {
     @extend %rgb-shared;
-    background-color: grey;
+    background-color: $grey;
   }
   >.paint-color-white:before {
     @extend %rgb-shared;
@@ -198,19 +229,12 @@ td {
   }
   >.paint-color-green:before {
     @extend %rgb-shared;
-    background-color: #61BD4F;
+    background-color: $rackgreen-color;
   }
   >.paint-color-purple:before {
     @extend %rgb-shared;
-    background-color: #C377E0;
+    background-color: $rackpurple-color;
   }
-}
-
-.undo {
-  min-width: 65px;
-  padding: 0px !important;
-  text-align: center;
-  vertical-align: middle !important;
 }
 
 [class*="rack-group-"] {
@@ -815,12 +839,39 @@ textarea.react-autocomplete-Autocomplete__search {
 .fixed-header {
   width: 100%;
   tbody {
-    height: 350px;
+    height: 450px;
     overflow-y: auto;
     width: 100%;
-  }
-  tbody,
-  tr {
     display: block;
   }
+  thead {
+    >tr {
+      display: block;
+      text-align: center;
+    }
+  }
+  th.tap {
+    width: 20%;
+    text-align: center;
+  }
+  td.tap {
+    width: 20%;
+  }
+  .undo {
+    width: 50px !important; // 
+    min-width: 65px;
+    text-align: center;
+    vertical-align: middle !important;
+  }
+  td.tap.undo {
+    padding: 10px !important;
+  }
+  tr>td {
+    vertical-align: middle !important;
+  }
+}
+
+.paint-app-table {
+  overflow: auto;
+  height: 500px;
 }

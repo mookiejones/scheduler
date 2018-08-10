@@ -17,7 +17,7 @@ import UserIcon from '../UserIcon';
 import { UserPropType } from '../../shared/sharedTypes';
 import PaintColumns from './PaintColumns';
 import PaintListTop from './PaintListTop';
-import { Table } from 'react-bootstrap';
+import ScrollableTable from '../ScrollableTable';
 // ReSharper restore InconsistentNaming
 
 import {
@@ -120,6 +120,7 @@ export default class PaintList extends PureComponent {
     this.UndoActionHandler = this.UndoActionHandler.bind(this);
     this.autoRefresh = this.autoRefresh.bind(this);
     this.updateRow = this.updateRow.bind(this);
+    this.newRow = this.newRow.bind(this);
   }
 
   /**
@@ -547,6 +548,8 @@ export default class PaintList extends PureComponent {
   updateRow(newData) {
     const { role } = this.props;
 
+    let rowUpdated = false;
+
     // Check to see if item needs to be converted
     if (Array.isArray(newData)) {
       newData = convertDataItem(newData);
@@ -557,16 +560,14 @@ export default class PaintList extends PureComponent {
       (o) => o.id === newData.id && o.master_id === newData.master_id
     );
 
-    if (idx === -1) {
+    if (idx === -1 && false) {
       this.removeRow(newData);
       return;
       //TODO Need to check to see if this is a new item
-      throw new Error('Item Doesnt Exist');
     }
 
-    const rowUpdated = !IsSame(newData, data[idx]);
+    // rowUpdated = !IsSame(newData, data[idx]);
     if (!rowUpdated) {
-      debugger;
     } else {
       this.updateItems(idx, newData);
 
@@ -575,10 +576,20 @@ export default class PaintList extends PureComponent {
 
     switch (role) {
       case LOAD:
-        debugger;
+        let data = update(this.state.data, { $push: [] }).map((row) => {
+          if (row.id === newData.id) {
+            rowUpdated = true;
+            return row;
+          }
+          return row;
+        });
         // Test this
+        if (rowUpdated) {
+          this.setState({ data: data });
+        } else {
+          this.newRow(newData);
+        }
 
-        if (rowUpdated) this.setState({ data: data });
         break;
       case STAGE:
         break;
@@ -601,7 +612,7 @@ export default class PaintList extends PureComponent {
     let data = update(this.state.data, { $push: [] });
     let idx = data.findIndex((o) => o.id === row.id);
 
-    if (idx == -1) {
+    if (idx === -1) {
       data = update(this.state.data, { $splice: [[idx, 1]] });
       this.setState({ data: data });
     }
@@ -651,11 +662,7 @@ export default class PaintList extends PureComponent {
   }
 
   TapActionHandler(rowIdx, tapTarget) {
-    const {
-      role,
-      currentUser: { name },
-      OSName
-    } = this.props;
+    const { role, OSName } = this.props;
     const { data } = this.state;
 
     let row = update(data[rowIdx], {});
@@ -727,7 +734,6 @@ export default class PaintList extends PureComponent {
     }
   }
   render() {
-    const hidden = { display: 'none' };
     const { role, currentUser } = this.props;
     const { currentRoundNumber, data, currentRevision } = this.state;
     const label = role === LOAD ? 'Load' : role === STAGE ? 'Staging' : 'Pick';
@@ -742,7 +748,7 @@ export default class PaintList extends PureComponent {
           currentRevision={currentRevision}
           currentUser={currentUser}
         />
-        <table className="table    table-hover  fixed-header">
+        <ScrollableTable hover condensed>
           <thead>
             <tr>
               {visibleColumns.map((o) => (
@@ -793,7 +799,7 @@ export default class PaintList extends PureComponent {
               </HammerRow>
             ))}
           </tbody>
-        </table>
+        </ScrollableTable>
       </Fragment>
     );
   }

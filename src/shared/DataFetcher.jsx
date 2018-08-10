@@ -1,8 +1,9 @@
 import fetch from 'node-fetch';
+import { TEST_REAL } from './Constants';
+
 const debug = require('debug')('fetch');
 
 const IsTest = /(?:localhost|test)/.test(window.location.hostname);
-const TEST_REAL = true;
 const WEB = 'http://norweb/reporting/scheduling.asmx/';
 const _options = (body = {}, method = 'POST') => {
   const keys = Object.keys(body);

@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Popover, OverlayTrigger, Image } from 'react-bootstrap';
+import { Popover, OverlayTrigger } from 'react-bootstrap';
 import { AVAILABLE, UserPropType } from '../../shared';
 
 const getName = (name) => {
-  if (name == undefined) {
+  if (name === undefined) {
     debugger;
   }
   if (name === AVAILABLE) return name;
@@ -17,7 +17,7 @@ export default class RackOwner extends Component {
   render() {
     const { children, currentUser } = this.props;
 
-    if (children === undefined) return;
+    if (children === undefined) return <div />;
     const name = getName(children);
     const styles = classnames({
       tap: true,
