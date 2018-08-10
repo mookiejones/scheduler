@@ -6,7 +6,7 @@ import Charts from './Charts';
 import ChartOptions from './ChartOptions';
 import defaultChartOptions from './DefaultChartOptions';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Grid, Row, Col, Table } from 'react-bootstrap';
+import { Grid, Row, Col } from 'react-bootstrap';
 
 /**
  * Sets Option value via path
@@ -16,7 +16,6 @@ import { Grid, Row, Col, Table } from 'react-bootstrap';
  */
 const setToValue = (obj, value, path) => {
   var a = path.split('.');
-  let keys = Object.keys(obj);
   var o = obj;
   for (var i = 0; i < a.length - 1; i++) {
     var n = a[i];
@@ -137,12 +136,6 @@ class DriverPerformance extends Component {
 
     Fetch(URLS.GetDriverAverages, this.env, opt)
       .then((arr) => {
-        var average = {
-          name: 'average',
-          type: 'spline',
-          data: []
-        };
-
         var options = update(defaultOptions, { $merge: {} });
         options.series = breakIntoSeries(arr[0], format);
         options.data = arr[2].map((o) => [
@@ -215,9 +208,8 @@ class DriverPerformance extends Component {
                   <tr key={row.name + '-' + idx}>
                     <td style={{ width: '250px' }}>{row.full_name}</td>
                     <td style={{ width: '350px' }}>
-                      {row.seconds} (~{Math.round((row.seconds / 60) * 100) /
-                        100}{' '}
-                      minutes)
+                      {row.seconds} (~
+                      {Math.round((row.seconds / 60) * 100) / 100} minutes)
                     </td>
                   </tr>
                 ))}
