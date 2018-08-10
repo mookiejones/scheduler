@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { OverlayTrigger, Image, Tooltip } from 'react-bootstrap';
+import { OverlayTrigger, Image, Tooltip, Card } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
 const getUserName = (name) => {
@@ -16,11 +16,14 @@ class UserIcon extends PureComponent {
       <OverlayTrigger
         placement="bottom"
         overlay={<Tooltip id="tooltip">{user.name}</Tooltip>}>
-        <Image
-          src={`data:image/png;base64,${user.img}`}
-          circle
-          style={{ height: imgSize }}
-        />
+        <div
+          className="card"
+          style={{ borderRadius: '50%', borderWidth: '2px' }}>
+          <Image
+            src={`data:image/png;base64,${user.img}`}
+            style={{ height: imgSize, width: imgSize }}
+          />
+        </div>
       </OverlayTrigger>
     );
 

@@ -58,6 +58,14 @@ const convertDataItem = (item) => {
 };
 const IsAvailable = (items) => items.every((item) => item === AVAILABLE);
 
+const getUsers = (data) => {
+  let users = [];
+  for (let { handled_by, grab_by, staged_by } of data) {
+    users = users.concat(users, [handled_by, grab_by, staged_by].unique());
+  }
+  return users;
+};
+
 const IsSame = (a, b) => {
   const keys = Object.keys(a).concat(Object.keys(b));
   const same = keys.every((key) => a[key] === b[key]);
@@ -199,6 +207,9 @@ export default class PaintList extends PureComponent {
    */
   updateData(result) {
     const srtdData = result.sort(sortFn);
+    debugger;
+
+    const users = getUsers(srtdData);
 
     if (Object.prototype.toString.call(srtdData) === '[object Array]') {
       this.setState({
@@ -735,7 +746,7 @@ export default class PaintList extends PureComponent {
   }
   render() {
     const { role, currentUser } = this.props;
-    const { currentRoundNumber, data, currentRevision } = this.state;
+    const { currentRoundNumber, data, currentRevision, users } = this.state;
     const label = role === LOAD ? 'Load' : role === STAGE ? 'Staging' : 'Pick';
     const title = `Paint ${label} List`;
 
@@ -768,7 +779,8 @@ export default class PaintList extends PureComponent {
                 UndoActionHandler={this.UndoActionHandler}
                 TapActionHandler={this.TapActionHandler}
                 SwipeActionHandler={this.SwipeActionHandler}
-                currentUser={currentUser}>
+                currentUser={currentUser}
+                users={users}>
                 {visibleColumns.map((columnMetaData, colIdx) => {
                   const value = rowData[columnMetaData.key];
 

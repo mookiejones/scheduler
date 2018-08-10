@@ -49,5 +49,6 @@ export default class RackOwner extends Component {
 }
 RackOwner.propTypes = {
   currentUser: UserPropType.isRequired,
-  children: PropTypes.any
+  children: PropTypes.any,
+  users: PropTypes.array.isRequired
 };

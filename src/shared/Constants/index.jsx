@@ -4,6 +4,8 @@ import URLS from './Urls';
 import Actions from './Actions';
 import OsOptions from './OsOptions';
 const { version } = require('../../../package.json');
+
+const ADD_USER = 'ADD_USER';
 const DELETE = 'DELETE';
 const UPDATE = 'UPDATE';
 const AVAILABLE = '##AVAILABLE##';
@@ -18,6 +20,7 @@ const INSERT = 'INSERT';
 const TEST_REAL = true;
 
 export {
+  ADD_USER,
   SocketActions,
   URLS,
   Actions,
